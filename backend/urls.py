@@ -4,4 +4,14 @@ from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.acceuil, name='acceuil'),
+    path('service/', views.service, name='service'),
+    path('partenaire/', views.partenaire, name='partenaire'),
+    path('propos/', views.propos, name='propos'),
+    path('faq/', views.faq, name='faq'),
+    path('contact/', views.contact, name='contact'),
+    path('auth/', views.auth, name='auth'),
+    path('politique_confidentialite/', views.politique_confidentialite, name='politique_confidentialite'),
+    path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),
+    path('support_contact/', views.support_contact, name='support_contact'),
+
 ]
