@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-6">Connexion</h2>
+        <form action="{% url 'connexion' %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="email" value="{{ email|default:'' }}" required class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-6">
+                <label for="motdepasse" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+                <input type="password" id="motdepasse" name="motdepasse" required minlength="8" class="mt-1 p-2 w-full border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition">Se connecter</button>
+        </form>
+        {% if error_message %}
+        <p class="text-red-500 text-sm mt-4">{{ error_message }}</p>
+        {% endif %}
+        <p class="text-sm text-center mt-4">
+            Pas de compte ? <a href="{% url 'inscription' %}" class="text-blue-500 hover:underline">S'inscrire</a>
+        </p>
+    </div>
+</body>
+</html>

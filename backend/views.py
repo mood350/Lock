@@ -9,6 +9,12 @@ def acceuil(request):
 def index(request):
     return render(request, 'index.html')
 
+def connexion(request):
+    return render(request, 'connexion.html')
+
+def inscription(request):
+    return render(request, 'inscription.html')
+
 def service(request):
     return render(request, 'service.html')
 
