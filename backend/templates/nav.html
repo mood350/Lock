@@ -1,10 +1,9 @@
-{% block head %}
-</style>
 <nav id="navmenu" class="navmenu">
   <ul>
-    <li><a href="#accueil" class="active">Accueil</a></li>
-    <li><a href="#services">Services</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="{% url 'acceuil' %}" class="active">Accueil</a></li>
+    <li><a href="{% url 'vente' %}">Vendre</a></li>
+    <li><a href="{% url 'profile' %}">Profil</a></li>
+    <li><a href="{% url 'connexion' %}">Connexion</a></li>
+    <li><a href="{% url 'inscription' %}">Créer un compte</a></li>
   </ul>
 </nav>
-{% endblock %}

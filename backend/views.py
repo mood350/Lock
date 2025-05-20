@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def acceuil(request):
-    return render(request, 'index.html')
+    return render(request, 'acceuil.html')
 
 def index(request):
     return render(request, 'index.html')
@@ -41,3 +41,14 @@ def conditions_utilisation(request):
 
 def support_contact(request):
     return render(request, 'support_contact.html')
+
+def achat(request):
+    return render(request, 'achat.html')
+
+def vente(request):
+    return render(request, 'vente.html')
+
+
+def profile(request):
+    return render(request, 'profile.html')
+
