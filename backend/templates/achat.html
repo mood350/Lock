@@ -1,4 +1,4 @@
-{% extends "nav.html" %}
+{% extends "index.html" %}
 {% load static %}
 
 {% block title %}Achat de cryptomonnaies{% endblock %}
@@ -10,6 +10,9 @@
             <div class="card mt-5">
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">Acheter des cryptomonnaies</h2>
+                    {% if message %}
+                      <div class="alert alert-success">{{ message }}</div>
+                    {% endif %}
                     <form method="post">
                         {% csrf_token %}
                         <div class="mb-3">
@@ -22,8 +25,8 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="montant" class="form-label">Montant en FCFA</label>
-                            <input type="number" id="montant" name="montant" class="form-control" required min="1000">
+                            <label for="montant" class="form-label">Montant à acheter</label>
+                            <input type="number" id="montant" name="montant" class="form-control" required min="0.0001" step="any">
                         </div>
                         <button type="submit" class="btn btn-success w-100">Acheter</button>
                     </form>

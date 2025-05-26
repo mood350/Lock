@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.models import User
+from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
 # Create your views here.
 
 def acceuil(request):
@@ -10,10 +12,36 @@ def index(request):
     return render(request, 'index.html')
 
 def connexion(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        motdepasse = request.POST.get('motdepasse')
+        try:
+            user_obj = User.objects.get(email=email)
+            user = authenticate(request, username=user_obj.username, password=motdepasse)
+            if user is not None:
+                login(request, user)
+                return redirect('profile')
+            else:
+                return render(request, 'connexion.html', {'error_message': "Identifiants invalides", 'email': email})
+        except User.DoesNotExist:
+            return render(request, 'connexion.html', {'error_message': "Aucun compte avec cet email", 'email': email})
     return render(request, 'connexion.html')
 
+
 def inscription(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        if User.objects.filter(username=username).exists():
+            return render(request, 'inscription.html', {'error': "Nom d'utilisateur déjà pris"})
+        if User.objects.filter(email=email).exists():
+            return render(request, 'inscription.html', {'error': "Email déjà utilisé"})
+        User.objects.create_user(username=username, email=email, password=password)
+        return redirect('connexion')
     return render(request, 'inscription.html')
+
+
 
 def service(request):
     return render(request, 'service.html')

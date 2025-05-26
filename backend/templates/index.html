@@ -25,7 +25,7 @@
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
       <a href="{% url 'acceuil' %}" class="logo d-flex align-items-center me-auto">
         <img src="{% static 'assets/img/logo.png' %}" alt="">
-        <h1 class="sitename">Lock Crypto</h1>
+        <h1 class="sitename">Easy-Crypto</h1>
       </a>
       <nav id="navmenu" class="navmenu">
         <ul>
@@ -65,6 +65,140 @@
     </section>
     <!-- /Hero Section -->
 
+    <!-- Section Prix Crypto -->
+    <section id="prices" class="section bg-light py-4">
+      <div class="container">
+        <h2 class="text-center mb-4">Prix en temps réel</h2>
+        <div class="row justify-content-center">
+          <div class="col-md-8">
+            <div class="table-responsive">
+              <table class="table table-bordered text-center">
+                <thead>
+                  <tr>
+                    <th>Cryptomonnaie</th>
+                    <th>Prix (USD)</th>
+                    <th>Variation 24h</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><img src="{% static 'assets/img/btc.png' %}" width="24"> Bitcoin (BTC)</td>
+                    <td>67 000 $</td>
+                    <td class="text-success">+2.1%</td>
+                  </tr>
+                  <tr>
+                    <td><img src="{% static 'assets/img/eth.png' %}" width="24"> Ethereum (ETH)</td>
+                    <td>3 100 $</td>
+                    <td class="text-danger">-0.8%</td>
+                  </tr>
+                  <tr>
+                    <td><img src="{% static 'assets/img/usdt.png' %}" width="24"> Tether (USDT)</td>
+                    <td>1.00 $</td>
+                    <td class="text-muted">0.0%</td>
+                  </tr>
+                  <td><img src="{% static 'assets/img/usdt.png' %}" width="24"> Tron (trx)</td>
+                    <td>1.00 $</td>
+                    <td class="text-muted">0.0%</td>
+                  </tr>
+                  <td><img src="{% static 'assets/img/usdt.png' %}" width="24"> BNB (bnb)</td>
+                    <td>1.00 $</td>
+                    <td class="text-muted">0.0%</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="text-end"><small>Prix indicatifs – actualisation à venir</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- /Section Prix Crypto -->
+
+    <!-- Section Guide d'utilisation -->
+    <section id="guide" class="section bg-light py-4">
+      <div class="container">
+        <h2 class="text-center mb-4">Guide d'utilisation</h2>
+        <div class="row justify-content-center">
+          <div class="col-md-10">
+            <ol class="list-group list-group-numbered">
+              <li class="list-group-item">
+                <strong>Créer un compte :</strong> Cliquez sur “Créer un compte” dans le menu, remplissez le formulaire et validez votre inscription.
+              </li>
+              <li class="list-group-item">
+                <strong>Se connecter :</strong> Cliquez sur “Connexion”, entrez vos identifiants pour accéder à votre espace personnel.
+              </li>
+              <li class="list-group-item">
+                <strong>Déposer des fonds :</strong> Depuis votre profil, choisissez une méthode de dépôt (Mobile Money, virement, etc.).
+              </li>
+              <li class="list-group-item">
+                <strong>Acheter ou vendre :</strong> Utilisez les boutons “Acheter” ou “Vendre” pour effectuer vos transactions en quelques clics.
+              </li>
+              <li class="list-group-item">
+                <strong>Suivre vos transactions :</strong> Consultez l’historique de vos opérations dans votre espace profil.
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section Comment ça marche -->
+    <section id="how-it-works" class="section">
+      <div class="container">
+        <h2 class="text-center mb-4">Comment ça marche ?</h2>
+        <div class="row text-center">
+          <div class="col-md-4">
+            <div class="p-3">
+              <i class="bi bi-person-plus display-4 text-primary"></i>
+              <h4 class="mt-2">1. Créez un compte</h4>
+              <p>Inscrivez-vous gratuitement et validez votre identité.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3">
+              <i class="bi bi-wallet2 display-4 text-success"></i>
+              <h4 class="mt-2">2. Déposez des fonds</h4>
+              <p>Ajoutez de l’argent par mobile money ou virement bancaire.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-3">
+              <i class="bi bi-currency-bitcoin display-4 text-warning"></i>
+              <h4 class="mt-2">3. Achetez ou vendez</h4>
+              <p>Achetez ou vendez vos cryptos en quelques clics, 24h/24.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- /Section Comment ça marche -->
+
+    <!-- Section Témoignages -->
+    <section id="testimonials" class="section bg-light py-4">
+      <div class="container">
+        <h2 class="text-center mb-4">Ils nous font confiance</h2>
+        <div class="row justify-content-center">
+          <div class="col-md-4">
+            <div class="card p-3 mb-3">
+              <div class="card-body">
+                <p class="card-text">“Service rapide et fiable, j’ai pu acheter mes premiers bitcoins sans stress.”</p>
+                <div class="text-end"><strong>— Awa K.</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card p-3 mb-3">
+              <div class="card-body">
+                <p class="card-text">“Support client très réactif, je recommande à 100%.”</p>
+                <div class="text-end"><strong>— Serge D.</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- /Section Témoignages -->
+
     <!-- About Section -->
     <section id="about" class="about section">
       <div class="container" data-aos="fade-up">
@@ -74,7 +208,7 @@
               <h3>À propos</h3>
               <h2>Votre plateforme d'achat et de vente de cryptomonnaies</h2>
               <p>
-                Lock Crypto vous permet d'acheter et de vendre facilement vos cryptomonnaies préférées, avec un support client réactif et une sécurité renforcée.
+                Easy-Crypto vous permet d'acheter et de vendre facilement vos cryptomonnaies préférées, avec un support client réactif et une sécurité renforcée.
               </p>
             </div>
           </div>
@@ -120,6 +254,16 @@
     </section>
     <!-- /Services Section -->
 
+    <!-- Appel à l'action -->
+    <section class="section text-center py-5">
+      <div class="container">
+        <h2>Prêt à commencer ?</h2>
+        <p>Inscrivez-vous gratuitement et échangez vos cryptos en toute simplicité.</p>
+        <a href="{% url 'inscription' %}" class="btn btn-primary btn-lg">Créer un compte</a>
+      </div>
+    </section>
+    <!-- /Appel à l'action -->
+
     <!-- Contact Section -->
     <section id="contact" class="contact section">
       <div class="container section-title" data-aos="fade-up">
@@ -148,7 +292,7 @@
                 <div class="info-item" data-aos="fade" data-aos-delay="400">
                   <i class="bi bi-envelope"></i>
                   <h3>Email</h3>
-                  <p>support@lockcrypto.com</p>
+                  <p>support@esycrypto.com</p>
                 </div>
               </div>
               <div class="col-md-6">
@@ -199,7 +343,7 @@
           <div class="footer-contact pt-3">
             <p>Abidjan, Côte d'Ivoire</p>
             <p><strong>Téléphone:</strong> <span>+225 01 23 45 67 89</span></p>
-            <p><strong>Email:</strong> <span>support@lockcrypto.com</span></p>
+            <p><strong>Email:</strong> <span>support@easycrypto.com</span></p>
           </div>
         </div>
         <div class="col-lg-2 col-md-3 footer-links">
