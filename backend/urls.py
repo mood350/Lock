@@ -2,6 +2,17 @@ from django.contrib import admin
 from django.urls import path
 from . import views
 urlpatterns = [
+
+    #Dashboard URLs
+    path('base', views.base, name='base'),
+    path('index/', views.index, name='index'),
+    path('faq/', views.faq, name='faq'),
+    path('profile/', views.profile, name='profile'),
+    path('adresses/', views.adresses, name='adresses'),
+    path('historique/', views.historique, name='historique'),
+    path('parametre/', views.parametre, name='parametre'),
+
+    #No connection URLs
     path('', views.acceuil, name='acceuil'),
     path('service/', views.service, name='service'),
     path('partenaire/', views.partenaire, name='partenaire'),

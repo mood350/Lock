@@ -5,6 +5,31 @@ from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 # Create your views here.
 
+
+# Dashboard views
+def index(request):
+    return render(request, 'dashboard/index.html')
+
+def base(request):
+    return render(request, 'dashboard/base.html')
+
+def adresses(request):
+    return render(request, 'dashboard/adresses.html')
+
+def faq(request):
+    return render(request, 'dashboard/faq.html')
+
+def profile(request):
+    return render(request, 'dashboard/profile.html')
+
+def historique(request):    
+    return render(request, 'dashboard/historique.html')
+
+def parametre(request):
+    return render(request, 'dashboard/parametre.html')
+
+
+# No connection views
 def acceuil(request):
     return render(request, 'acceuil.html')
 
@@ -52,8 +77,6 @@ def partenaire(request):
 def propos(request):
     return render(request, 'propos.html')
 
-def faq(request):
-    return render(request, 'faq.html')
 
 def contact(request):
     return render(request, 'contact.html')
