@@ -3,6 +3,21 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
+def base(request):
+    return render(request, 'dashboard/base.html')
+
+def index_base(request):
+    return render(request, 'dashboard/index.html')
+
+def faq_base(request):
+    return render(request, 'dashboard/faq.html')
+
+def profile_base(request):
+    return render(request, 'dashboard/profile.html')
+
+def adresses_base(request):
+    return render(request, 'dashboard/adresses.html')
+
 def acceuil(request):
     return render(request, 'index.html')
 
