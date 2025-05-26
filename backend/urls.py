@@ -9,7 +9,7 @@ urlpatterns = [
     path('faq/', views.faq, name='faq'),
     path('profile/', views.profile, name='profile'),
     path('adresses/', views.adresses, name='adresses'),
-    path('historique/', views.history, name='historique'),
+    path('historique/', views.historique, name='historique'),
     path('parametre/', views.parametre, name='parametre'),
 
     #No connection URLs
