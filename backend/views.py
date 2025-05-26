@@ -6,16 +6,16 @@ from django.contrib.auth.decorators import login_required
 def base(request):
     return render(request, 'dashboard/base.html')
 
-def index_base(request):
+def index(request):
     return render(request, 'dashboard/index.html')
 
-def faq_base(request):
+def faq(request):
     return render(request, 'dashboard/faq.html')
 
-def profile_base(request):
+def profile(request):
     return render(request, 'dashboard/profile.html')
 
-def adresses_base(request):
+def adresses(request):
     return render(request, 'dashboard/adresses.html')
 
 def acceuil(request):
@@ -39,8 +39,6 @@ def partenaire(request):
 def propos(request):
     return render(request, 'propos.html')
 
-def faq(request):
-    return render(request, 'faq.html')
 
 def contact(request):
     return render(request, 'contact.html')
