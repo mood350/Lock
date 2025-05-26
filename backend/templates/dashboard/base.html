@@ -63,7 +63,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'index_base' %}">
+            <a class="navbar-brand" href="{% url 'index' %}">
                 <i class="fas fa-coins me-2"></i>Lock
             </a>
         </div>
@@ -76,18 +76,18 @@
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index_base' %}">
+                        <a class="nav-link" href="{% url 'index' %}">
                             <i class="fas fa-exchange-alt me-1"></i>Achat/Vente
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'adresses_base' %}active{% endif %}" href="{% url 'adresses_base' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'adresses' %}active{% endif %}" href="{% url 'adresses' %}">
                             <i class="fas fa-wallet"></i>
                             Mes Portefeuilles
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'profile_base' %}active{% endif %}" href="{% url 'profile_base' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
                             <i class="fas fa-user-circle"></i>
                             Mon Profil
                         </a>
@@ -99,7 +99,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'faq_base' %}active{% endif %}" href="{% url 'faq_base' %}">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'faq' %}active{% endif %}" href="{% url 'faq' %}">
                             <i class="fas fa-question-circle"></i>
                             FAQ & Support
                         </a>
@@ -143,10 +143,10 @@
                 <div class="col-md-4">
                     <h5>Liens rapides</h5>
                     <ul class="list-unstyled">
-                        <li><a href="{% url 'index_base' %}" class="text-white">Achat/Vente</a></li>
-                        <li><a href="{% url 'profile_base' %}" class="text-white">Profil</a></li>
-                        <li><a href="{% url 'faq_base' %}" class="text-white">FAQ</a></li>
-                        <li><a href="{% url 'adresses_base' %}" class="text-white">Adresses</a></li>
+                        <li><a href="{% url 'index' %}" class="text-white">Achat/Vente</a></li>
+                        <li><a href="{% url 'profile' %}" class="text-white">Profil</a></li>
+                        <li><a href="{% url 'faq' %}" class="text-white">FAQ</a></li>
+                        <li><a href="{% url 'adresses' %}" class="text-white">Adresses</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
