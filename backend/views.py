@@ -100,6 +100,6 @@ def vente(request):
     return render(request, 'vente.html')
 
 
-def profile(request):
+def profiles(request):
     return render(request, 'profile.html')
 
