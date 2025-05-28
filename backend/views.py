@@ -75,11 +75,20 @@ def partenaire(request):
     return render(request, 'partenaire.html')
 
 def propos(request):
-    return render(request, 'propos.html')
+    return render(request, 'Apropos.html')
 
 
 def contact(request):
-    return render(request, 'contact.html')
+    message_sent = False
+    if request.method == 'POST':
+        nom = request.POST.get('name')
+        email = request.POST.get('email')
+        sujet = request.POST.get('subject')
+        message = request.POST.get('message')
+        # Envoi d'email (optionnel, nécessite configuration email dans settings.py)
+        # send_mail(sujet, f"De: {nom} <{email}>\n\n{message}", settings.DEFAULT_FROM_EMAIL, ['support@lockcrypto.com'])
+        message_sent = True
+    return render(request, 'contact.html', {'message_sent': message_sent})
 
 def auth(request):
     return render(request, 'auth.html')
