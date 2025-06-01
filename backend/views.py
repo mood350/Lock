@@ -20,7 +20,7 @@ def faq(request):
     return render(request, 'dashboard/faq.html')
 
 def profile(request):
-    return render(request, 'dashboard/profile.html')
+    return render(request, 'dashboard/profil.html')
 
 def historique(request):    
     return render(request, 'dashboard/historique.html')
