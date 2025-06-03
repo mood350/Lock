@@ -1,3 +1,4 @@
+from multiprocessing.connection import Client
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -21,6 +22,30 @@ def faq(request):
 
 def profile(request):
     return render(request, 'dashboard/profil.html')
+
+@login_required
+def kyc(request):
+    try:
+        client = Client.objects.get(user=request.user)
+    except Client.DoesNotExist:
+        # Rediriger ou créer le client si nécessaire
+        client = Client.objects.create(user=request.user)
+
+    if request.method == 'POST':
+        date_naissance = request.POST.get('date_naissance')
+        adresse = request.POST.get('adresse')
+        cni = request.POST.get('cni')
+
+        kyc_obj, created = KYC.objects.get_or_create(client=client)
+        kyc_obj.date_naissance = date_naissance
+        kyc_obj.adresse = adresse
+        kyc_obj.cni = cni
+        kyc_obj.statut = 0  # En attente
+        kyc_obj.save()
+
+        return redirect('profile')
+
+    return render(request, 'dashboard/kyc.html')
 
 def historique(request):    
     return render(request, 'dashboard/historique.html')
