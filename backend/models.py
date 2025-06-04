@@ -176,3 +176,17 @@ def delete_post_image(sender, instance, **kwargs):
     if instance.image:
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
+
+class Adresse(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='adresses')
+    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE, related_name='adresses_crypto')
+    adresse = models.CharField(max_length=200)
+    nom = models.CharField(max_length=100, help_text='Nom pour identifier cette adresse')
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['client', 'nom']
+        ordering = ['-date_creation']
+
+    def __str__(self):
+        return f"{self.nom} - {self.crypto.nom}"
