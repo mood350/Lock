@@ -1,1 +1,70 @@
 {% extends "dashboard/base.html" %}
+
+{% block title %}Historique des transactions - Lock Exchange{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Historique des transactions</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Crypto</th>
+                            <th>Quantité</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if transaction.vente %}
+                                        <span class="badge badge-danger">Vente</span>
+                                    {% else %}
+                                        <span class="badge badge-success">Achat</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ transaction.crypto.nom }}</td>
+                                <td>{{ transaction.quantite }}</td>
+                                <td>{{ transaction.montant }} FCFA</td>
+                                <td>
+                                    {% if transaction.statut == 'Approuvé' %}
+                                        <span class="badge badge-success">{{ transaction.statut }}</span>
+                                    {% elif transaction.statut == 'Rejeté' %}
+                                        <span class="badge badge-danger">{{ transaction.statut }}</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">{{ transaction.statut }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucune transaction trouvée</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .badge {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
