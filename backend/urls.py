@@ -26,8 +26,8 @@ urlpatterns = [
     path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),
     path('support_contact/', views.support_contact, name='support_contact'),
 
-    path('achat/', views.achat, name='achat'),
-    path('vente/', views.vente, name='vente'),
+    path('achat/<int:crypto_id>/', views.achat, name='achat'),
+    path('vente/<int:crypto_id>/', views.vente, name='vente'),
     path('profiles/', views.profiles, name='profiles')
    
     
