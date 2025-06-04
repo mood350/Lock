@@ -1,26 +1,26 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer un compte</title>
+    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
+            padding-top: 90px; /* Décale le contenu sous la navbar */
         }
-
         .signup-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -29,20 +29,12 @@
             padding: 40px;
             width: 100%;
             max-width: 450px;
-            transform: translateY(0);
-            transition: all 0.3s ease;
+            margin: 40px auto;
         }
-
-        .signup-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-        }
-
         .logo {
             text-align: center;
             margin-bottom: 30px;
         }
-
         .logo-icon {
             width: 60px;
             height: 60px;
@@ -54,19 +46,16 @@
             margin-bottom: 15px;
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
         }
-
         .logo-icon::before {
             content: "👤";
             font-size: 24px;
             color: white;
         }
-
         h1 {
             color: #333;
             font-size: 28px;
@@ -74,19 +63,16 @@
             text-align: center;
             margin-bottom: 10px;
         }
-
         .subtitle {
             text-align: center;
             color: #666;
             margin-bottom: 30px;
             font-size: 16px;
         }
-
         .form-group {
             margin-bottom: 25px;
             position: relative;
         }
-
         label {
             display: block;
             margin-bottom: 8px;
@@ -94,7 +80,6 @@
             font-weight: 500;
             font-size: 14px;
         }
-
         input[type="text"],
         input[type="email"],
         input[type="password"] {
@@ -106,7 +91,6 @@
             transition: all 0.3s ease;
             background: #fff;
         }
-
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus {
@@ -115,11 +99,9 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
             transform: translateY(-2px);
         }
-
         .password-container {
             position: relative;
         }
-
         .password-toggle {
             position: absolute;
             right: 15px;
@@ -133,11 +115,9 @@
             padding: 5px;
             transition: color 0.3s ease;
         }
-
         .password-toggle:hover {
             color: #667eea;
         }
-
         .password-strength {
             margin-top: 8px;
             height: 4px;
@@ -147,23 +127,19 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-
         .password-strength.show {
             opacity: 1;
         }
-
         .strength-bar {
             height: 100%;
             border-radius: 2px;
             transition: all 0.3s ease;
             width: 0%;
         }
-
         .strength-weak { background: #ff4757; width: 25%; }
         .strength-fair { background: #ff9f40; width: 50%; }
         .strength-good { background: #26de81; width: 75%; }
         .strength-strong { background: #00d4aa; width: 100%; }
-
         .submit-btn {
             width: 100%;
             background: linear-gradient(45deg, #667eea, #764ba2);
@@ -178,16 +154,13 @@
             position: relative;
             overflow: hidden;
         }
-
         .submit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
-
         .submit-btn:active {
             transform: translateY(0);
         }
-
         .submit-btn::before {
             content: '';
             position: absolute;
@@ -198,18 +171,15 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: left 0.5s;
         }
-
         .submit-btn:hover::before {
             left: 100%;
         }
-
         .divider {
             text-align: center;
             margin: 30px 0;
             position: relative;
             color: #999;
         }
-
         .divider::before {
             content: '';
             position: absolute;
@@ -219,19 +189,16 @@
             height: 1px;
             background: #e1e5e9;
         }
-
         .divider span {
             background: rgba(255, 255, 255, 0.95);
             padding: 0 20px;
             position: relative;
         }
-
         .social-login {
             display: flex;
             gap: 15px;
             margin-bottom: 30px;
         }
-
         .social-btn {
             flex: 1;
             padding: 12px;
@@ -245,30 +212,25 @@
             justify-content: center;
             font-size: 18px;
         }
-
         .social-btn:hover {
             transform: translateY(-2px);
             border-color: #667eea;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-
         .login-link {
             text-align: center;
             margin-top: 25px;
             color: #666;
         }
-
         .login-link a {
             color: #667eea;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
         }
-
         .login-link a:hover {
             color: #764ba2;
         }
-
         .error-message {
             background: #ffe6e6;
             color: #d63031;
@@ -279,12 +241,10 @@
             display: none;
             animation: slideIn 0.3s ease;
         }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         .success-message {
             background: #e8f5e8;
             color: #00b894;
@@ -295,13 +255,11 @@
             display: none;
             animation: slideIn 0.3s ease;
         }
-
         @media (max-width: 480px) {
             .signup-container {
                 padding: 30px 25px;
                 margin: 10px;
             }
-            
             h1 {
                 font-size: 24px;
             }
@@ -309,6 +267,27 @@
     </style>
 </head>
 <body>
+    <!-- NAVBAR de index.html -->
+    <header id="header" class="header d-flex align-items-center fixed-top">
+      <div class="container-fluid container-xl position-relative d-flex align-items-center">
+        <a href="{% url 'acceuil' %}" class="logo d-flex align-items-center me-auto">
+          <img src="{% static 'assets/img/logo.png' %}" alt="">
+          <h1 class="sitename">LOCK</h1>
+        </a>
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="{% url 'acceuil' %}">Accueil</a></li>
+            <li><a href="{% url 'propos' %}">À propos</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'connexion' %}">Connexion</a></li>
+            <li><a href="{% url 'inscription' %}" class="active">Créer un compte</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+      </div>
+    </header>
+    <!-- /NAVBAR -->
+
     <div class="signup-container">
         <div class="logo">
             <div class="logo-icon"></div>
@@ -363,10 +342,12 @@
         </div>
 
         <div class="login-link">
-            Vous avez déjà un compte ? <a href="#" onclick="showLogin()">Se connecter</a>
+            Vous avez déjà un compte ? 
+            <a href="{% url 'connexion' %}">Se connecter</a>
         </div>
     </div>
 
+    <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script>
         let passwordVisible = false;
         let confirmPasswordVisible = false;
@@ -476,10 +457,6 @@
 
         function loginWithApple() {
             showSuccess('Connexion avec Apple en cours de développement...');
-        }
-
-        function showLogin() {
-            showSuccess('Redirection vers la page de connexion...');
         }
 
         // Event Listeners
