@@ -11,13 +11,36 @@ from backend.models import *
 
 # Dashboard views
 def index(request):
-    return render(request, 'dashboard/index.html')
+    cryptos = Crypto.objects.all()
+    return render(request, 'dashboard/index.html', {'cryptos': cryptos})
 
 def base(request):
     return render(request, 'dashboard/base.html')
 
 def adresses(request):
-    return render(request, 'dashboard/adresses.html')
+    cryptos = Crypto.objects.all()
+    adresses = Adresse.objects.filter(client=request.user.client) if hasattr(request.user, 'client') else []
+    
+    if request.method == 'POST':
+        nom = request.POST.get('nom')
+        crypto_id = request.POST.get('crypto')
+        adresse = request.POST.get('adresse')
+        
+        if all([nom, crypto_id, adresse]):
+            crypto = Crypto.objects.get(id=crypto_id)
+            Adresse.objects.create(
+                client=request.user.client,
+                crypto=crypto,
+                nom=nom,
+                adresse=adresse
+            )
+            return redirect('adresses')
+    
+    context = {
+        'cryptos': cryptos,
+        'adresses': adresses
+    }
+    return render(request, 'dashboard/adresses.html', context)
 
 def faq(request):
     return render(request, 'dashboard/faq.html')
@@ -127,11 +150,15 @@ def conditions_utilisation(request):
 def support_contact(request):
     return render(request, 'support_contact.html')
 
-def achat(request):
-    return render(request, 'achat.html')
+def achat(request, crypto_id):
+    crypto = get_object_or_404(Crypto, id=crypto_id)
+    # Votre logique d'achat ici
+    return render(request, 'dashboard/achat.html', {'crypto': crypto})
 
-def vente(request):
-    return render(request, 'vente.html')
+def vente(request, crypto_id):
+    crypto = get_object_or_404(Crypto, id=crypto_id)
+    # Votre logique de vente ici
+    return render(request, 'dashboard/vente.html', {'crypto': crypto})
 
 
 def profiles(request):
