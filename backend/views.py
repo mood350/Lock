@@ -75,9 +75,6 @@ def kyc(request):
 def historique(request):    
     return render(request, 'dashboard/historique.html')
 
-def parametre(request):
-    return render(request, 'dashboard/parametre.html')
-
 
 # No connection views
 def acceuil(request):

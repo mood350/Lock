@@ -10,7 +10,9 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('adresses/', views.adresses, name='adresses'),
     path('historique/', views.historique, name='historique'),
-    path('parametre/', views.parametre, name='parametre'),
+    path('achat/<int:crypto_id>/', views.achat, name='achat'),
+    path('vente/<int:crypto_id>/', views.vente, name='vente'),
+    path('profiles/', views.profiles, name='profiles'),
 
     #No connection URLs
     path('', views.acceuil, name='acceuil'),
@@ -25,10 +27,5 @@ urlpatterns = [
     path('politique_confidentialite/', views.politique_confidentialite, name='politique_confidentialite'),
     path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),
     path('support_contact/', views.support_contact, name='support_contact'),
-
-    path('achat/<int:crypto_id>/', views.achat, name='achat'),
-    path('vente/<int:crypto_id>/', views.vente, name='vente'),
-    path('profiles/', views.profiles, name='profiles')
    
-    
 ]
