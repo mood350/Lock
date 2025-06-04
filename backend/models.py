@@ -4,6 +4,7 @@ from django.db.models.signals import pre_delete
 import os
 
 from django.dispatch import receiver
+from django.shortcuts import redirect, render
 
 STATUS = (
     ("Approuvé","Approuvé"),
@@ -43,8 +44,17 @@ class Admin(Utilisateur):
 class ServiceClient(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='service_client', editable=False)
 
-class Client(Utilisateur):
+class Client(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null = True)
+    nom = models.CharField(max_length=100)
+    prenoms = models.CharField(max_length=100)
+    date_naissance = models.DateField(null=True, blank=True)
+    telephone = models.IntegerField()
+    email = models.EmailField()
     date_inscription = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nom
 
 class KYC(models.Model): 
     client = models.OneToOneField(Client, on_delete=models.CASCADE, related_name='kyc')
@@ -188,3 +198,33 @@ class Adresse(models.Model):
 
     def __str__(self):
         return f"{self.nom} - {self.crypto.nom}"
+
+def adresses(request):
+    cryptos = Crypto.objects.all()
+    adresses = []
+    if request.user.is_authenticated:
+        try:
+            client = Client.objects.get(user=request.user)
+            adresses = Adresse.objects.filter(client=client)
+        except Client.DoesNotExist:
+            client = None
+    else:
+        client = None
+    if request.method == 'POST' and client:
+        nom = request.POST.get('nom')
+        crypto_id = request.POST.get('crypto')
+        adresse = request.POST.get('adresse')
+        if all([nom, crypto_id, adresse]):
+            crypto = Crypto.objects.get(id=crypto_id)
+            Adresse.objects.create(
+                client=client,
+                crypto=crypto,
+                nom=nom,
+                adresse=adresse
+            )
+            return redirect('adresses')
+    context = {
+        'cryptos': cryptos,
+        'adresses': adresses
+    }
+    return render(request, 'dashboard/adresses.html', context)
