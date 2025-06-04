@@ -1,1 +1,146 @@
 {% extends "dashboard/base.html" %}
+
+{% block title %}Mes Adresses - Lock Exchange{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Mes Adresses</h5>
+                    <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                        <i class="fas fa-plus"></i> Ajouter une adresse
+                    </button>
+                </div>
+                <div class="card-body">
+                    {% if adresses %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nom</th>
+                                        <th>Crypto</th>
+                                        <th>Adresse</th>
+                                        <th>Date d'ajout</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for adresse in adresses %}
+                                        <tr>
+                                            <td>{{ adresse.nom }}</td>
+                                            <td>{{ adresse.crypto.nom }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="text-truncate" style="max-width: 200px;">{{ adresse.adresse }}</span>
+                                                    <button class="btn btn-sm btn-link" onclick="copyToClipboard('{{ adresse.adresse }}')">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>{{ adresse.date_creation|date:"d/m/Y" }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger" onclick="deleteAddress('{{ adresse.id }}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <p>Vous n'avez pas encore enregistré d'adresses.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ajout Adresse -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Ajouter une adresse</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom de l'adresse</label>
+                        <input type="text" class="form-control" id="nom" name="nom" required>
+                        <div class="form-text">Un nom pour identifier facilement cette adresse</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="crypto" class="form-label">Crypto-monnaie</label>
+                        <select class="form-select" id="crypto" name="crypto" required>
+                            <option value="">Choisir une crypto-monnaie</option>
+                            {% for crypto in cryptos %}
+                                <option value="{{ crypto.id }}">{{ crypto.nom }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="adresse" class="form-label">Adresse</label>
+                        <input type="text" class="form-control" id="adresse" name="adresse" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .btn-link {
+        padding: 0 0.5rem;
+    }
+    .text-truncate {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Bootstrap Bundle avec Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        alert('Adresse copiée !');
+    });
+}
+
+function deleteAddress(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette adresse ?')) {
+        fetch(`/delete-address/${id}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        }).then(response => {
+            if (response.ok) {
+                window.location.reload();
+            }
+        });
+    }
+}
+
+// Initialisation des modals Bootstrap
+document.addEventListener('DOMContentLoaded', function() {
+    var myModal = new bootstrap.Modal(document.getElementById('addAddressModal'));
+});
+</script>
+{% endblock %}
