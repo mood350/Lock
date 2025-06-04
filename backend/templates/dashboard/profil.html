@@ -1,0 +1,109 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Mon Profil - Lock Exchange{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Informations du profil -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Informations personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Nom:</label>
+                        <p>{{ user.nom }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Prénoms:</label>
+                        <p>{{ user.prenoms }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Email:</label>
+                        <p>{{ user.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Téléphone:</label>
+                        <p>{{ user.telephone }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Date d'inscription:</label>
+                        <p>{{ user.date_inscription|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section KYC -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Vérification KYC</h5>
+                </div>
+                <div class="card-body">
+                    {% if kyc %}
+                        <div class="alert {% if kyc.statut == 'Approuvé' %}alert-success{% elif kyc.statut == 'Rejeté' %}alert-danger{% else %}alert-warning{% endif %}">
+                            Statut: {{ kyc.statut }}
+                            {% if kyc.date_validation %}
+                                <br>Date de validation: {{ kyc.date_validation|date:"d/m/Y" }}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Date de naissance:</label>
+                            <p>{{ kyc.date_naissance|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Adresse:</label>
+                            <p>{{ kyc.adresse }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Numéro CNI:</label>
+                            <p>{{ kyc.cni }}</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Vous n'avez pas encore soumis de demande de vérification KYC.
+                        </div>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="date_naissance" class="form-label">Date de naissance</label>
+                                <input type="date" class="form-control" id="date_naissance" name="date_naissance" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="adresse" class="form-label">Adresse</label>
+                                <input type="text" class="form-control" id="adresse" name="adresse" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cni" class="form-label">Numéro CNI</label>
+                                <input type="text" class="form-control" id="cni" name="cni" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Soumettre la demande KYC</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        border-bottom: 0;
+    }
+    .fw-bold {
+        font-weight: 600;
+    }
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
+{% endblock %}

@@ -231,16 +231,7 @@
 
     <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script>
-        // Affichage des messages d'erreur Django si besoin
-        {% if error_message %}
-        document.addEventListener('DOMContentLoaded', function() {
-            var errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = "{{ error_message|escapejs }}";
-            errorDiv.style.display = 'block';
-        });
-        {% endif %}
-
-        // Animation d'entrée
+         // Animation d'entrée
         window.addEventListener('load', function() {
             document.querySelector('.login-container').style.opacity = '0';
             document.querySelector('.login-container').style.transform = 'translateY(30px)';

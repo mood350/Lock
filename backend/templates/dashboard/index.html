@@ -1,0 +1,36 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Lock Exchange - Cryptomonnaies{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Cryptomonnaies disponibles</h2>
+    <div class="row">
+        {% for crypto in cryptos %}
+        {% if crypto.disponibilite == "Oui" %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ crypto.nom }} ({{ crypto.sigle }})</h5>
+                    <div class="mb-3">
+                        <p class="card-text mb-1">Prix d'achat: {{ crypto.prix_achat }} </p>
+                        <p class="card-text">Prix de vente: {{ crypto.prix_vente }} </p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'achat' crypto.id %}" class="btn btn-success">Acheter</a>
+                        <a href="{% url 'vente' crypto.id %}" class="btn btn-primary">Vendre</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                Aucune cryptomonnaie n'est disponible pour le moment.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -19,12 +19,22 @@ DISPONIBILITE = (
 class Utilisateur(models.Model):
     nom = models.CharField(max_length=100)
     prenoms = models.CharField(max_length=100)
+    date_naissance = models 
     email = models.EmailField()
     telephone = models.IntegerField()
     password = models.CharField(max_length=100)
 
     class Meta:
         abstract = True
+    
+    def save(self, *args, **kwargs):
+        #Si un email existe déjà dans la base de données
+        if Utilisateur.objects.filter(email=self.email).exists():
+            raise ValueError("Un utilisateur avec cet email existe déjà.")
+        #Si un téléphone existe déjà dans la base de données
+        if Utilisateur.objects.filter(telephone=self.telephone).exists():
+            raise ValueError("Un utilisateur avec ce numéro de téléphone existe déjà.")
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.nom
@@ -37,6 +47,17 @@ class ServiceClient(Utilisateur):
 
 class Client(Utilisateur):
     date_inscription = models.DateTimeField(auto_now_add=True)
+
+class KYC(models.Model): 
+    client = models.OneToOneField(Client, on_delete=models.CASCADE, related_name='kyc')
+    date_naissance = models.DateField(null=True, blank=True)
+    adresse = models.CharField(max_length=200, null=True, blank=True)
+    cni = models.CharField(max_length=20, null=True, blank=True)
+    statut = models.IntegerField(choices=STATUS, default=0)
+    date_validation = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.nom} {self.prenoms} - {self.email}"
 
 class Validateur(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='validateur', editable=False)
@@ -155,3 +176,17 @@ def delete_post_image(sender, instance, **kwargs):
     if instance.image:
         if os.path.isfile(instance.file.path):
             os.remove(instance.file.path)
+
+class Adresse(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='adresses')
+    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE, related_name='adresses_crypto')
+    adresse = models.CharField(max_length=200)
+    nom = models.CharField(max_length=100, help_text='Nom pour identifier cette adresse')
+    date_creation = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['client', 'nom']
+        ordering = ['-date_creation']
+
+    def __str__(self):
+        return f"{self.nom} - {self.crypto.nom}"
