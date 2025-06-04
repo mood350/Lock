@@ -84,32 +84,55 @@ def acceuil(request):
 
 def connexion(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
-        motdepasse = request.POST.get('motdepasse')
+        email = request.POST['email']
+        password = request.POST['motdepasse']
         try:
-            user_obj = User.objects.get(email=email)
-            user = authenticate(request, username=user_obj.username, password=motdepasse)
-            if user is not None:
-                login(request, user)
-                return redirect('profile')
+            client = Client.objects.get(email=email)
+            if client.password == password:  # (À remplacer par un hash en prod)
+                # Connexion réussie, redirige vers l'accueil
+                return redirect('acceuil')
             else:
-                return render(request, 'connexion.html', {'error_message': "Identifiants invalides", 'email': email})
-        except User.DoesNotExist:
-            return render(request, 'connexion.html', {'error_message': "Aucun compte avec cet email", 'email': email})
+                return render(request, 'connexion.html', {
+                    'error_message': "Mot de passe incorrect",
+                    'email': email
+                })
+        except Client.DoesNotExist:
+            return render(request, 'connexion.html', {
+                'error_message': "Aucun compte avec cet email",
+                'email': email
+            })
     return render(request, 'connexion.html')
-
 
 def inscription(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        if User.objects.filter(username=username).exists():
-            return render(request, 'inscription.html', {'error': "Nom d'utilisateur déjà pris"})
-        if User.objects.filter(email=email).exists():
-            return render(request, 'inscription.html', {'error': "Email déjà utilisé"})
-        User.objects.create_user(username=username, email=email, password=password)
-        return redirect('connexion')
+        nom = request.POST['nom']
+        prenoms = request.POST['prenoms']
+        date_naissance = request.POST['date_naissance']
+        email = request.POST['email']
+        telephone = request.POST['telephone']
+        password = request.POST['password']  # À hasher en vrai projet !
+
+        try:
+            Client.objects.create(
+                nom=nom,
+                prenoms=prenoms,
+                date_naissance=date_naissance,
+                email=email,
+                telephone=telephone,
+                password=password
+            )
+            return redirect('connexion')
+        except ValueError as e:
+            # Affiche le message d’erreur dans le template
+            return render(request, 'inscription.html', {
+                'error_message': str(e),
+                'nom': nom,
+                'prenoms': prenoms,
+                'date_naissance': date_naissance,
+                'email': email,
+                'telephone': telephone,
+            })
+
     return render(request, 'inscription.html')
 
 
