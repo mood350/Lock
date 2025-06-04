@@ -19,10 +19,128 @@
             min-height: 100vh;
         }
 
+        /* Navigation Styles */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-login {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-signup {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            margin: 3px 0;
+            transition: 0.3s;
+            border-radius: 3px;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            margin-top: 80px; /* Account for fixed navbar */
         }
 
         .header {
@@ -241,29 +359,6 @@
             line-height: 1.6;
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-            
-            .contact-wrapper {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            
-            .contact-form, .contact-info {
-                padding: 2rem;
-            }
-            
-            .faq-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .floating-shapes {
             position: fixed;
             top: 0;
@@ -309,9 +404,98 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
         }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(15px);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 2rem;
+                padding-top: 3rem;
+                transition: left 0.3s ease;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+
+            .mobile-menu-toggle.active .hamburger:nth-child(1) {
+                transform: rotate(-45deg) translate(-5px, 6px);
+            }
+
+            .mobile-menu-toggle.active .hamburger:nth-child(2) {
+                opacity: 0;
+            }
+
+            .mobile-menu-toggle.active .hamburger:nth-child(3) {
+                transform: rotate(45deg) translate(-5px, -6px);
+            }
+
+            .auth-buttons {
+                flex-direction: column;
+                gap: 1rem;
+                width: 200px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 1rem;
+                margin-top: 80px;
+            }
+            
+            .contact-wrapper {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .contact-form, .contact-info {
+                padding: 2rem;
+            }
+            
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
+    {% load static %}
 </head>
 <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{% url 'accueil' %}" class="logo">Lock</a>
+            <ul class="nav-menu">
+                <li><a href="{% url 'accueil' %}" class="nav-link">Accueil</a></li>
+                <li><a href="{% url 'propos' %}" class="nav-link">À propos</a></li>
+                <li><a href="{% url 'contact' %}" class="nav-link active">Contact</a></li>
+                <div class="auth-buttons">
+                    <a href="{% url 'connexion' %}" class="btn-login">Connexion</a>
+                    <a href="{% url 'inscription' %}" class="btn-signup">Créer un compte</a>
+                </div>
+            </ul>
+            <div class="mobile-menu-toggle" aria-label="Menu mobile" tabindex="0">
+                <div class="hamburger"></div>
+                <div class="hamburger"></div>
+                <div class="hamburger"></div>
+            </div>
+        </div>
+    </nav>
+
     <div class="floating-shapes">
         <div class="shape"></div>
         <div class="shape"></div>
@@ -321,7 +505,6 @@
     <div class="container">
         <header class="header">
             <h1>Contactez-nous</h1>
-            <a href="{% url 'acceuil' %}" class="btn btn-secondary mb-4">Retour à l'accueil</a>
             <p>Notre équipe est là pour vous accompagner dans votre parcours crypto</p>
         </header>
 
@@ -452,10 +635,27 @@
     </div>
 
     <script>
+        // Mobile menu toggle
+        const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            navMenu.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-link, .btn-login, .btn-signup').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+            });
+        });
+
+        // Contact form submission
         document.getElementById('contact-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Simuler l'envoi du formulaire
             const submitButton = document.querySelector('.btn-submit');
             const originalText = submitButton.textContent;
             
@@ -463,23 +663,17 @@
             submitButton.disabled = true;
             
             setTimeout(() => {
-                // Afficher le message de succès
                 document.getElementById('success-message').style.display = 'block';
-                
-                // Réinitialiser le formulaire
                 document.getElementById('contact-form').reset();
                 
-                // Restaurer le bouton
                 submitButton.textContent = originalText;
                 submitButton.disabled = false;
                 
-                // Faire défiler vers le message de succès
                 document.getElementById('success-message').scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'center' 
                 });
                 
-                // Masquer le message après 5 secondes
                 setTimeout(() => {
                     document.getElementById('success-message').style.display = 'none';
                 }, 5000);
@@ -487,7 +681,7 @@
             }, 1500);
         });
 
-        // Animation des champs de formulaire
+        // Form field animations
         document.querySelectorAll('.form-control').forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.style.transform = 'scale(1.02)';
@@ -496,6 +690,16 @@
             input.addEventListener('blur', function() {
                 this.parentElement.style.transform = 'scale(1)';
             });
+        });
+
+        // Smooth navbar appearance on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            }
         });
     </script>
 </body>

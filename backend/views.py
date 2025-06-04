@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import make_password
 
 from backend.models import *
 # Create your views here.
@@ -77,8 +78,8 @@ def historique(request):
 
 
 # No connection views
-def acceuil(request):
-    return render(request, 'acceuil.html')
+def accueil(request):
+    return render(request, 'accueil.html')
 
 
 
@@ -90,7 +91,7 @@ def connexion(request):
             client = Client.objects.get(email=email)
             if client.password == password:  # (À remplacer par un hash en prod)
                 # Connexion réussie, redirige vers l'accueil
-                return redirect('acceuil')
+                return redirect('accueil')
             else:
                 return render(request, 'connexion.html', {
                     'error_message': "Mot de passe incorrect",
@@ -111,7 +112,7 @@ def inscription(request):
         email = request.POST['email']
         telephone = request.POST['telephone']
         password = request.POST['password']  # À hasher en vrai projet !
-
+        hashed_password = make_password(password)
         try:
             Client.objects.create(
                 nom=nom,
