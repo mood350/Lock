@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
+
+from backend.models import *
 # Create your views here.
 
 
@@ -58,8 +60,7 @@ def parametre(request):
 def acceuil(request):
     return render(request, 'acceuil.html')
 
-def index(request):
-    return render(request, 'index.html')
+
 
 def connexion(request):
     if request.method == 'POST':
@@ -110,8 +111,7 @@ def contact(request):
         email = request.POST.get('email')
         sujet = request.POST.get('subject')
         message = request.POST.get('message')
-        # Envoi d'email (optionnel, nécessite configuration email dans settings.py)
-        # send_mail(sujet, f"De: {nom} <{email}>\n\n{message}", settings.DEFAULT_FROM_EMAIL, ['support@lockcrypto.com'])
+
         message_sent = True
     return render(request, 'contact.html', {'message_sent': message_sent})
 

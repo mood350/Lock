@@ -5,7 +5,7 @@ urlpatterns = [
 
     #Dashboard URLs
     path('base', views.base, name='base'),
-    path('index/', views.index, name='index'),
+    path('home/', views.index, name='index'),
     path('faq/', views.faq, name='faq'),
     path('profile/', views.profile, name='profile'),
     path('adresses/', views.adresses, name='adresses'),
