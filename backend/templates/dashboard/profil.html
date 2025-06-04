@@ -1,60 +1,109 @@
 {% extends "dashboard/base.html" %}
 
-{% block title %}Mon Profil - Lock{% endblock %}
+{% block title %}Mon Profil - Lock Exchange{% endblock %}
 
 {% block content %}
-<h1>Mon Profil</h1>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Informations du profil -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Informations personnelles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Nom:</label>
+                        <p>{{ user.nom }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Prénoms:</label>
+                        <p>{{ user.prenoms }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Email:</label>
+                        <p>{{ user.email }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Téléphone:</label>
+                        <p>{{ user.telephone }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold">Date d'inscription:</label>
+                        <p>{{ user.date_inscription|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="card mt-4" style="max-width: 600px;">
-    <div class="card-body">
-        <h5 class="card-title">{{ user.get_full_name|default:user.username }}</h5>
-        <p class="card-text"><strong>Email :</strong> {{ user.email }}</p>
-        <p class="card-text"><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
-        <p class="card-text"><strong>Date d'inscription :</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
-        
-        
+        <!-- Section KYC -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Vérification KYC</h5>
+                </div>
+                <div class="card-body">
+                    {% if kyc %}
+                        <div class="alert {% if kyc.statut == 'Approuvé' %}alert-success{% elif kyc.statut == 'Rejeté' %}alert-danger{% else %}alert-warning{% endif %}">
+                            Statut: {{ kyc.statut }}
+                            {% if kyc.date_validation %}
+                                <br>Date de validation: {{ kyc.date_validation|date:"d/m/Y" }}
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Date de naissance:</label>
+                            <p>{{ kyc.date_naissance|date:"d/m/Y" }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Adresse:</label>
+                            <p>{{ kyc.adresse }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Numéro CNI:</label>
+                            <p>{{ kyc.cni }}</p>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            Vous n'avez pas encore soumis de demande de vérification KYC.
+                        </div>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="date_naissance" class="form-label">Date de naissance</label>
+                                <input type="date" class="form-control" id="date_naissance" name="date_naissance" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="adresse" class="form-label">Adresse</label>
+                                <input type="text" class="form-control" id="adresse" name="adresse" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cni" class="form-label">Numéro CNI</label>
+                                <input type="text" class="form-control" id="cni" name="cni" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Soumettre la demande KYC</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Section KYC -->
-<div class="card mt-5" style="max-width: 600px;">
-    <div class="card-header bg-primary text-white">
-        Vérification KYC
-    </div>
-    <div class="card-body">
-        {% if user.kyc_status == 'validated' %}
-            <div class="alert alert-success">
-                Votre KYC est validé ✅
-            </div>
-        {% elif user.kyc_status == 'pending' %}
-            <div class="alert alert-warning">
-                Votre dossier KYC est en cours de traitement.
-            </div>
-        {% else %}
-            <p>Veuillez compléter votre vérification d’identité pour sécuriser votre compte.</p>
-            <form method="post" enctype="multipart/form-data" action="{% url 'kyc_submit' %}">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label for="full_name" class="form-label">Nom complet</label>
-                    <input type="text" class="form-control" id="full_name" name="full_name" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="dob" class="form-label">Date de naissance</label>
-                    <input type="date" class="form-control" id="dob" name="dob" required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="document" class="form-label">Pièce d'identité (JPEG, PNG, PDF)</label>
-                    <input type="file" class="form-control" id="document" name="document" accept=".jpg,.jpeg,.png,.pdf" required>
-                </div>
-                
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-upload me-2"></i>Soumettre le KYC
-                </button>
-            </form>
-        {% endif %}
-    </div>
-</div>
+{% block extra_css %}
+<style>
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .card-header {
+        border-bottom: 0;
+    }
+    .fw-bold {
+        font-weight: 600;
+    }
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
 {% endblock %}
