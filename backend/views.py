@@ -11,10 +11,11 @@ from backend.models import *
 
 
 # Dashboard views
+@login_required
 def index(request):
     cryptos = Crypto.objects.all()
     return render(request, 'dashboard/index.html', {'cryptos': cryptos})
-
+@login_required
 def base(request):
     return render(request, 'dashboard/base.html')
 
@@ -50,9 +51,11 @@ def adresses(request):
     }
     return render(request, 'dashboard/adresses.html', context)
 
+@login_required
 def faq(request):
     return render(request, 'dashboard/faq.html')
 
+@login_required
 def profile(request):
     return render(request, 'dashboard/profil.html')
 
@@ -80,6 +83,7 @@ def kyc(request):
 
     return render(request, 'dashboard/kyc.html')
 
+@login_required
 def historique(request):    
     return render(request, 'dashboard/historique.html')
 
