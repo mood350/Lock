@@ -102,20 +102,13 @@ def connexion(request):
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
-
-            client = Client.objects.get(email=email)
-            if client.password == password:  # (À remplacer par un hash en prod)
-                # Connexion réussie, redirige vers l'accueil
-                return redirect('accueil')
-
-            # Récupérer l'utilisateur par email
+            # Récupérer l'utilisateur Django par email
             user = User.objects.get(email=email)
             # Authentifier l'utilisateur
             user = authenticate(username=user.username, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('index')
-
             else:
                 return render(request, 'connexion.html', {
                     'error_message': "Mot de passe incorrect",
