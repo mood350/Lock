@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_delete
 import os
-
+from django.conf import settings
 from django.dispatch import receiver
 from django.shortcuts import redirect, render
 
@@ -229,7 +229,6 @@ def adresses(request):
     }
     return render(request, 'dashboard/adresses.html', context)
 
-from django.conf import settings
 
 HISTORIQUE_TYPE = (
     ("Achat", "Achat"),
@@ -241,15 +240,3 @@ HISTORIQUE_STATUT = (
     ("Approuvé", "Approuvé"),
     ("Rejeté", "Rejeté"),
 )
-
-class Historique(models.Model):
-    client = models.ForeignKey('Client', on_delete=models.CASCADE)
-    type = models.CharField(max_length=10, choices=HISTORIQUE_TYPE)
-    crypto = models.ForeignKey('Crypto', on_delete=models.CASCADE)
-    quantite = models.FloatField()
-    montant = models.FloatField()
-    statut = models.CharField(max_length=20, choices=HISTORIQUE_STATUT, default="En attente")
-    date = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.type} - {self.crypto.nom} - {self.quantite} - {self.montant} FCFA"

@@ -1,3 +1,4 @@
+from http import client
 from multiprocessing.connection import Client
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
@@ -5,11 +6,13 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
+from django.db import models
 
-from .models import Client, KYC
+from .models import *
+from .form import *
+from backend import form
 
 
-from backend.models import *
 # Create your views here.
 
 
@@ -18,26 +21,27 @@ from backend.models import *
 def index(request):
     cryptos = Crypto.objects.all()
     return render(request, 'dashboard/index.html', {'cryptos': cryptos})
+
 @login_required
 def base(request):
     return render(request, 'dashboard/base.html')
 
 @login_required
 def adresses(request):
-    try:
-        client = Client.objects.get(user=request.user)
-    except Client.DoesNotExist:
-        # Rediriger vers la page de profil pour compléter l'inscription
-        return redirect('profile')
-
     cryptos = Crypto.objects.all()
-    adresses = Adresse.objects.filter(client=client)
-    
-    if request.method == 'POST':
+    adresses = []
+    client = None
+    if request.user.is_authenticated:
+        try:
+            client = Client.objects.get(user=request.user)
+            adresses = Adresse.objects.filter(client=client)
+        except Client.DoesNotExist:
+            pass
+
+    if request.method == 'POST' and client:
         nom = request.POST.get('nom')
         crypto_id = request.POST.get('crypto')
         adresse = request.POST.get('adresse')
-        
         if all([nom, crypto_id, adresse]):
             crypto = Crypto.objects.get(id=crypto_id)
             Adresse.objects.create(
@@ -47,7 +51,7 @@ def adresses(request):
                 adresse=adresse
             )
             return redirect('adresses')
-    
+
     context = {
         'cryptos': cryptos,
         'adresses': adresses
@@ -60,7 +64,7 @@ def faq(request):
 
 @login_required
 def profile(request):
-    return render(request, 'dashboard/profil.html')
+    return render(request, 'dashboard/profil.html', {'user': request.user})
 
 @login_required
 def kyc(request):
@@ -88,7 +92,11 @@ def kyc(request):
 
 @login_required
 def historique(request):    
-    return render(request, 'dashboard/historique.html')
+    client = get_object_or_404(Client, user=request.user)
+    transactions = Transaction.objects.filter(
+        models.Q(achat__client=client) | models.Q(vente__client=client)
+    ).order_by('-date')
+    return render(request, 'dashboard/historique.html', {'transactions': transactions})
 
 
 # No connection views
@@ -235,15 +243,82 @@ def support_contact(request):
 
 def achat(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)
-    # Votre logique d'achat ici
-    return render(request, 'dashboard/achat.html', {'crypto': crypto})
+    client = get_object_or_404(Client, user=request.user)
+    adresses = Adresse.objects.filter(client=client, crypto=crypto)
 
+    if request.method == 'POST':
+        form = AchatForm(request.POST)
+        if form.is_valid():
+            achat = form.save(commit=False)
+            achat.client = client
+            achat.crypto = crypto
+            achat.save()
+            # Crée la transaction ici si besoin
+            return redirect('historique')
+    else:
+        form = AchatForm()
+
+    return render(request, 'dashboard/achat.html', {
+        'form': form,
+        'crypto': crypto,
+        'adresses': adresses,
+    })
+
+from .form import VenteForm
+from .models import Client, Crypto
+
+@login_required
 def vente(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)
-    # Votre logique de vente ici
-    return render(request, 'dashboard/vente.html', {'crypto': crypto})
+    client = get_object_or_404(Client, user=request.user)
+    error_message = None
+
+    if request.method == 'POST':
+        form = VenteForm(request.POST)
+        if form.is_valid():
+            vente = form.save(commit=False)
+            vente.client = client
+            vente.crypto = crypto
+            vente.save()
+            # Crée la transaction ici si besoin
+            return redirect('historique')
+        else:
+            error_message = "Un champ est invalide"
+    else:
+        form = VenteForm()
+
+    return render(request, 'dashboard/vente.html', {
+        'form': form,
+        'crypto': crypto,
+        'error_message': error_message
+    })
 
 
 def profiles(request):
-    return render(request, 'profile.html')
+    return render(request, 'profile.html', status=404)
 
+def error_404_view(request, exception):
+    return render(request, '404.html', status=404)
+
+def ajouter_adresse(request):
+    client = Client.objects.get(user=request.user)
+    error_message = None
+
+    if request.method == 'POST':
+        form = AdresseForm(request.POST)
+        if form.is_valid():
+            adresse = form.save(commit=False)
+            adresse.client = client
+            adresse.save()
+            return redirect('adresses')  # Redirige vers la liste des adresses
+        else:
+            error_message = "Un champ est invalide"
+    else:
+        form = AdresseForm()
+
+    return render(request, 'dashboard/formulaire.html', {
+        'form': form,
+        'titre': "Ajouter une adresse",
+        'bouton': "Ajouter",
+        'error_message': error_message
+    })

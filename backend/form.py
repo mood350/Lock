@@ -1,6 +1,64 @@
 from django.shortcuts import render, redirect
 from .models import Client, KYC
 from django.contrib.auth.decorators import login_required
+from django import forms
+from .models import *
+
+class ClientForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ['nom', 'prenoms', 'date_naissance', 'telephone', 'email']
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'prenoms': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_naissance': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'telephone': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+        }
+
+class AchatForm(forms.ModelForm):
+    class Meta:
+        model = Achat
+        fields = ['crypto', 'quantite', 'adresse']
+        widgets = {
+            'crypto': forms.Select(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class VenteForm(forms.ModelForm):
+    class Meta:
+        model = Vente
+        fields = ['crypto', 'quantite', 'adresse']
+        widgets = {
+            'crypto': forms.Select(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+class TransactionForm(forms.ModelForm):
+    class Meta:
+        model = Transaction
+        fields = ['achat', 'vente', 'crypto', 'quantite', 'montant', 'statut']
+        widgets = {
+            'achat': forms.Select(attrs={'class': 'form-control'}),
+            'vente': forms.Select(attrs={'class': 'form-control'}),
+            'crypto': forms.Select(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
+            'montant': forms.NumberInput(attrs={'class': 'form-control'}),
+            'statut': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class AdresseForm(forms.ModelForm):
+    class Meta:
+        model = Adresse
+        fields = ['nom', 'crypto', 'adresse']
+        widgets = {
+            'nom': forms.TextInput(attrs={'class': 'form-control'}),
+            'crypto': forms.Select(attrs={'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
 
 @login_required
 def kyc_form(request):
@@ -22,3 +80,4 @@ def kyc_form(request):
         return redirect('profile')  # à adapter à ton URL de profil
 
     return render(request, 'dashboard/kyc.html')
+
