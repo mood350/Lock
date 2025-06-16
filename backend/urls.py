@@ -15,7 +15,7 @@ urlpatterns = [
     path('profiles/', views.profiles, name='profiles'),
 
     #No connection URLs
-    path('', views.acceuil, name='acceuil'),
+    path('', views.accueil, name='accueil'),
     path('service/', views.service, name='service'),
     path('partenaire/', views.partenaire, name='partenaire'),
     path('propos/', views.propos, name='propos'),

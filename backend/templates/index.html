@@ -23,13 +23,13 @@
 
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
-      <a href="{% url 'acceuil' %}" class="logo d-flex align-items-center me-auto">
+      <a href="{% url 'accueil' %}" class="logo d-flex align-items-center me-auto">
         <img src="{% static 'assets/img/logo.png' %}" alt="">
         <h1 class="sitename">LOCK</h1>
       </a>
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="{% url 'acceuil' %}" class="active">Accueil</a></li>
+          <li><a href="{% url 'accueil' %}" class="active">Accueil</a></li>
           <li><a href="{% url 'propos' %}">À propos</a></li>
           <li><a href="{% url 'contact' %}">Contact</a></li>
           <li><a href="{% url 'connexion' %}">Connexion</a></li>
@@ -332,7 +332,7 @@
     <div class="container footer-top">
       <div class="row gy-4">
         <div class="col-lg-4 col-md-6 footer-about">
-          <a href="{% url 'acceuil' %}" class="d-flex align-items-center">
+          <a href="{% url 'accueil' %}" class="d-flex align-items-center">
             <span class="sitename">Lock</span>
           </a>
           <div class="footer-contact pt-3">
@@ -344,7 +344,7 @@
         <div class="col-lg-2 col-md-3 footer-links">
           <h4>Liens utiles</h4>
           <ul>
-            <li><i class="bi bi-chevron-right"></i> <a href="{% url 'acceuil' %}">Accueil</a></li>
+            <li><i class="bi bi-chevron-right"></i> <a href="{% url 'accueil' %}">Accueil</a></li>
             <li><i class="bi bi-chevron-right"></i> <a href="{% url 'propos' %}">À propos</a></li>
             <li><i class="bi bi-chevron-right"></i> <a href="{% url 'contact' %}">Contact</a></li>
           </ul>
