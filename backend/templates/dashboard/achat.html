@@ -1,1 +1,99 @@
 {% extends "dashboard/base.html" %}
+
+{% block title %}Acheter {{ crypto.nom }} - Lock Exchange{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Acheter {{ crypto.nom }} ({{ crypto.sigle }})</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="achatForm">
+                        {% csrf_token %}
+                        <!-- Adresse crypto -->
+                        <div class="mb-3">
+                            <label for="adresse_existante" class="form-label">Sélectionnez une adresse existante</label>
+                            <select class="form-select" id="adresse_existante" name="adresse_existante" onchange="onAdresseChange()">
+                                <option value="">-- Nouvelle adresse --</option>
+                                {% for adresse in adresses %}
+                                    <option value="{{ adresse.adresse }}">{{ adresse.nom }} ({{ adresse.adresse|truncatechars:18 }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3" id="nouvelleAdresseDiv">
+                            <label for="nouvelle_adresse" class="form-label">Ou saisissez une nouvelle adresse {{ crypto.nom }}</label>
+                            <input type="text" class="form-control" id="nouvelle_adresse" name="nouvelle_adresse" placeholder="Ex: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">
+                        </div>
+                        <!-- Montant à payer (FCFA) -->
+                        <div class="mb-3">
+                            <label for="montant_fcfa" class="form-label">Montant à payer (FCFA)</label>
+                            <input type="number" class="form-control" id="montant_fcfa" name="montant_fcfa" min="1000" step="100" placeholder="Ex: 10000" oninput="fcfaToBtc()" autocomplete="off">
+                        </div>
+                        <!-- Montant en BTC -->
+                        <div class="mb-3">
+                            <label for="montant_btc" class="form-label">Ou nombre de {{ crypto.sigle }} désiré</label>
+                            <input type="number" class="form-control" id="montant_btc" name="montant_btc" min="0" step="0.00000001" placeholder="Ex: 0.001" oninput="btcToFcfa()" autocomplete="off">
+                        </div>
+                        <!-- Résumé -->
+                        <div class="mb-3">
+                            <div class="alert alert-info mb-0" id="resume">
+                                0 FCFA ⇄ 0 {{ crypto.sigle }}
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Acheter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const prix = parseFloat("{{ crypto.prix_achat|floatformat:8 }}".replace(',', '.'));
+const sigle = "{{ crypto.sigle }}";
+
+function onAdresseChange() {
+    const select = document.getElementById('adresse_existante');
+    const nouvelleAdresseDiv = document.getElementById('nouvelleAdresseDiv');
+    if (select.value) {
+        nouvelleAdresseDiv.style.display = 'none';
+        document.getElementById('nouvelle_adresse').value = '';
+    } else {
+        nouvelleAdresseDiv.style.display = '';
+    }
+}
+onAdresseChange();
+
+function fcfaToBtc() {
+    const montant_fcfa = parseFloat(document.getElementById('montant_fcfa').value) || 0;
+    let btc = 0;
+    if (prix > 0) {
+        btc = montant_fcfa / prix;
+    }
+    document.getElementById('montant_btc').value = btc > 0 ? btc.toFixed(8) : '';
+    updateResume();
+}
+
+function btcToFcfa() {
+    const montant_btc = parseFloat(document.getElementById('montant_btc').value) || 0;
+    let fcfa = 0;
+    if (prix > 0) {
+        fcfa = montant_btc * prix;
+    }
+    document.getElementById('montant_fcfa').value = fcfa > 0 ? Math.round(fcfa) : '';
+    updateResume();
+}
+
+function updateResume() {
+    const montant_fcfa = parseFloat(document.getElementById('montant_fcfa').value) || 0;
+    const montant_btc = parseFloat(document.getElementById('montant_btc').value) || 0;
+    document.getElementById('resume').innerText = 
+        montant_fcfa + " FCFA ⇄ " + montant_btc.toFixed(8) + " " + sigle;
+}
+</script>
+{% endblock %}
