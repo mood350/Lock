@@ -4,11 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
-<<<<<<< HEAD
 from django.contrib.auth.hashers import make_password
-=======
 from .models import Client, KYC
->>>>>>> c8cfc7006b3e78804ea778ff0eaa2e8370129db8
 
 from backend.models import *
 # Create your views here.
@@ -99,12 +96,10 @@ def connexion(request):
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
-<<<<<<< HEAD
             client = Client.objects.get(email=email)
             if client.password == password:  # (À remplacer par un hash en prod)
                 # Connexion réussie, redirige vers l'accueil
                 return redirect('accueil')
-=======
             # Récupérer l'utilisateur par email
             user = User.objects.get(email=email)
             # Authentifier l'utilisateur
@@ -112,7 +107,6 @@ def connexion(request):
             if user is not None:
                 login(request, user)
                 return redirect('index')
->>>>>>> c8cfc7006b3e78804ea778ff0eaa2e8370129db8
             else:
                 return render(request, 'connexion.html', {
                     'error_message': "Mot de passe incorrect",
@@ -127,14 +121,12 @@ def connexion(request):
 
 def inscription(request):
     if request.method == 'POST':
-<<<<<<< HEAD
         nom = request.POST['nom']
         prenoms = request.POST['prenoms']
         date_naissance = request.POST['date_naissance']
         email = request.POST['email']
         telephone = request.POST['telephone']
         password = request.POST['password']  # À hasher en vrai projet !
-        hashed_password = make_password(password)
         try:
             Client.objects.create(
                 nom=nom,
@@ -147,16 +139,14 @@ def inscription(request):
             return redirect('connexion')
         except ValueError as e:
             # Affiche le message d’erreur dans le template
-=======
-        nom = request.POST.get('nom')
-        prenoms = request.POST.get('prenoms')
-        email = request.POST.get('email')
-        telephone = request.POST.get('telephone')
-        password = request.POST.get('motdepasse')
-        confirm_password = request.POST.get('confirm_motdepasse')
+            nom = request.POST.get('nom')
+            prenoms = request.POST.get('prenoms')
+            email = request.POST.get('email')
+            telephone = request.POST.get('telephone')
+            password = request.POST.get('motdepasse')
+            confirm_password = request.POST.get('confirm_motdepasse')
 
         if password != confirm_password:
->>>>>>> c8cfc7006b3e78804ea778ff0eaa2e8370129db8
             return render(request, 'inscription.html', {
                 'error_message': "Les mots de passe ne correspondent pas",
                 'nom': nom,
