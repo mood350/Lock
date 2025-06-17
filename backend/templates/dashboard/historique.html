@@ -22,32 +22,32 @@
                     </thead>
                     <tbody>
                         {% for transaction in transactions %}
-                            <tr>
-                                <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
-                                <td>
-                                    {% if transaction.vente %}
-                                        <span class="badge badge-danger">Vente</span>
-                                    {% else %}
-                                        <span class="badge badge-success">Achat</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ transaction.crypto.nom }}</td>
-                                <td>{{ transaction.quantite }}</td>
-                                <td>{{ transaction.montant }} FCFA</td>
-                                <td>
-                                    {% if transaction.statut == 'Approuvé' %}
-                                        <span class="badge badge-success">{{ transaction.statut }}</span>
-                                    {% elif transaction.statut == 'Rejeté' %}
-                                        <span class="badge badge-danger">{{ transaction.statut }}</span>
-                                    {% else %}
-                                        <span class="badge badge-warning">{{ transaction.statut }}</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if transaction.vente %}
+                                    <span class="badge badge-danger">Vente</span>
+                                {% else %}
+                                    <span class="badge badge-success">Achat</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ transaction.crypto.nom }}</td>
+                            <td>{{ transaction.quantite }}</td>
+                            <td>{{ transaction.montant }} FCFA</td>
+                            <td>
+                                {% if transaction.statut == "Approuvé" or transaction.statut == 0 %}
+                                    <span class="badge badge-success">Approuvé</span>
+                                {% elif transaction.statut == "Rejeté" or transaction.statut == 1 %}
+                                    <span class="badge badge-danger">Rejeté</span>
+                                {% else %}
+                                    <span class="badge badge-warning">En attente</span>
+                                {% endif %}
+                            </td>
+                        </tr>
                         {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center">Aucune transaction trouvée</td>
-                            </tr>
+                        <tr>
+                            <td colspan="6" class="text-center">Aucune transaction trouvée</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>

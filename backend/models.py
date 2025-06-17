@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_delete
 import os
-
+from django.conf import settings
 from django.dispatch import receiver
 from django.shortcuts import redirect, render
 
@@ -228,3 +228,15 @@ def adresses(request):
         'adresses': adresses
     }
     return render(request, 'dashboard/adresses.html', context)
+
+
+HISTORIQUE_TYPE = (
+    ("Achat", "Achat"),
+    ("Vente", "Vente"),
+)
+
+HISTORIQUE_STATUT = (
+    ("En attente", "En attente"),
+    ("Approuvé", "Approuvé"),
+    ("Rejeté", "Rejeté"),
+)
