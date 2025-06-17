@@ -6,16 +6,13 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
-<<<<<<< HEAD
 from .models import Client, KYC
-=======
 from django.db import models
 
 from .models import *
 from .form import *
 from backend import form
 
->>>>>>> 7e68f010ffd99cee7c63a4efce7e7c5fd99a60ca
 
 # Create your views here.
 
@@ -114,15 +111,12 @@ def connexion(request):
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
-<<<<<<< HEAD
             client = Client.objects.get(email=email)
             if client.password == password:  # (À remplacer par un hash en prod)
                 # Connexion réussie, redirige vers l'accueil
                 return redirect('accueil')
             # Récupérer l'utilisateur par email
-=======
             # Récupérer l'utilisateur Django par email
->>>>>>> 7e68f010ffd99cee7c63a4efce7e7c5fd99a60ca
             user = User.objects.get(email=email)
             # Authentifier l'utilisateur
             user = authenticate(username=user.username, password=password)
@@ -143,7 +137,6 @@ def connexion(request):
 
 def inscription(request):
     if request.method == 'POST':
-<<<<<<< HEAD
         nom = request.POST['nom']
         prenoms = request.POST['prenoms']
         date_naissance = request.POST['date_naissance']
@@ -168,18 +161,15 @@ def inscription(request):
             telephone = request.POST.get('telephone')
             password = request.POST.get('motdepasse')
             confirm_password = request.POST.get('confirm_motdepasse')
-=======
-        nom = request.POST.get('nom')
-        prenoms = request.POST.get('prenoms')
-        date_naissance = request.POST.get('date_naissance')
-        email = request.POST.get('email')
-        telephone = request.POST.get('telephone')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirmPassword')
->>>>>>> 7e68f010ffd99cee7c63a4efce7e7c5fd99a60ca
-
-        if password != confirm_password:
-            return render(request, 'inscription.html', {
+            nom = request.POST.get('nom')
+            prenoms = request.POST.get('prenoms')
+            date_naissance = request.POST.get('date_naissance')
+            email = request.POST.get('email')
+            telephone = request.POST.get('telephone')
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirmPassword')
+            if password != confirm_password:
+                return render(request, 'inscription.html', {
                 'error_message': "Les mots de passe ne correspondent pas",
                 'nom': nom,
                 'prenoms': prenoms,
@@ -213,7 +203,7 @@ def inscription(request):
                 login(request, user)
                 return redirect('index')
             else:
-                return render(request, 'inscription.html', {
+             return render(request, 'inscription.html', {
                     'error_message': "Erreur lors de la connexion automatique.",
                     'nom': nom,
                     'prenoms': prenoms,
@@ -222,7 +212,7 @@ def inscription(request):
                 })
 
         except Exception as e:
-            return render(request, 'inscription.html', {
+         return render(request, 'inscription.html', {
                 'error_message': "Une erreur est survenue lors de l'inscription",
                 'nom': nom,
                 'prenoms': prenoms,
