@@ -1,24 +1,54 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Client, Crypto, Adresse, Achat, Vente, Transaction
-from django.db.models import Q
-from http import client
+from .models import *
 from multiprocessing.connection import Client
-from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import make_password
-from .models import Client, KYC
 from django.db import models
-from .models import *
 from .form import *
-from backend import form
 
 
 # Create your views here.
 
+# Admin views
+@login_required
+def dashboard(request):
+    if not request.user.is_staff:
+        return redirect('accueil')
+    clients = Client.objects.all()
+    cryptos = Crypto.objects.all()
+    adresses = Adresse.objects.all()
+    transactions = Transaction.objects.all()
+    achats = Achat.objects.all()
+    ventes = Vente.objects.all()
+    context = {
+        'clients': clients,
+        'cryptos': cryptos,
+        'adresses': adresses,
+        'transactions': transactions,
+        'achats': achats,
+        'ventes': ventes
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+@login_required
+def admin_dashboard(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    nb_clients = Client.objects.count()
+    nb_cryptos = Crypto.objects.count()
+    nb_transactions = Transaction.objects.count()
+    nb_achats = Achat.objects.count()
+    transactions = Transaction.objects.order_by('-date')[:10]
+    return render(request, 'admin/dashboard_admin.html', {
+        'nb_clients': nb_clients,
+        'nb_cryptos': nb_cryptos,
+        'nb_transactions': nb_transactions,
+        'nb_achats': nb_achats,
+        'transactions': transactions,
+        'section': 'dashboard'
+    })
 
 # Dashboard views
 @login_required
@@ -111,33 +141,18 @@ def accueil(request):
     return render(request, 'accueil.html')
 
 def connexion(request):
+    error_message = None
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('motdepasse')
-        try:
-            client = Client.objects.get(email=email)
-            if client.password == password:  # (À remplacer par un hash en prod)
-                # Connexion réussie, redirige vers l'accueil
-                return redirect('accueil')
-            # Récupérer l'utilisateur par email
-            # Récupérer l'utilisateur Django par email
-            user = User.objects.get(email=email)
-            # Authentifier l'utilisateur
-            user = authenticate(username=user.username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('index')
-            else:
-                return render(request, 'connexion.html', {
-                    'error_message': "Mot de passe incorrect",
-                    'email': email
-                })
-        except User.DoesNotExist:
-            return render(request, 'connexion.html', {
-                'error_message': "Aucun compte trouvé avec cet email",
-                'email': email
-            })
-    return render(request, 'connexion.html')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # Redirige vers le dashboard ou la page souhaitée
+            return redirect('admin_dashboard')
+        else:
+            error_message = "Nom d'utilisateur ou mot de passe incorrect."
+    return render(request, 'dashboard/dashboard_admin.html', {'error_message': error_message})
 
 def inscription(request):
     if request.method == 'POST':
@@ -412,4 +427,132 @@ def ajouter_adresse(request):
         'titre': "Ajouter une adresse",
         'bouton': "Ajouter",
         'error_message': error_message
+    })
+
+
+def cryptoadmin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    cryptos = Crypto.objects.all()
+    return render(request, 'admin/cryptoadmin.html', {
+        'cryptos': cryptos,
+        'section': 'cryptos'
+    })
+
+def transactionadmin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    transactions = Transaction.objects.order_by('-date')
+    return render(request, 'admin/transactionadmin.html', {
+        'transactions': transactions,
+        'section': 'transactions'
+    })
+
+
+@login_required
+def clientadmin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+
+    # Récupère tous les clients et leur KYC (si existe)
+    clients = Client.objects.all().select_related()
+    # Ajoute l'objet KYC à chaque client (ou None)
+    for client in clients:
+        client.kyc = KYC.objects.filter(client=client).first()
+
+    if request.method == 'POST':
+        client_id = request.POST.get('client_id')
+        action = request.POST.get('action')
+        kyc = KYC.objects.filter(client_id=client_id).first()
+        if kyc:
+            if action == 'confirmer':
+                kyc.statut = 1  # Confirmé
+            elif action == 'rejeter':
+                kyc.statut = 2  # Rejeté
+            kyc.save()
+        return redirect('clientadmin')
+
+    return render(request, 'admin/clientadmin.html', {
+        'clients': clients,
+        'section': 'clients'
+    })
+
+def ajouter_crypto(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    error_message = None
+    if request.method == 'POST':
+        nom = request.POST.get('nom', '').strip()
+        sigle = request.POST.get('sigle', '').strip()
+        adresse = request.POST.get('adresse', '').strip()
+        prix_achat = request.POST.get('prix_achat', '').strip()
+        prix_vente = request.POST.get('prix_vente', '').strip()
+        prix_achat_min = request.POST.get('prix_achat_min', '').strip()
+        prix_vente_min = request.POST.get('prix_vente_min', '').strip()
+        quantite = request.POST.get('quantite', '').strip()
+        disponibilite = request.POST.get('disponibilite', '').strip()
+        try:
+            prix_achat = float(prix_achat)
+            prix_vente = float(prix_vente)
+            prix_achat_min = float(prix_achat_min)
+            prix_vente_min = float(prix_vente_min)
+            quantite = float(quantite)
+        except ValueError:
+            error_message = "Les prix et la quantité doivent être des nombres valides."
+        else:
+            if not all([nom, sigle, adresse, disponibilite]):
+                error_message = "Tous les champs sont obligatoires."
+            elif prix_achat <= 0 or prix_vente <= 0 or prix_achat_min <= 0 or prix_vente_min <= 0 or quantite <= 0:
+                error_message = "Les prix et la quantité doivent être strictement supérieurs à 0."
+            else:
+                Crypto.objects.create(
+                    nom=nom,
+                    sigle=sigle,
+                    adresse=adresse,
+                    prix_achat=prix_achat,
+                    prix_vente=prix_vente,
+                    prix_achat_min=prix_achat_min,
+                    prix_vente_min=prix_vente_min,
+                    quantite=quantite,
+                    disponibilite=disponibilite
+                )
+                return redirect('cryptoadmin')
+    return render(request, 'admin/ajouter_crypto.html', {
+        'error_message': error_message,
+        'section': 'cryptos'
+    })
+
+def supprimer_crypto(request, crypto_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    crypto = Crypto.objects.filter(id=crypto_id).first()
+    if request.method == 'POST' and crypto:
+        crypto.delete()
+    return redirect('cryptoadmin')
+
+def modifier_crypto(request, crypto_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    crypto = Crypto.objects.filter(id=crypto_id).first()
+    if not crypto:
+        return redirect('cryptoadmin')
+    error_message = None
+    if request.method == 'POST':
+        nom = request.POST.get('nom', '').strip()
+        sigle = request.POST.get('sigle', '').strip()
+        prix_achat = request.POST.get('prix_achat', '').strip()
+        prix_vente = request.POST.get('prix_vente', '').strip()
+        if nom and sigle and prix_achat and prix_vente:
+            crypto.nom = nom
+            crypto.sigle = sigle
+            crypto.prix_achat = float(prix_achat)
+            crypto.prix_vente = float(prix_vente)
+            crypto.save()
+            return redirect('cryptoadmin')
+        else:
+            error_message = "Tous les champs sont obligatoires."
+    return render(request, 'admin/modifier_crypto.html', {
+        'crypto': crypto,
+        'error_message': error_message,
+        'section': 'cryptos'
     })
