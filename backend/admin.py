@@ -44,10 +44,13 @@ class VenteAdmin(admin.ModelAdmin):
 admin.site.register(Vente, VenteAdmin)
 
 class AchatAdmin(admin.ModelAdmin):
-    list_display = ('crypto', 'client', 'quantite', 'valeur', 'montant', 'adresse', 'statut', 'date')
-    search_fields = ('crypto', 'client', 'quantite', 'valeur', 'montant', 'adresse', 'statut', 'date')
-    list_filter = ('crypto', 'client', 'quantite', 'valeur', 'montant', 'adresse', 'statut', 'date')
-    ordering = ('date',)
+    list_display = ['client', 'crypto', 'quantite', 'adresse', 'get_montant']
+
+    def get_montant(self, obj):
+        # Remplace par ton calcul réel
+        return obj.quantite * obj.crypto.prix_achat
+    get_montant.short_description = 'Montant'
+
 admin.site.register(Achat, AchatAdmin)
 
 class TransactionAdmin(admin.ModelAdmin):
