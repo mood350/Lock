@@ -3,6 +3,17 @@ from django.urls import path
 from . import views
 urlpatterns = [
 
+    #Admin URLs
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-cryptos/', views.cryptoadmin, name='cryptoadmin'),
+    path('admin-transactions/', views.transactionadmin, name='transactionadmin'),
+    path('admin-clients/', views.clientadmin, name='clientadmin'),
+    path('admin-cryptos/ajouter/', views.ajouter_crypto, name='ajouter_crypto'),
+    path('admin-cryptos/supprimer/<int:crypto_id>/', views.supprimer_crypto, name='supprimer_crypto'),
+    path('admin-cryptos/modifier/<int:crypto_id>/', views.modifier_crypto, name='modifier_crypto'),
+    path('admin-cryptos/supprimer/<int:crypto_id>/confirmer/', views.supprimer_crypto, name='confirmer_suppression_crypto'),
+
     #Dashboard URLs
     path('base', views.base, name='base'),
     path('home/', views.index, name='index'),
