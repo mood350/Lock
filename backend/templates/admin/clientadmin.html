@@ -1,0 +1,58 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Admin - Clients{% endblock %}
+{% block content %}
+<h2 class="mb-4">Gestion des clients</h2>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Prénoms</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Date inscription</th>
+                <th>Statut</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td>{{ client.nom }}</td>
+                <td>{{ client.prenoms }}</td>
+                <td>{{ client.email }}</td>
+                <td>{{ client.telephone }}</td>
+                <td>{{ client.date_inscription|date:"d/m/Y" }}</td>
+                <td>
+                    {% if client.kyc and client.kyc.statut == 1 %}
+                        <span class="badge badge-success">Confirmé</span>
+                    {% elif client.kyc and client.kyc.statut == 2 %}
+                        <span class="badge badge-danger">Rejeté</span>
+                    {% else %}
+                        <span class="badge badge-warning">En attente</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if client.kyc and client.kyc.statut == 0 %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="client_id" value="{{ client.id }}">
+                            <button name="action" value="confirmer" class="btn btn-sm btn-success">Confirmer</button>
+                            <button name="action" value="rejeter" class="btn btn-sm btn-danger">Rejeter</button>
+                        </form>
+                    {% elif client.kyc and client.kyc.statut == 1 %}
+                        <span class="text-success">Déjà confirmé</span>
+                    {% elif client.kyc and client.kyc.statut == 2 %}
+                        <span class="text-danger">Déjà rejeté</span>
+                    {% else %}
+                        <span class="text-muted">Aucune demande</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center">Aucun client trouvé</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
