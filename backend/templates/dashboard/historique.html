@@ -35,9 +35,9 @@
                             <td>{{ transaction.quantite }}</td>
                             <td>{{ transaction.montant }} FCFA</td>
                             <td>
-                                {% if transaction.statut == "Approuvé" or transaction.statut == 0 %}
+                                {% if transaction.statut == 'approuve' %}
                                     <span class="badge badge-success">Approuvé</span>
-                                {% elif transaction.statut == "Rejeté" or transaction.statut == 1 %}
+                                {% elif transaction.statut == 'rejete' %}
                                     <span class="badge badge-danger">Rejeté</span>
                                 {% else %}
                                     <span class="badge badge-warning">En attente</span>
