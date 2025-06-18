@@ -39,8 +39,8 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="#" class="btn btn-sm btn-success">Valider</a>
-                    <a href="#" class="btn btn-sm btn-danger">Rejeter</a>
+                    <a href="{% url 'valider_transaction' t.id %}" class="btn btn-sm btn-success" onclick="return confirm('Valider cette transaction ?');">Valider</a>
+                    <a href="{% url 'rejeter_transaction' t.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Rejeter cette transaction ?');">Rejeter</a>
                 </td>
             </tr>
             {% empty %}

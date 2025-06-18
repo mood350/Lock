@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate, login
 from django.db import models
 from .form import *
 
-
 # Create your views here.
 
 # Admin views
@@ -135,24 +134,23 @@ def historique(request):
         'transactions': transactions
     })
 
-
 # No connection views
 def accueil(request):
     return render(request, 'accueil.html')
 
 def connexion(request):
     error_message = None
+    email = ''
     if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        password = request.POST.get('password', '').strip()
-        user = authenticate(request, username=username, password=password)
+        email = request.POST.get('email', '').strip()
+        motdepasse = request.POST.get('motdepasse', '').strip()
+        user = authenticate(request, username=email, password=motdepasse)
         if user is not None:
             login(request, user)
-            # Redirige vers le dashboard ou la page souhaitée
-            return redirect('admin_dashboard')
+            return redirect('index')
         else:
             error_message = "Nom d'utilisateur ou mot de passe incorrect."
-    return render(request, 'dashboard/dashboard_admin.html', {'error_message': error_message})
+    return render(request, 'connexion.html', {'error_message': error_message, 'email': email})
 
 def inscription(request):
     if request.method == 'POST':
@@ -256,15 +254,8 @@ def profile(request):
     }
     return render(request, 'dashboard/profil.html', context)
 
-def service(request):
-    return render(request, 'service.html')
-
-def partenaire(request):
-    return render(request, 'partenaire.html')
-
 def propos(request):
     return render(request, 'Apropos.html')
-
 
 def contact(request):
     message_sent = False
@@ -276,9 +267,6 @@ def contact(request):
 
         message_sent = True
     return render(request, 'contact.html', {'message_sent': message_sent})
-
-def auth(request):
-    return render(request, 'auth.html')
 
 def politique_confidentialite(request):
     return render(request, 'politique_confidentialite.html')
@@ -399,7 +387,6 @@ def vente(request, crypto_id):
         'error_message': error_message
     })
 
-
 def profiles(request):
     return render(request, 'profile.html', status=404)
 
@@ -447,7 +434,6 @@ def transactionadmin(request):
         'transactions': transactions,
         'section': 'transactions'
     })
-
 
 @login_required
 def clientadmin(request):
@@ -556,3 +542,21 @@ def modifier_crypto(request, crypto_id):
         'error_message': error_message,
         'section': 'cryptos'
     })
+
+def valider_transaction(request, transaction_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    transaction = Transaction.objects.filter(id=transaction_id).first()
+    if transaction:
+        transaction.statut = 'approuve'
+        transaction.save()
+    return redirect('transactionadmin')
+
+def rejeter_transaction(request, transaction_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    transaction = Transaction.objects.filter(id=transaction_id).first()
+    if transaction:
+        transaction.statut = 'rejete'
+        transaction.save()
+    return redirect('transactionadmin')

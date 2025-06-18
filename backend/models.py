@@ -161,16 +161,10 @@ class Transaction(models.Model):
 
     def save(self, *args, **kwargs):
         # 
-        if self.vente:
-            self.montant = self.vente.montant
-            self.quantite = self.vente.quantite
-            self.crypto = self.vente.crypto
-            self.statut = self.vente.statut
-        else:
-            self.montant = self.achat.montant
-            self.quantite = self.achat.quantite
-            self.crypto = self.achat.crypto
-            self.statut = self.achat.statut
+        if self.achat:
+            self.montant = self.achat.quantite * self.achat.crypto.prix_achat
+        elif self.vente:
+            self.montant = self.vente.quantite * self.vente.crypto.prix_vente
         super().save(*args, **kwargs)
 
 class Tutoriel(models.Model):
