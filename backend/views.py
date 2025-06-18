@@ -1,3 +1,7 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Client, Crypto, Adresse, Achat, Vente, Transaction
+from django.db.models import Q
 from http import client
 from multiprocessing.connection import Client
 from django.shortcuts import get_object_or_404, render
@@ -7,7 +11,6 @@ from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 from django.db import models
-
 from .models import *
 from .form import *
 from backend import form
@@ -96,14 +99,15 @@ def historique(request):
     transactions = Transaction.objects.filter(
         models.Q(achat__client=client) | models.Q(vente__client=client)
     ).order_by('-date')
-    return render(request, 'dashboard/historique.html', {'transactions': transactions})
+    
+    return render(request, 'dashboard/historique.html', {
+        'transactions': transactions
+    })
 
 
 # No connection views
 def accueil(request):
     return render(request, 'accueil.html')
-
-
 
 def connexion(request):
     if request.method == 'POST':
@@ -241,55 +245,113 @@ def conditions_utilisation(request):
 def support_contact(request):
     return render(request, 'support_contact.html')
 
+@login_required
 def achat(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)
     client = get_object_or_404(Client, user=request.user)
     adresses = Adresse.objects.filter(client=client, crypto=crypto)
+    error_message = None
 
     if request.method == 'POST':
-        form = AchatForm(request.POST)
-        if form.is_valid():
-            achat = form.save(commit=False)
-            achat.client = client
-            achat.crypto = crypto
-            achat.save()
-            # Crée la transaction ici si besoin
+        try:
+            quantite_str = request.POST.get('quantite', '').strip().replace(',', '.')
+            if not quantite_str:
+                raise ValueError("La quantité est requise")
+            
+            quantite = float(quantite_str)
+            if quantite <= 0:
+                raise ValueError("La quantité doit être positive")
+
+            adresse_existante = request.POST.get('adresse_existante')
+            nouvelle_adresse = request.POST.get('nouvelle_adresse')
+            adresse_val = adresse_existante if adresse_existante else nouvelle_adresse
+
+            if not adresse_val:
+                raise ValueError("Une adresse est requise")
+
+            montant = quantite * crypto.prix_achat
+
+            # Création de l'achat
+            achat = Achat.objects.create(
+                client=client,
+                crypto=crypto,
+                quantite=quantite,
+                adresse=adresse_val
+            )
+
+            # Création de la transaction
+            Transaction.objects.create(
+                achat=achat,
+                crypto=crypto,
+                quantite=quantite,
+                montant=montant,
+                statut='en_attente'
+            )
+
             return redirect('historique')
-    else:
-        form = AchatForm()
+
+        except ValueError as e:
+            error_message = str(e)
+        except Exception as e:
+            print(f"Erreur: {str(e)}")
+            error_message = "Une erreur est survenue"
 
     return render(request, 'dashboard/achat.html', {
-        'form': form,
         'crypto': crypto,
         'adresses': adresses,
+        'error_message': error_message
     })
-
-from .form import VenteForm
-from .models import Client, Crypto
 
 @login_required
 def vente(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)
     client = get_object_or_404(Client, user=request.user)
+    adresses = Adresse.objects.filter(client=client, crypto=crypto)
     error_message = None
 
     if request.method == 'POST':
-        form = VenteForm(request.POST)
-        if form.is_valid():
-            vente = form.save(commit=False)
-            vente.client = client
-            vente.crypto = crypto
-            vente.save()
-            # Crée la transaction ici si besoin
+        try:
+            quantite_str = request.POST.get('quantite', '').strip().replace(',', '.')
+            if not quantite_str:
+                raise ValueError("La quantité est requise")
+            quantite = float(quantite_str)
+            if quantite <= 0:
+                raise ValueError("La quantité doit être positive")
+
+            adresse_existante = request.POST.get('adresse_existante')
+            nouvelle_adresse = request.POST.get('nouvelle_adresse')
+            adresse_val = adresse_existante if adresse_existante else nouvelle_adresse
+            if not adresse_val:
+                raise ValueError("Une adresse est requise")
+
+            montant = quantite * crypto.prix_vente
+
+            vente = Vente.objects.create(
+                client=client,
+                crypto=crypto,
+                quantite=quantite,
+                adresse=adresse_val
+            )
+
+            Transaction.objects.create(
+                vente=vente,
+                crypto=crypto,
+                quantite=quantite,
+                montant=montant,
+                statut='en_attente'
+            )
+
             return redirect('historique')
-        else:
-            error_message = "Un champ est invalide"
-    else:
-        form = VenteForm()
+
+        except ValueError as e:
+            error_message = str(e)
+        except Exception as e:
+            print(f"Erreur: {str(e)}")
+            error_message = "Une erreur est survenue"
 
     return render(request, 'dashboard/vente.html', {
-        'form': form,
         'crypto': crypto,
+        'adresses': adresses,
         'error_message': error_message
     })
 
