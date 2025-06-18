@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
+from .models import Client, KYC
 from django.db import models
 from .models import *
 from .form import *
@@ -114,6 +115,11 @@ def connexion(request):
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
+            client = Client.objects.get(email=email)
+            if client.password == password:  # (À remplacer par un hash en prod)
+                # Connexion réussie, redirige vers l'accueil
+                return redirect('accueil')
+            # Récupérer l'utilisateur par email
             # Récupérer l'utilisateur Django par email
             user = User.objects.get(email=email)
             # Authentifier l'utilisateur
@@ -135,16 +141,39 @@ def connexion(request):
 
 def inscription(request):
     if request.method == 'POST':
-        nom = request.POST.get('nom')
-        prenoms = request.POST.get('prenoms')
-        date_naissance = request.POST.get('date_naissance')
-        email = request.POST.get('email')
-        telephone = request.POST.get('telephone')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirmPassword')
-
-        if password != confirm_password:
-            return render(request, 'inscription.html', {
+        nom = request.POST['nom']
+        prenoms = request.POST['prenoms']
+        date_naissance = request.POST['date_naissance']
+        email = request.POST['email']
+        telephone = request.POST['telephone']
+        password = request.POST['password']  # À hasher en vrai projet !
+        try:
+            Client.objects.create(
+                nom=nom,
+                prenoms=prenoms,
+                date_naissance=date_naissance,
+                email=email,
+                telephone=telephone,
+                password=password
+            )
+            return redirect('connexion')
+        except ValueError as e:
+            # Affiche le message d’erreur dans le template
+            nom = request.POST.get('nom')
+            prenoms = request.POST.get('prenoms')
+            email = request.POST.get('email')
+            telephone = request.POST.get('telephone')
+            password = request.POST.get('motdepasse')
+            confirm_password = request.POST.get('confirm_motdepasse')
+            nom = request.POST.get('nom')
+            prenoms = request.POST.get('prenoms')
+            date_naissance = request.POST.get('date_naissance')
+            email = request.POST.get('email')
+            telephone = request.POST.get('telephone')
+            password = request.POST.get('password')
+            confirm_password = request.POST.get('confirmPassword')
+            if password != confirm_password:
+                return render(request, 'inscription.html', {
                 'error_message': "Les mots de passe ne correspondent pas",
                 'nom': nom,
                 'prenoms': prenoms,
@@ -178,7 +207,7 @@ def inscription(request):
                 login(request, user)
                 return redirect('index')
             else:
-                return render(request, 'inscription.html', {
+             return render(request, 'inscription.html', {
                     'error_message': "Erreur lors de la connexion automatique.",
                     'nom': nom,
                     'prenoms': prenoms,
@@ -187,7 +216,7 @@ def inscription(request):
                 })
 
         except Exception as e:
-            return render(request, 'inscription.html', {
+         return render(request, 'inscription.html', {
                 'error_message': "Une erreur est survenue lors de l'inscription",
                 'nom': nom,
                 'prenoms': prenoms,
