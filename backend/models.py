@@ -45,16 +45,15 @@ class ServiceClient(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='service_client', editable=False)
 
 class Client(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null = True)
-    nom = models.CharField(max_length=100)
-    prenoms = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='client')
+    nom = models.CharField(max_length=100, null=True, blank=True)
+    prenoms = models.CharField(max_length=100, null=True, blank=True)
     date_naissance = models.DateField(null=True, blank=True)
-    telephone = models.IntegerField()
     email = models.EmailField()
-    date_inscription = models.DateTimeField(auto_now_add=True)
+    telephone = models.CharField(max_length=20)
 
     def __str__(self):
-        return self.nom
+        return f"{self.prenoms} {self.nom}"
 
 class KYC(models.Model): 
     client = models.OneToOneField(Client, on_delete=models.CASCADE, related_name='kyc')
@@ -98,7 +97,7 @@ class Vente(models.Model):
     valeur = models.FloatField(editable=False)
     montant = models.FloatField(editable=False)
     adresse = models.CharField(max_length=200, null=True)
-    statut = models.IntegerField(choices=STATUS, default="En attente")
+    statut = models.CharField(choices=STATUS, default="En attente")
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -121,13 +120,11 @@ class Vente(models.Model):
         super().save(*args, **kwargs)
 
 class Achat(models.Model):
-    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
+    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
     quantite = models.FloatField()
-    valeur = models.FloatField(editable=False)
-    montant = models.FloatField(editable=False)
-    adresse = models.CharField(max_length=200, null=True)
-    statut = models.IntegerField(choices=STATUS, default="En attente")
+    adresse = models.CharField(max_length=255, null = True)  # <-- ce champ doit exister
+    statut = models.CharField(choices=STATUS, default="En attente")
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -146,16 +143,21 @@ class Achat(models.Model):
         super().save(*args, **kwargs)
 
 class Transaction(models.Model):
-    vente = models.ForeignKey(Vente, on_delete=models.CASCADE, null=True)
-    achat = models.ForeignKey(Achat, on_delete=models.CASCADE, null=True)
-    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('approuve', 'Approuvé'),
+        ('rejete', 'Rejeté')
+    ]
+    achat = models.ForeignKey('Achat', on_delete=models.CASCADE, null=True, blank=True)
+    vente = models.ForeignKey('Vente', on_delete=models.CASCADE, null=True, blank=True)
+    crypto = models.ForeignKey('Crypto', on_delete=models.CASCADE)
     quantite = models.FloatField()
     montant = models.FloatField()
-    statut = models.IntegerField(choices=STATUS, default="En attente")
+    statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_attente')
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.crypto.nom
+        return f"Transaction de {self.quantite} {self.crypto.sigle} - Statut: {self.get_statut_display()}"
 
     def save(self, *args, **kwargs):
         # 
@@ -228,15 +230,3 @@ def adresses(request):
         'adresses': adresses
     }
     return render(request, 'dashboard/adresses.html', context)
-
-
-HISTORIQUE_TYPE = (
-    ("Achat", "Achat"),
-    ("Vente", "Vente"),
-)
-
-HISTORIQUE_STATUT = (
-    ("En attente", "En attente"),
-    ("Approuvé", "Approuvé"),
-    ("Rejeté", "Rejeté"),
-)
