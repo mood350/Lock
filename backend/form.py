@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Client, KYC
 from django.contrib.auth.decorators import login_required
 from django import forms
-from .models import *
+from .models import Client, Achat, Vente, Transaction, Adresse
 
 class ClientForm(forms.ModelForm):
     class Meta:
@@ -19,30 +19,32 @@ class ClientForm(forms.ModelForm):
 class AchatForm(forms.ModelForm):
     class Meta:
         model = Achat
-        fields = ['crypto', 'quantite', 'adresse']
+        fields = ['quantite']  # Remove 'crypto' and 'adresse' as they're handled in the view
         widgets = {
-            'crypto': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': 'any',
+                'placeholder': 'Ex: 0.001'
+            }),
         }
 
 class VenteForm(forms.ModelForm):
     class Meta:
         model = Vente
-        fields = ['crypto', 'quantite', 'adresse']
+        fields = ['quantite']  # Remove 'crypto' and 'adresse' as they're handled in the view
         widgets = {
-            'crypto': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': 'any',
+                'placeholder': 'Ex: 0.001'
+            }),
         }
 
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['achat', 'vente', 'crypto', 'quantite', 'montant', 'statut']
+        fields = ['crypto', 'quantite', 'montant', 'statut']
         widgets = {
-            'achat': forms.Select(attrs={'class': 'form-control'}),
-            'vente': forms.Select(attrs={'class': 'form-control'}),
             'crypto': forms.Select(attrs={'class': 'form-control'}),
             'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
             'montant': forms.NumberInput(attrs={'class': 'form-control'}),
