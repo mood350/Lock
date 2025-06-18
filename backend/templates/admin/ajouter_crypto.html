@@ -1,0 +1,52 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Ajouter une cryptomonnaie{% endblock %}
+{% block content %}
+<h2 class="mb-4">Ajouter une cryptomonnaie</h2>
+{% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Nom</label>
+        <input type="text" name="nom" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Sigle</label>
+        <input type="text" name="sigle" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Adresse</label>
+        <input type="text" name="adresse" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix d'achat</label>
+        <input type="number" name="prix_achat" class="form-control" step="any" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix de vente</label>
+        <input type="number" name="prix_vente" class="form-control" step="any" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix achat min</label>
+        <input type="number" name="prix_achat_min" class="form-control" step="any" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix vente min</label>
+        <input type="number" name="prix_vente_min" class="form-control" step="any" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Quantité</label>
+        <input type="number" name="quantite" class="form-control" step="any" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Disponibilité</label>
+        <select name="disponibilite" class="form-control" required>
+            <option value="Oui">Oui</option>
+            <option value="Non">Non</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Ajouter</button>
+    <a href="{% url 'cryptoadmin' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}
