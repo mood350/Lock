@@ -1,9 +1,9 @@
-from django.contrib import admin
 from django.urls import path
 from . import views
 urlpatterns = [
 
     #Admin URLs
+    path('admin/', views.admin, name='admin'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-cryptos/', views.cryptoadmin, name='cryptoadmin'),
