@@ -12,6 +12,12 @@ from .form import *
 
 # Admin views
 @login_required
+def admin(request):
+    if not request.user.is_staff:
+        return redirect('accueil')
+    return render(request, 'admin/dashboard_admin.html')
+
+@login_required
 def dashboard(request):
     if not request.user.is_staff:
         return redirect('accueil')
@@ -415,7 +421,6 @@ def ajouter_adresse(request):
         'bouton': "Ajouter",
         'error_message': error_message
     })
-
 
 def cryptoadmin(request):
     if not request.user.is_staff:
