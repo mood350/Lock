@@ -236,3 +236,10 @@ def adresses(request):
     }
     return render(request, 'dashboard/adresses.html', context)
 
+class Tutoriel(models.Model):
+    titre = models.CharField(max_length=100)
+    description = models.TextField()
+    media = models.FileField(upload_to='tutoriels/')
+
+    def __str__(self):
+        return self.titre
