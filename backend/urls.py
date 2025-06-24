@@ -1,9 +1,12 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
 
     #Admin URLs
-    path('admin/', views.admin, name='admin'),
+    path('admin/', views.admin_dashboard, name='admin'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-cryptos/', views.cryptoadmin, name='cryptoadmin'),
@@ -15,6 +18,7 @@ urlpatterns = [
     path('admin-cryptos/supprimer/<int:crypto_id>/confirmer/', views.supprimer_crypto, name='confirmer_suppression_crypto'),
     path('admin-transactions/valider/<int:transaction_id>/', views.valider_transaction, name='valider_transaction'),
     path('admin-transactions/rejeter/<int:transaction_id>/', views.rejeter_transaction, name='rejeter_transaction'),
+    path('admin-kyc/<int:kyc_id>/', views.kyc_verification, name='kyc_verification'),
 
     #Dashboard URLs
     path('base', views.base, name='base'),
@@ -37,5 +41,9 @@ urlpatterns = [
     path('politique_confidentialite/', views.politique_confidentialite, name='politique_confidentialite'),
     path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),
     path('support_contact/', views.support_contact, name='support_contact'),
-   
+    path('kyc/', views.kyc_form, name='kyc_form'),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
