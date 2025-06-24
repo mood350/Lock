@@ -12,10 +12,19 @@ STATUS = (
     ("En attente","En attente")
 )
 
+KYC_STATUS = (
+    ("en_attente", "En attente"),
+    ("valide", "Validée"),
+    ("refuse", "Refusée"),
+)
+
 DISPONIBILITE = (
     ("Non","Non disponible"),
     ("Oui","Disponible")
 )
+
+def kyc_upload_path(instance, filename):
+    return f"kyc/{instance.client.id}/{filename}"
 
 class Utilisateur(models.Model):
     nom = models.CharField(max_length=100)
@@ -60,11 +69,13 @@ class KYC(models.Model):
     date_naissance = models.DateField(null=True, blank=True)
     adresse = models.CharField(max_length=200, null=True, blank=True)
     cni = models.CharField(max_length=20, null=True, blank=True)
-    statut = models.IntegerField(choices=STATUS, default=0)
+    document_identite = models.FileField(upload_to=kyc_upload_path, null=True, blank=True)
+    selfie = models.ImageField(upload_to=kyc_upload_path, null=True, blank=True)
+    statut = models.CharField(max_length=20, choices=KYC_STATUS, default="en_attente")
     date_validation = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nom} {self.prenoms} - {self.email}"
+        return f"KYC {self.client.nom} {self.client.prenoms} - {self.get_statut_display()}"
 
 class Validateur(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='validateur', editable=False)
@@ -224,3 +235,4 @@ def adresses(request):
         'adresses': adresses
     }
     return render(request, 'dashboard/adresses.html', context)
+
