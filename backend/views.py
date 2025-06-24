@@ -7,6 +7,8 @@ from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.db import models
 from .form import *
+from django.utils import timezone
+import os
 
 # Create your views here.
 
@@ -105,29 +107,6 @@ def faq(request):
 def profile(request):
     return render(request, 'dashboard/profil.html', {'user': request.user})
 
-@login_required
-def kyc(request):
-    try:
-        client = Client.objects.get(user=request.user)
-    except Client.DoesNotExist:
-        # Rediriger ou créer le client si nécessaire
-        client = Client.objects.create(user=request.user)
-
-    if request.method == 'POST':
-        date_naissance = request.POST.get('date_naissance')
-        adresse = request.POST.get('adresse')
-        cni = request.POST.get('cni')
-
-        kyc_obj, created = KYC.objects.get_or_create(client=client)
-        kyc_obj.date_naissance = date_naissance
-        kyc_obj.adresse = adresse
-        kyc_obj.cni = cni
-        kyc_obj.statut = 0  # En attente
-        kyc_obj.save()
-
-        return redirect('profile')
-
-    return render(request, 'dashboard/kyc.html')
 
 @login_required
 def historique(request):    
@@ -445,26 +424,25 @@ def clientadmin(request):
     if not request.user.is_staff:
         return redirect('index')
 
-    # Récupère tous les clients et leur KYC (si existe)
-    clients = Client.objects.all().select_related()
-    # Ajoute l'objet KYC à chaque client (ou None)
-    for client in clients:
-        client.kyc = KYC.objects.filter(client=client).first()
+    # On ne récupère que les KYC en attente
+    kycs = KYC.objects.filter(statut='en_attente').select_related('client')
 
     if request.method == 'POST':
-        client_id = request.POST.get('client_id')
+        kyc_id = request.POST.get('kyc_id')
         action = request.POST.get('action')
-        kyc = KYC.objects.filter(client_id=client_id).first()
+        kyc = KYC.objects.filter(id=kyc_id).first()
         if kyc:
             if action == 'confirmer':
-                kyc.statut = 1  # Confirmé
+                kyc.statut = 'valide'
+                kyc.date_validation = timezone.now()
             elif action == 'rejeter':
-                kyc.statut = 2  # Rejeté
+                kyc.statut = 'refuse'
+                kyc.date_validation = timezone.now()
             kyc.save()
         return redirect('clientadmin')
 
     return render(request, 'admin/clientadmin.html', {
-        'clients': clients,
+        'kycs': kycs,
         'section': 'clients'
     })
 
@@ -565,3 +543,64 @@ def rejeter_transaction(request, transaction_id):
         transaction.statut = 'rejete'
         transaction.save()
     return redirect('transactionadmin')
+
+@login_required
+def kyc_form(request):
+    client = Client.objects.get(user=request.user)
+    kyc = KYC.objects.filter(client=client).first()
+
+    # Permettre la resoumission si le KYC est refusé
+    if kyc and kyc.statut == 'refuse':
+        kyc.delete()
+        kyc = None
+
+    if request.method == 'POST':
+        form = KYCForm(request.POST, request.FILES, instance=kyc)
+        if form.is_valid():
+            kyc_obj = form.save(commit=False)
+            kyc_obj.client = client
+            kyc_obj.statut = 'en_attente'
+            kyc_obj.date_validation = None
+            kyc_obj.save()
+            return redirect('profile')
+    else:
+        form = KYCForm(instance=kyc)
+
+    return render(request, 'kyc.html', {
+        'form': form,
+        'kyc': KYC.objects.filter(client=client).first()
+    })
+
+@login_required
+def kyc_verification(request, kyc_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    kyc = get_object_or_404(KYC, id=kyc_id)
+    client = kyc.client
+
+    # Vérifie si le document identité est une image supportée
+    doc_is_image = False
+    if kyc.document_identite and kyc.document_identite.url:
+        ext = os.path.splitext(kyc.document_identite.url)[1].lower()
+        doc_is_image = ext in [
+            '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg', '.jfif', '.pjpeg', '.pjp', '.ico', '.heic', '.heif'
+        ]
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'valider':
+            kyc.statut = 'valide'
+            kyc.date_validation = timezone.now()
+            kyc.save()
+        elif action == 'rejeter':
+            kyc.statut = 'refuse'
+            kyc.date_validation = timezone.now()
+            kyc.save()
+        return redirect('clientadmin')
+
+    return render(request, 'admin/kyc_verification.html', {
+        'client': client,
+        'kyc': kyc,
+        'doc_is_image': doc_is_image,
+        'section': 'clients'
+    })
