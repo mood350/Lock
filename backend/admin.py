@@ -1,3 +1,4 @@
+from datetime import timezone
 from django.contrib import admin
 from .models import *
 
@@ -59,5 +60,21 @@ class TransactionAdmin(admin.ModelAdmin):
     list_filter = ('crypto', 'quantite', 'quantite', 'montant', 'statut', 'date')
     ordering = ('date',)
 admin.site.register(Transaction, TransactionAdmin)
+
+
+@admin.register(KYC)
+class KYCAdmin(admin.ModelAdmin):
+    list_display = ('client', 'statut', 'date_validation')
+    list_filter = ('statut',)
+    search_fields = ('client__nom', 'client__prenoms', 'client__email')
+    actions = ['valider_kyc', 'refuser_kyc']
+
+    def valider_kyc(self, request, queryset):
+        queryset.update(statut='valide', date_validation=timezone.now())
+    valider_kyc.short_description = "Valider la sélection"
+
+    def refuser_kyc(self, request, queryset):
+        queryset.update(statut='refuse', date_validation=timezone.now())
+    refuser_kyc.short_description = "Refuser la sélection"
 
 
