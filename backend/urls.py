@@ -19,6 +19,11 @@ urlpatterns = [
     path('admin-transactions/valider/<int:transaction_id>/', views.valider_transaction, name='valider_transaction'),
     path('admin-transactions/rejeter/<int:transaction_id>/', views.rejeter_transaction, name='rejeter_transaction'),
     path('admin-kyc/<int:kyc_id>/', views.kyc_verification, name='kyc_verification'),
+    path('admin/tutoriels/', views.tutoriels_admin, name='tutoriels_admin'),
+    path('admin/tutoriels/ajouter/', views.ajouter_tutoriel, name='ajouter_tutoriel'),
+    path('admin/tutoriels/modifier/<int:tutoriel_id>/', views.modifier_tutoriel, name='modifier_tutoriel'),
+    path('admin/tutoriels/supprimer/<int:tutoriel_id>/', views.supprimer_tutoriel, name='supprimer_tutoriel'),
+
 
     #Dashboard URLs
     path('base', views.base, name='base'),
