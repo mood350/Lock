@@ -1,0 +1,20 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Vérification KYC{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Vérification KYC</h2>
+    {% if kyc and kyc.statut != 'en_attente' %}
+        <div class="alert {% if kyc.statut == 'valide' %}alert-success{% else %}alert-danger{% endif %}">
+            Statut: {{ kyc.get_statut_display }}
+            {% if kyc.date_validation %}
+                <br>Date de validation: {{ kyc.date_validation|date:"d/m/Y" }}
+            {% endif %}
+        </div>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Soumettre</button>
+    </form>
+</div>
+{% endblock %}
