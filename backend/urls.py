@@ -31,6 +31,7 @@ urlpatterns = [
     path('vente/<int:crypto_id>/', views.vente, name='vente'),
     path('profiles/', views.profiles, name='profiles'),
     path('kyc/', views.kyc_form, name='kyc_form'),
+    path('tutoriels/', views.tutoriels, name='tutoriels'),
 
     #No connection URLs
     path('', views.accueil, name='accueil'),
