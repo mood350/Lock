@@ -37,6 +37,10 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if section == 'tutoriels' %}active{% endif %}" href="{% url 'tutoriels_admin' %}">
+                                <i class="fas fa-video"></i> Tutoriels
+                            </a>
+                        <li class="nav-item">
                             <a class="nav-link {% if section == 'clients' %}active{% endif %}" href="{% url 'clientadmin' %}">
                                 <i class="fas fa-users"></i> Clients
                             </a>
