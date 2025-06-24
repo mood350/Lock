@@ -604,3 +604,10 @@ def kyc_verification(request, kyc_id):
         'doc_is_image': doc_is_image,
         'section': 'clients'
     })
+
+@login_required
+def tutoriels(request):
+    tutoriels = Tutoriel.objects.all().order_by('-titre')
+    return render(request, 'dashboard/tutoriels.html', {
+        'tutoriels': tutoriels
+    })
