@@ -1,0 +1,25 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Ajouter un tutoriel{% endblock %}
+{% block content %}
+<h2 class="mb-4">Ajouter un tutoriel</h2>
+{% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+{% endif %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Titre</label>
+        <input type="text" name="titre" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" required></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Vidéo ou média</label>
+        <input type="file" name="media" class="form-control" accept="video/*,image/*" required>
+    </div>
+    <button type="submit" class="btn btn-success">Ajouter</button>
+    <a href="#" onclick="window.history.back();" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}
