@@ -1,0 +1,42 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Gestion des tutoriels{% endblock %}
+{% block content %}
+<h2 class="mb-4">Gestion des tutoriels</h2>
+
+<a href="{% url 'ajouter_tutoriel' %}" class="btn btn-primary mb-3">Ajouter un tutoriel</a>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Média</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tuto in tutoriels %}
+            <tr>
+                <td>{{ tuto.titre }}</td>
+                <td>{{ tuto.description|truncatechars:80 }}</td>
+                <td>
+                    <img src="{{ tuto.media.url }}" alt="media" style="max-width:120px; max-height:80px;">
+                </td>
+                <td>
+                    <a href="{% url 'modifier_tutoriel' tuto.id %}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form method="post" action="{% url 'supprimer_tutoriel' tuto.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce tutoriel ?');">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Aucun tutoriel disponible.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
