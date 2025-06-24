@@ -378,6 +378,7 @@ def profiles(request):
 def error_404_view(request, exception):
     return render(request, '404.html', status=404)
 
+@login_required
 def ajouter_adresse(request):
     client = Client.objects.get(user=request.user)
     error_message = None
@@ -401,6 +402,7 @@ def ajouter_adresse(request):
         'error_message': error_message
     })
 
+@login_required
 def cryptoadmin(request):
     if not request.user.is_staff:
         return redirect('index')
@@ -410,6 +412,7 @@ def cryptoadmin(request):
         'section': 'cryptos'
     })
 
+@login_required
 def transactionadmin(request):
     if not request.user.is_staff:
         return redirect('index')
@@ -526,6 +529,7 @@ def modifier_crypto(request, crypto_id):
         'section': 'cryptos'
     })
 
+@login_required
 def valider_transaction(request, transaction_id):
     if not request.user.is_staff:
         return redirect('index')
@@ -535,6 +539,7 @@ def valider_transaction(request, transaction_id):
         transaction.save()
     return redirect('transactionadmin')
 
+@login_required
 def rejeter_transaction(request, transaction_id):
     if not request.user.is_staff:
         return redirect('index')
@@ -608,6 +613,91 @@ def kyc_verification(request, kyc_id):
 @login_required
 def tutoriels(request):
     tutoriels = Tutoriel.objects.all().order_by('-titre')
+    tutoriel_list = []
+    for tuto in tutoriels:
+        ext = ''
+        if tuto.media and hasattr(tuto.media, 'url'):
+            ext = tuto.media.url.split('.')[-1].lower()
+        media_type = 'image'
+        if ext in ['mp4', 'webm', 'ogg']:
+            media_type = 'video'
+        elif ext == 'mp3':
+            media_type = 'audio'
+        tutoriel_list.append({
+            'titre': tuto.titre,
+            'description': tuto.description,
+            'media_url': tuto.media.url if tuto.media else '',
+            'media_type': media_type,
+        })
     return render(request, 'dashboard/tutoriels.html', {
+        'tutoriels': tutoriel_list
+    })
+
+@login_required
+def tutoriels_admin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    tutoriels = Tutoriel.objects.all().order_by('-id')
+    return render(request, 'admin/tutoriels.html', {
         'tutoriels': tutoriels
     })
+
+@login_required
+def ajouter_tutoriel(request):
+    if not request.user.is_staff:
+        return redirect('index')
+
+    error_message = None
+
+    if request.method == 'POST':
+        titre = request.POST.get('titre', '').strip()
+        description = request.POST.get('description', '').strip()
+        media = request.FILES.get('media')
+        if titre and description and media:
+            Tutoriel.objects.create(
+                titre=titre,
+                description=description,
+                media=media
+            )
+            return redirect('tutoriels_admin')
+        else:
+            error_message = "Tous les champs sont obligatoires."
+
+    return render(request, 'admin/ajouter_tutoriel.html', {
+        'error_message': error_message
+    })
+
+@login_required
+def modifier_tutoriel(request, tutoriel_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    tutoriel = get_object_or_404(Tutoriel, id=tutoriel_id)
+    error_message = None
+
+    if request.method == 'POST':
+        titre = request.POST.get('titre', '').strip()
+        description = request.POST.get('description', '').strip()
+        media = request.FILES.get('media')
+        if titre and description:
+            tutoriel.titre = titre
+            tutoriel.description = description
+            if media:
+                tutoriel.media = media
+            tutoriel.save()
+            return redirect('tutoriels_admin')
+        else:
+            error_message = "Tous les champs sont obligatoires."
+
+    return render(request, 'admin/modifier_tutoriel.html', {
+        'tutoriel': tutoriel,
+        'error_message': error_message
+    })
+
+@login_required
+def supprimer_tutoriel(request, tutoriel_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    tutoriel = get_object_or_404(Tutoriel, id=tutoriel_id)
+    if request.method == 'POST':
+        tutoriel.delete()
+    return redirect('tutoriels_admin')
