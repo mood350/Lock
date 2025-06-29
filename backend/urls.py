@@ -22,7 +22,6 @@ urlpatterns = [
     path('faq/', views.faq, name='faq'),
     path('connexion/', views.connexion, name='connexion'),
     path('inscription/', views.inscription, name='inscription'),
-    path('contact/', views.contact, name='contact'),
     path('auth/', views.auth, name='auth'),
     path('politique_confidentialite/', views.politique_confidentialite, name='politique_confidentialite'),
     path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),

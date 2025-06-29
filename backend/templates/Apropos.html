@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>À propos</title>
+{% extends "base.html" %}
+{% block head %}
     <style>
-        /* ...tout ton CSS existant inchangé... */
+        /* ...tout ton CSS 
+        existant inchangé... */
         * {
             margin: 0;
             padding: 0;
@@ -299,7 +296,6 @@
         <div class="nav-container">
             <a href="{% url 'accueil' %}" class="nav-link" data-page="accueil">Accueil</a>
             <a href="{% url 'propos' %}" class="nav-link active" data-page="apropos">À propos</a>
-            <a href="{% url 'contact' %}" class="nav-link" data-page="contact">Contact</a>
             <a href="{% url 'connexion' %}" class="nav-link" data-page="connexion">Connexion</a>
             <a href="{% url 'inscription' %}" class="nav-link" data-page="inscription">Créer un compte</a>
         </div>
@@ -313,17 +309,17 @@
 
     <div class="container">
         <header class="header">
-            <h1>À propos de Lock-Crypto</h1>
+            <h1>À propos de Lock</h1>
             <p>Votre partenaire de confiance dans l'univers des cryptomonnaies</p>
         </header>
 
         <section class="mission-section">
             <h2>Notre Mission</h2>
             <p>
-                Chez Lock-Crypto, nous croyons que chacun devrait avoir accès aux opportunités offertes par les cryptomonnaies. 
+                Chez Lock, nous croyons que chacun devrait avoir accès aux opportunités offertes par les cryptomonnaies. 
                 Notre mission est de démocratiser l'accès aux actifs numériques en proposant une plateforme sécurisée, 
                 intuitive et accessible à tous, des débutants aux traders expérimentés. Nous nous engageons à fournir 
-                les outils et le support nécessaires pour naviguer en toute confiance dans l'écosystème crypto.
+                les outils et le support nécessaires pour naviguer en toute confiance dans l'écosystème Lock.
             </p>
         </section>
 
@@ -463,3 +459,4 @@
     </script>
 </body>
 </html>
+{% endblock %}

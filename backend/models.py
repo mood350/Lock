@@ -45,12 +45,12 @@ class ServiceClient(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='service_client', editable=False)
 
 class Client(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null = True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     nom = models.CharField(max_length=100)
     prenoms = models.CharField(max_length=100)
     date_naissance = models.DateField(null=True, blank=True)
     telephone = models.IntegerField()
-    email = models.EmailField()
+    email = models.EmailField(unique=True)  # <-- Ajoute unique=True ici
     date_inscription = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

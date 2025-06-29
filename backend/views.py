@@ -8,10 +8,11 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import make_password
 from .models import Client, KYC
 from django.db import models
+from django.core.mail import send_mail
 
 from .models import *
-from .form import *
-from backend import form
+from .forms import *
+from backend import forms
 
 
 # Create your views here.
@@ -111,11 +112,6 @@ def connexion(request):
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
-            client = Client.objects.get(email=email)
-            if client.password == password:  # (À remplacer par un hash en prod)
-                # Connexion réussie, redirige vers l'accueil
-                return redirect('accueil')
-            # Récupérer l'utilisateur par email
             # Récupérer l'utilisateur Django par email
             user = User.objects.get(email=email)
             # Authentifier l'utilisateur
@@ -142,34 +138,12 @@ def inscription(request):
         date_naissance = request.POST['date_naissance']
         email = request.POST['email']
         telephone = request.POST['telephone']
-        password = request.POST['password']  # À hasher en vrai projet !
-        try:
-            Client.objects.create(
-                nom=nom,
-                prenoms=prenoms,
-                date_naissance=date_naissance,
-                email=email,
-                telephone=telephone,
-                password=password
-            )
-            return redirect('connexion')
-        except ValueError as e:
-            # Affiche le message d’erreur dans le template
-            nom = request.POST.get('nom')
-            prenoms = request.POST.get('prenoms')
-            email = request.POST.get('email')
-            telephone = request.POST.get('telephone')
-            password = request.POST.get('motdepasse')
-            confirm_password = request.POST.get('confirm_motdepasse')
-            nom = request.POST.get('nom')
-            prenoms = request.POST.get('prenoms')
-            date_naissance = request.POST.get('date_naissance')
-            email = request.POST.get('email')
-            telephone = request.POST.get('telephone')
-            password = request.POST.get('password')
-            confirm_password = request.POST.get('confirmPassword')
-            if password != confirm_password:
-                return render(request, 'inscription.html', {
+        password = request.POST['password']
+        confirm_password = request.POST.get('confirmPassword')
+
+        # Vérification des mots de passe
+        if password != confirm_password:
+            return render(request, 'inscription.html', {
                 'error_message': "Les mots de passe ne correspondent pas",
                 'nom': nom,
                 'prenoms': prenoms,
@@ -178,16 +152,26 @@ def inscription(request):
             })
 
         try:
+            # Vérifie si l'utilisateur existe déjà
+            if User.objects.filter(email=email).exists():
+                return render(request, 'inscription.html', {
+                    'error_message': "Un compte existe déjà avec cet email.",
+                    'nom': nom,
+                    'prenoms': prenoms,
+                    'email': email,
+                    'telephone': telephone
+                })
+
             # Créer l'utilisateur Django
             user = User.objects.create_user(
-                username=email,
+                username=email,  # ou un autre identifiant unique
                 email=email,
                 password=password,
                 first_name=prenoms,
                 last_name=nom
             )
 
-            # Créer le profil client associé (sans password)
+            # Créer le profil client associé
             client = Client.objects.create(
                 user=user,
                 nom=nom,
@@ -197,23 +181,17 @@ def inscription(request):
                 telephone=telephone
             )
 
-            # Authentifier et connecter l'utilisateur
+            # Connexion automatique après inscription (optionnel)
             user = authenticate(username=email, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('index')
             else:
-             return render(request, 'inscription.html', {
-                    'error_message': "Erreur lors de la connexion automatique.",
-                    'nom': nom,
-                    'prenoms': prenoms,
-                    'email': email,
-                    'telephone': telephone
-                })
+                return redirect('connexion')
 
         except Exception as e:
-         return render(request, 'inscription.html', {
-                'error_message': "Une erreur est survenue lors de l'inscription",
+            return render(request, 'inscription.html', {
+                'error_message': "Une erreur est survenue lors de l'inscription.",
                 'nom': nom,
                 'prenoms': prenoms,
                 'email': email,
@@ -221,7 +199,6 @@ def inscription(request):
             })
 
     return render(request, 'inscription.html')
-
 @login_required
 def profile(request):
     try:
@@ -247,16 +224,37 @@ def propos(request):
     return render(request, 'Apropos.html')
 
 
-def contact(request):
-    message_sent = False
-    if request.method == 'POST':
-        nom = request.POST.get('name')
-        email = request.POST.get('email')
-        sujet = request.POST.get('subject')
-        message = request.POST.get('message')
 
-        message_sent = True
-    return render(request, 'contact.html', {'message_sent': message_sent})
+    success = False
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            subject_mail = f"[Contact Lock-Crypto] {subject} - {name}"
+            message_mail = (
+                f"Nom: {name}\n"
+                f"Email: {email}\n"
+                f"Sujet: {subject}\n\n"
+                f"Message:\n{message}"
+            )
+            destinataire = ['ton@email.com']  # Mets ici ton adresse email
+
+            send_mail(
+                subject_mail,
+                message_mail,
+                settings.DEFAULT_FROM_EMAIL,
+                destinataire,
+                fail_silently=False,
+            )
+            success = True
+            form = ContactForm()  # Réinitialise le formulaire
+    else:
+        form = ContactForm()
+    return render(request, 'contact.html', {'form': form, 'success': success})
 
 def auth(request):
     return render(request, 'auth.html')
@@ -293,7 +291,7 @@ def achat(request, crypto_id):
         'adresses': adresses,
     })
 
-from .form import VenteForm
+from .forms import VenteForm
 from .models import Client, Crypto
 
 @login_required

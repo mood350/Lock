@@ -81,3 +81,5 @@ def kyc_form(request):
 
     return render(request, 'dashboard/kyc.html')
 
+
+

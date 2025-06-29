@@ -1,14 +1,10 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un compte</title>
-    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
-    <style>
+{% block content %}
+<link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+<link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -26,7 +22,7 @@
             backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
+            padding: 20px 15px;
             width: 100%;
             max-width: 450px;
             margin: 40px auto;
@@ -70,7 +66,7 @@
             font-size: 16px;
         }
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 10px;
             position: relative;
         }
         label {
@@ -81,29 +77,29 @@
             font-size: 14px;
         }
         input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        input[type="date"],
-        input[type="tel"] {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    input[type="tel"] {
+        width: 100%;
+        padding: 8px 12px;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: #fff;
+    }
 
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        input[type="date"]:focus,
-        input[type="tel"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="date"]:focus,
+    input[type="tel"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
         .password-container {
             position: relative;
         }
@@ -150,9 +146,9 @@
             background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 16px;
+            padding: 10px;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -269,6 +265,15 @@
                 font-size: 24px;
             }
         }
+
+        .name-row {
+            display: flex;
+            gap: 10px;
+        }
+        .name-row .form-group {
+            flex: 1;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -283,7 +288,6 @@
           <ul>
             <li><a href="{% url 'accueil' %}">Accueil</a></li>
             <li><a href="{% url 'propos' %}">À propos</a></li>
-            <li><a href="{% url 'contact' %}">Contact</a></li>
             <li><a href="{% url 'connexion' %}">Connexion</a></li>
             <li><a href="{% url 'inscription' %}" class="active">Créer un compte</a></li>
           </ul>
@@ -309,6 +313,7 @@
         <!-- Formulaire d'inscription adapté au modèle Utilisateur/Client -->
             <form id="signupForm" method="post">
                 {% csrf_token %}
+                <div class="name-row">
                 <div class="form-group">
                     <label for="nom">Nom</label>
                     <input type="text" id="nom" name="nom" required>
@@ -316,6 +321,7 @@
                 <div class="form-group">
                     <label for="prenoms">Prénom</label>
                     <input type="text" id="prenoms" name="prenoms" required>
+                </div>
                 </div>
                 <div class="form-group">
                     <label for="date_naissance">Date de naissance</label>
@@ -502,3 +508,4 @@
     </script>
 </body>
 </html>
+{% endblock %}
