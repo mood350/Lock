@@ -1,0 +1,33 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Modifier le tutoriel{% endblock %}
+{% block content %}
+<h2 class="mb-4">Modifier le tutoriel</h2>
+{% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+{% endif %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Titre</label>
+        <input type="text" name="titre" class="form-control" value="{{ tutoriel.titre }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea name="description" class="form-control" required>{{ tutoriel.description }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Vidéo ou média actuel</label><br>
+        {% if tutoriel.media %}
+            <a href="{{ tutoriel.media.url }}" target="_blank">{{ tutoriel.media.name }}</a>
+        {% else %}
+            <span class="text-muted">Aucun fichier</span>
+        {% endif %}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Nouveau média (laisser vide pour ne pas changer)</label>
+        <input type="file" name="media" class="form-control" accept="video/*,image/*">
+    </div>
+    <button type="submit" class="btn btn-success">Enregistrer</button>
+    <a href="{% url 'tutoriels_admin' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

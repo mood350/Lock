@@ -1,8 +1,5 @@
-from django.shortcuts import render, redirect
-from .models import Client, KYC
-from django.contrib.auth.decorators import login_required
-from django import forms
 from .models import *
+from django import forms
 
 class ClientForm(forms.ModelForm):
     class Meta:
@@ -19,30 +16,32 @@ class ClientForm(forms.ModelForm):
 class AchatForm(forms.ModelForm):
     class Meta:
         model = Achat
-        fields = ['crypto', 'quantite', 'adresse']
+        fields = ['quantite']  # Remove 'crypto' and 'adresse' as they're handled in the view
         widgets = {
-            'crypto': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': 'any',
+                'placeholder': 'Ex: 0.001'
+            }),
         }
 
 class VenteForm(forms.ModelForm):
     class Meta:
         model = Vente
-        fields = ['crypto', 'quantite', 'adresse']
+        fields = ['quantite']  # Remove 'crypto' and 'adresse' as they're handled in the view
         widgets = {
-            'crypto': forms.Select(attrs={'class': 'form-control'}),
-            'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
-            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'quantite': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'step': 'any',
+                'placeholder': 'Ex: 0.001'
+            }),
         }
 
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['achat', 'vente', 'crypto', 'quantite', 'montant', 'statut']
+        fields = ['crypto', 'quantite', 'montant', 'statut']
         widgets = {
-            'achat': forms.Select(attrs={'class': 'form-control'}),
-            'vente': forms.Select(attrs={'class': 'form-control'}),
             'crypto': forms.Select(attrs={'class': 'form-control'}),
             'quantite': forms.NumberInput(attrs={'class': 'form-control'}),
             'montant': forms.NumberInput(attrs={'class': 'form-control'}),
@@ -59,6 +58,7 @@ class AdresseForm(forms.ModelForm):
             'adresse': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+<<<<<<< HEAD:backend/forms.py
 
 @login_required
 def kyc_form(request):
@@ -83,3 +83,16 @@ def kyc_form(request):
 
 
 
+=======
+class KYCForm(forms.ModelForm):
+    class Meta:
+        model = KYC
+        fields = ['date_naissance', 'adresse', 'cni', 'document_identite', 'selfie']
+        widgets = {
+            'date_naissance': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'adresse': forms.TextInput(attrs={'class': 'form-control'}),
+            'cni': forms.TextInput(attrs={'class': 'form-control'}),
+            'document_identite': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'selfie': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+>>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3:backend/form.py

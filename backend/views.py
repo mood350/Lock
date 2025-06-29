@@ -1,22 +1,70 @@
-from http import client
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import *
 from multiprocessing.connection import Client
-from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.hashers import make_password
-from .models import Client, KYC
 from django.db import models
+<<<<<<< HEAD
 from django.core.mail import send_mail
 
 from .models import *
 from .forms import *
 from backend import forms
 
+=======
+from .form import *
+from django.utils import timezone
+import os
+>>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
 
 # Create your views here.
 
+# Admin views
+@login_required
+def admin(request):
+    if not request.user.is_staff:
+        return redirect('accueil')
+    return render(request, 'admin/dashboard_admin.html')
+
+@login_required
+def dashboard(request):
+    if not request.user.is_staff:
+        return redirect('accueil')
+    clients = Client.objects.all()
+    cryptos = Crypto.objects.all()
+    adresses = Adresse.objects.all()
+    transactions = Transaction.objects.all()
+    achats = Achat.objects.all()
+    ventes = Vente.objects.all()
+    context = {
+        'clients': clients,
+        'cryptos': cryptos,
+        'adresses': adresses,
+        'transactions': transactions,
+        'achats': achats,
+        'ventes': ventes
+    }
+    return render(request, 'admin/dashboard.html', context)
+
+@login_required
+def admin_dashboard(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    nb_clients = Client.objects.count()
+    nb_cryptos = Crypto.objects.count()
+    nb_transactions = Transaction.objects.count()
+    nb_achats = Achat.objects.count()
+    transactions = Transaction.objects.order_by('-date')[:10]
+    return render(request, 'admin/dashboard_admin.html', {
+        'nb_clients': nb_clients,
+        'nb_cryptos': nb_cryptos,
+        'nb_transactions': nb_transactions,
+        'nb_achats': nb_achats,
+        'transactions': transactions,
+        'section': 'dashboard'
+    })
 
 # Dashboard views
 @login_required
@@ -68,29 +116,6 @@ def faq(request):
 def profile(request):
     return render(request, 'dashboard/profil.html', {'user': request.user})
 
-@login_required
-def kyc(request):
-    try:
-        client = Client.objects.get(user=request.user)
-    except Client.DoesNotExist:
-        # Rediriger ou créer le client si nécessaire
-        client = Client.objects.create(user=request.user)
-
-    if request.method == 'POST':
-        date_naissance = request.POST.get('date_naissance')
-        adresse = request.POST.get('adresse')
-        cni = request.POST.get('cni')
-
-        kyc_obj, created = KYC.objects.get_or_create(client=client)
-        kyc_obj.date_naissance = date_naissance
-        kyc_obj.adresse = adresse
-        kyc_obj.cni = cni
-        kyc_obj.statut = 0  # En attente
-        kyc_obj.save()
-
-        return redirect('profile')
-
-    return render(request, 'dashboard/kyc.html')
 
 @login_required
 def historique(request):    
@@ -98,17 +123,20 @@ def historique(request):
     transactions = Transaction.objects.filter(
         models.Q(achat__client=client) | models.Q(vente__client=client)
     ).order_by('-date')
-    return render(request, 'dashboard/historique.html', {'transactions': transactions})
-
+    
+    return render(request, 'dashboard/historique.html', {
+        'transactions': transactions
+    })
 
 # No connection views
 def accueil(request):
     return render(request, 'accueil.html')
 
-
-
 def connexion(request):
+    error_message = None
+    email = ''
     if request.method == 'POST':
+<<<<<<< HEAD
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
@@ -130,6 +158,17 @@ def connexion(request):
                 'email': email
             })
     return render(request, 'connexion.html')
+=======
+        email = request.POST.get('email', '').strip()
+        motdepasse = request.POST.get('motdepasse', '').strip()
+        user = authenticate(request, username=email, password=motdepasse)
+        if user is not None:
+            login(request, user)
+            return redirect('index')
+        else:
+            error_message = "Nom d'utilisateur ou mot de passe incorrect."
+    return render(request, 'connexion.html', {'error_message': error_message, 'email': email})
+>>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
 
 def inscription(request):
     if request.method == 'POST':
@@ -214,16 +253,20 @@ def profile(request):
     }
     return render(request, 'dashboard/profil.html', context)
 
-def service(request):
-    return render(request, 'service.html')
-
-def partenaire(request):
-    return render(request, 'partenaire.html')
-
 def propos(request):
     return render(request, 'Apropos.html')
 
+<<<<<<< HEAD
 
+=======
+def contact(request):
+    message_sent = False
+    if request.method == 'POST':
+        nom = request.POST.get('name')
+        email = request.POST.get('email')
+        sujet = request.POST.get('subject')
+        message = request.POST.get('message')
+>>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
 
     success = False
     if request.method == 'POST':
@@ -256,9 +299,6 @@ def propos(request):
         form = ContactForm()
     return render(request, 'contact.html', {'form': form, 'success': success})
 
-def auth(request):
-    return render(request, 'auth.html')
-
 def politique_confidentialite(request):
     return render(request, 'politique_confidentialite.html')
 
@@ -268,58 +308,121 @@ def conditions_utilisation(request):
 def support_contact(request):
     return render(request, 'support_contact.html')
 
+@login_required
 def achat(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)
     client = get_object_or_404(Client, user=request.user)
     adresses = Adresse.objects.filter(client=client, crypto=crypto)
+    error_message = None
 
     if request.method == 'POST':
-        form = AchatForm(request.POST)
-        if form.is_valid():
-            achat = form.save(commit=False)
-            achat.client = client
-            achat.crypto = crypto
-            achat.save()
-            # Crée la transaction ici si besoin
+        try:
+            quantite_str = request.POST.get('quantite', '').strip().replace(',', '.')
+            if not quantite_str:
+                raise ValueError("La quantité est requise")
+            
+            quantite = float(quantite_str)
+            if quantite <= 0:
+                raise ValueError("La quantité doit être positive")
+
+            adresse_existante = request.POST.get('adresse_existante')
+            nouvelle_adresse = request.POST.get('nouvelle_adresse')
+            adresse_val = adresse_existante if adresse_existante else nouvelle_adresse
+
+            if not adresse_val:
+                raise ValueError("Une adresse est requise")
+
+            montant = quantite * crypto.prix_achat
+
+            # Création de l'achat
+            achat = Achat.objects.create(
+                client=client,
+                crypto=crypto,
+                quantite=quantite,
+                adresse=adresse_val
+            )
+
+            # Création de la transaction
+            Transaction.objects.create(
+                achat=achat,
+                crypto=crypto,
+                quantite=quantite,
+                montant=montant,
+                statut='en_attente'
+            )
+
             return redirect('historique')
-    else:
-        form = AchatForm()
+
+        except ValueError as e:
+            error_message = str(e)
+        except Exception as e:
+            print(f"Erreur: {str(e)}")
+            error_message = "Une erreur est survenue"
 
     return render(request, 'dashboard/achat.html', {
-        'form': form,
         'crypto': crypto,
         'adresses': adresses,
+        'error_message': error_message
     })
 
+<<<<<<< HEAD
 from .forms import VenteForm
 from .models import Client, Crypto
 
+=======
+>>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
 @login_required
 def vente(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)
     client = get_object_or_404(Client, user=request.user)
+    adresses = Adresse.objects.filter(client=client, crypto=crypto)
     error_message = None
 
     if request.method == 'POST':
-        form = VenteForm(request.POST)
-        if form.is_valid():
-            vente = form.save(commit=False)
-            vente.client = client
-            vente.crypto = crypto
-            vente.save()
-            # Crée la transaction ici si besoin
+        try:
+            quantite_str = request.POST.get('quantite', '').strip().replace(',', '.')
+            if not quantite_str:
+                raise ValueError("La quantité est requise")
+            quantite = float(quantite_str)
+            if quantite <= 0:
+                raise ValueError("La quantité doit être positive")
+
+            adresse_existante = request.POST.get('adresse_existante')
+            nouvelle_adresse = request.POST.get('nouvelle_adresse')
+            adresse_val = adresse_existante if adresse_existante else nouvelle_adresse
+            if not adresse_val:
+                raise ValueError("Une adresse est requise")
+
+            montant = quantite * crypto.prix_vente
+
+            vente = Vente.objects.create(
+                client=client,
+                crypto=crypto,
+                quantite=quantite,
+                adresse=adresse_val
+            )
+
+            Transaction.objects.create(
+                vente=vente,
+                crypto=crypto,
+                quantite=quantite,
+                montant=montant,
+                statut='en_attente'
+            )
+
             return redirect('historique')
-        else:
-            error_message = "Un champ est invalide"
-    else:
-        form = VenteForm()
+
+        except ValueError as e:
+            error_message = str(e)
+        except Exception as e:
+            print(f"Erreur: {str(e)}")
+            error_message = "Une erreur est survenue"
 
     return render(request, 'dashboard/vente.html', {
-        'form': form,
         'crypto': crypto,
+        'adresses': adresses,
         'error_message': error_message
     })
-
 
 def profiles(request):
     return render(request, 'profile.html', status=404)
@@ -327,6 +430,7 @@ def profiles(request):
 def error_404_view(request, exception):
     return render(request, '404.html', status=404)
 
+@login_required
 def ajouter_adresse(request):
     client = Client.objects.get(user=request.user)
     error_message = None
@@ -349,3 +453,303 @@ def ajouter_adresse(request):
         'bouton': "Ajouter",
         'error_message': error_message
     })
+
+@login_required
+def cryptoadmin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    cryptos = Crypto.objects.all()
+    return render(request, 'admin/cryptoadmin.html', {
+        'cryptos': cryptos,
+        'section': 'cryptos'
+    })
+
+@login_required
+def transactionadmin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    transactions = Transaction.objects.order_by('-date')
+    return render(request, 'admin/transactionadmin.html', {
+        'transactions': transactions,
+        'section': 'transactions'
+    })
+
+@login_required
+def clientadmin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+
+    # On ne récupère que les KYC en attente
+    kycs = KYC.objects.filter(statut='en_attente').select_related('client')
+
+    if request.method == 'POST':
+        kyc_id = request.POST.get('kyc_id')
+        action = request.POST.get('action')
+        kyc = KYC.objects.filter(id=kyc_id).first()
+        if kyc:
+            if action == 'confirmer':
+                kyc.statut = 'valide'
+                kyc.date_validation = timezone.now()
+            elif action == 'rejeter':
+                kyc.statut = 'refuse'
+                kyc.date_validation = timezone.now()
+            kyc.save()
+        return redirect('clientadmin')
+
+    return render(request, 'admin/clientadmin.html', {
+        'kycs': kycs,
+        'section': 'clients'
+    })
+
+def ajouter_crypto(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    error_message = None
+    if request.method == 'POST':
+        nom = request.POST.get('nom', '').strip()
+        sigle = request.POST.get('sigle', '').strip()
+        adresse = request.POST.get('adresse', '').strip()
+        prix_achat = request.POST.get('prix_achat', '').strip()
+        prix_vente = request.POST.get('prix_vente', '').strip()
+        prix_achat_min = request.POST.get('prix_achat_min', '').strip()
+        prix_vente_min = request.POST.get('prix_vente_min', '').strip()
+        quantite = request.POST.get('quantite', '').strip()
+        disponibilite = request.POST.get('disponibilite', '').strip()
+        try:
+            prix_achat = float(prix_achat)
+            prix_vente = float(prix_vente)
+            prix_achat_min = float(prix_achat_min)
+            prix_vente_min = float(prix_vente_min)
+            quantite = float(quantite)
+        except ValueError:
+            error_message = "Les prix et la quantité doivent être des nombres valides."
+        else:
+            if not all([nom, sigle, adresse, disponibilite]):
+                error_message = "Tous les champs sont obligatoires."
+            elif prix_achat <= 0 or prix_vente <= 0 or prix_achat_min <= 0 or prix_vente_min <= 0 or quantite <= 0:
+                error_message = "Les prix et la quantité doivent être strictement supérieurs à 0."
+            else:
+                Crypto.objects.create(
+                    nom=nom,
+                    sigle=sigle,
+                    adresse=adresse,
+                    prix_achat=prix_achat,
+                    prix_vente=prix_vente,
+                    prix_achat_min=prix_achat_min,
+                    prix_vente_min=prix_vente_min,
+                    quantite=quantite,
+                    disponibilite=disponibilite
+                )
+                return redirect('cryptoadmin')
+    return render(request, 'admin/ajouter_crypto.html', {
+        'error_message': error_message,
+        'section': 'cryptos'
+    })
+
+def supprimer_crypto(request, crypto_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    crypto = Crypto.objects.filter(id=crypto_id).first()
+    if request.method == 'POST' and crypto:
+        crypto.delete()
+    return redirect('cryptoadmin')
+
+def modifier_crypto(request, crypto_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    crypto = Crypto.objects.filter(id=crypto_id).first()
+    if not crypto:
+        return redirect('cryptoadmin')
+    error_message = None
+    if request.method == 'POST':
+        nom = request.POST.get('nom', '').strip()
+        sigle = request.POST.get('sigle', '').strip()
+        prix_achat = request.POST.get('prix_achat', '').strip()
+        prix_vente = request.POST.get('prix_vente', '').strip()
+        if nom and sigle and prix_achat and prix_vente:
+            crypto.nom = nom
+            crypto.sigle = sigle
+            crypto.prix_achat = float(prix_achat)
+            crypto.prix_vente = float(prix_vente)
+            crypto.save()
+            return redirect('cryptoadmin')
+        else:
+            error_message = "Tous les champs sont obligatoires."
+    return render(request, 'admin/modifier_crypto.html', {
+        'crypto': crypto,
+        'error_message': error_message,
+        'section': 'cryptos'
+    })
+
+@login_required
+def valider_transaction(request, transaction_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    transaction = Transaction.objects.filter(id=transaction_id).first()
+    if transaction:
+        transaction.statut = 'approuve'
+        transaction.save()
+    return redirect('transactionadmin')
+
+@login_required
+def rejeter_transaction(request, transaction_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    transaction = Transaction.objects.filter(id=transaction_id).first()
+    if transaction:
+        transaction.statut = 'rejete'
+        transaction.save()
+    return redirect('transactionadmin')
+
+@login_required
+def kyc_form(request):
+    client = Client.objects.get(user=request.user)
+    kyc = KYC.objects.filter(client=client).first()
+
+    # Permettre la resoumission si le KYC est refusé
+    if kyc and kyc.statut == 'refuse':
+        kyc.delete()
+        kyc = None
+
+    if request.method == 'POST':
+        form = KYCForm(request.POST, request.FILES, instance=kyc)
+        if form.is_valid():
+            kyc_obj = form.save(commit=False)
+            kyc_obj.client = client
+            kyc_obj.statut = 'en_attente'
+            kyc_obj.date_validation = None
+            kyc_obj.save()
+            return redirect('profile')
+    else:
+        form = KYCForm(instance=kyc)
+
+    return render(request, 'kyc.html', {
+        'form': form,
+        'kyc': KYC.objects.filter(client=client).first()
+    })
+
+@login_required
+def kyc_verification(request, kyc_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    kyc = get_object_or_404(KYC, id=kyc_id)
+    client = kyc.client
+
+    # Vérifie si le document identité est une image supportée
+    doc_is_image = False
+    if kyc.document_identite and kyc.document_identite.url:
+        ext = os.path.splitext(kyc.document_identite.url)[1].lower()
+        doc_is_image = ext in [
+            '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg', '.jfif', '.pjpeg', '.pjp', '.ico', '.heic', '.heif'
+        ]
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'valider':
+            kyc.statut = 'valide'
+            kyc.date_validation = timezone.now()
+            kyc.save()
+        elif action == 'rejeter':
+            kyc.statut = 'refuse'
+            kyc.date_validation = timezone.now()
+            kyc.save()
+        return redirect('clientadmin')
+
+    return render(request, 'admin/kyc_verification.html', {
+        'client': client,
+        'kyc': kyc,
+        'doc_is_image': doc_is_image,
+        'section': 'clients'
+    })
+
+@login_required
+def tutoriels(request):
+    tutoriels = Tutoriel.objects.all().order_by('-titre')
+    tutoriel_list = []
+    for tuto in tutoriels:
+        ext = ''
+        if tuto.media and hasattr(tuto.media, 'url'):
+            ext = tuto.media.url.split('.')[-1].lower()
+        media_type = 'image'
+        if ext in ['mp4', 'webm', 'ogg']:
+            media_type = 'video'
+        elif ext == 'mp3':
+            media_type = 'audio'
+        tutoriel_list.append({
+            'titre': tuto.titre,
+            'description': tuto.description,
+            'media_url': tuto.media.url if tuto.media else '',
+            'media_type': media_type,
+        })
+    return render(request, 'dashboard/tutoriels.html', {
+        'tutoriels': tutoriel_list
+    })
+
+@login_required
+def tutoriels_admin(request):
+    if not request.user.is_staff:
+        return redirect('index')
+    tutoriels = Tutoriel.objects.all().order_by('-id')
+    return render(request, 'admin/tutoriels.html', {
+        'tutoriels': tutoriels
+    })
+
+@login_required
+def ajouter_tutoriel(request):
+    if not request.user.is_staff:
+        return redirect('index')
+
+    error_message = None
+
+    if request.method == 'POST':
+        titre = request.POST.get('titre', '').strip()
+        description = request.POST.get('description', '').strip()
+        media = request.FILES.get('media')
+        if titre and description and media:
+            Tutoriel.objects.create(
+                titre=titre,
+                description=description,
+                media=media
+            )
+            return redirect('tutoriels_admin')
+        else:
+            error_message = "Tous les champs sont obligatoires."
+
+    return render(request, 'admin/ajouter_tutoriel.html', {
+        'error_message': error_message
+    })
+
+@login_required
+def modifier_tutoriel(request, tutoriel_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    tutoriel = get_object_or_404(Tutoriel, id=tutoriel_id)
+    error_message = None
+
+    if request.method == 'POST':
+        titre = request.POST.get('titre', '').strip()
+        description = request.POST.get('description', '').strip()
+        media = request.FILES.get('media')
+        if titre and description:
+            tutoriel.titre = titre
+            tutoriel.description = description
+            if media:
+                tutoriel.media = media
+            tutoriel.save()
+            return redirect('tutoriels_admin')
+        else:
+            error_message = "Tous les champs sont obligatoires."
+
+    return render(request, 'admin/modifier_tutoriel.html', {
+        'tutoriel': tutoriel,
+        'error_message': error_message
+    })
+
+@login_required
+def supprimer_tutoriel(request, tutoriel_id):
+    if not request.user.is_staff:
+        return redirect('index')
+    tutoriel = get_object_or_404(Tutoriel, id=tutoriel_id)
+    if request.method == 'POST':
+        tutoriel.delete()
+    return redirect('tutoriels_admin')

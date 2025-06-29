@@ -1,0 +1,48 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Admin - Cryptomonnaies{% endblock %}
+{% block content %}
+<h2 class="mb-4">Gestion des cryptomonnaies</h2>
+<a href="{%url 'ajouter_crypto'%}" class="btn btn-primary mb-3">Ajouter une crypto</a>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Sigle</th>
+                <th>Prix achat</th>
+                <th>Prix vente</th>
+                <th>Quantité</th>
+                <th>Disponible</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for crypto in cryptos %}
+            <tr>
+                <td>{{ crypto.nom }}</td>
+                <td>{{ crypto.sigle }}</td>
+                <td>{{ crypto.prix_achat }}</td>
+                <td>{{ crypto.prix_vente }}</td>
+                <td>{{ crypto.quantite }}</td>
+                <td>
+                    {% if crypto.disponibilite == "Oui" %}
+                        <span class="badge badge-success">Oui</span>
+                    {% else %}
+                        <span class="badge badge-danger">Non</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'modifier_crypto' crypto.id %}" class="btn btn-sm btn-warning">Modifier</a>
+                    <form method="post" action="{% url 'supprimer_crypto' crypto.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette crypto ?');">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center">Aucune cryptomonnaie</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

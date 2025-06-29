@@ -1,0 +1,52 @@
+{% extends "admin/baseadmin.html" %}
+{% block title %}Modifier la cryptomonnaie{% endblock %}
+{% block content %}
+<h2 class="mb-4">Modifier la cryptomonnaie</h2>
+{% if error_message %}
+    <div class="alert alert-danger">{{ error_message }}</div>
+{% endif %}
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Nom</label>
+        <input type="text" name="nom" class="form-control" value="{{ crypto.nom }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Sigle</label>
+        <input type="text" name="sigle" class="form-control" value="{{ crypto.sigle }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Adresse</label>
+        <input type="text" name="adresse" class="form-control" value="{{ crypto.adresse }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix d'achat</label>
+        <input type="number" name="prix_achat" class="form-control" step="any" min="0.01" value="{{ crypto.prix_achat }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix de vente</label>
+        <input type="number" name="prix_vente" class="form-control" step="any" min="0.01" value="{{ crypto.prix_vente }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix achat min</label>
+        <input type="number" name="prix_achat_min" class="form-control" step="any" min="0.01" value="{{ crypto.prix_achat_min }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Prix vente min</label>
+        <input type="number" name="prix_vente_min" class="form-control" step="any" min="0.01" value="{{ crypto.prix_vente_min }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Quantité</label>
+        <input type="number" name="quantite" class="form-control" step="any" min="0.01" value="{{ crypto.quantite }}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Disponibilité</label>
+        <select name="disponibilite" class="form-control" required>
+            <option value="Oui" {% if crypto.disponibilite == "Oui" %}selected{% endif %}>Oui</option>
+            <option value="Non" {% if crypto.disponibilite == "Non" %}selected{% endif %}>Non</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Enregistrer</button>
+    <a href="{% url 'cryptoadmin' %}" class="btn btn-secondary">Annuler</a>
+</form>
+{% endblock %}

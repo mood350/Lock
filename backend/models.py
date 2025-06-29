@@ -12,10 +12,19 @@ STATUS = (
     ("En attente","En attente")
 )
 
+KYC_STATUS = (
+    ("en_attente", "En attente"),
+    ("valide", "Validée"),
+    ("refuse", "Refusée"),
+)
+
 DISPONIBILITE = (
     ("Non","Non disponible"),
     ("Oui","Disponible")
 )
+
+def kyc_upload_path(instance, filename):
+    return f"kyc/{instance.client.id}/{filename}"
 
 class Utilisateur(models.Model):
     nom = models.CharField(max_length=100)
@@ -45,6 +54,7 @@ class ServiceClient(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='service_client', editable=False)
 
 class Client(models.Model):
+<<<<<<< HEAD
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     nom = models.CharField(max_length=100)
     prenoms = models.CharField(max_length=100)
@@ -52,20 +62,30 @@ class Client(models.Model):
     telephone = models.IntegerField()
     email = models.EmailField(unique=True)  # <-- Ajoute unique=True ici
     date_inscription = models.DateTimeField(auto_now_add=True)
+=======
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='client')
+    nom = models.CharField(max_length=100, null=True, blank=True)
+    prenoms = models.CharField(max_length=100, null=True, blank=True)
+    date_naissance = models.DateField(null=True, blank=True)
+    email = models.EmailField()
+    telephone = models.CharField(max_length=20)
+>>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
 
     def __str__(self):
-        return self.nom
+        return f"{self.prenoms} {self.nom}"
 
 class KYC(models.Model): 
     client = models.OneToOneField(Client, on_delete=models.CASCADE, related_name='kyc')
     date_naissance = models.DateField(null=True, blank=True)
     adresse = models.CharField(max_length=200, null=True, blank=True)
     cni = models.CharField(max_length=20, null=True, blank=True)
-    statut = models.IntegerField(choices=STATUS, default=0)
+    document_identite = models.FileField(upload_to=kyc_upload_path, null=True, blank=True)
+    selfie = models.ImageField(upload_to=kyc_upload_path, null=True, blank=True)
+    statut = models.CharField(max_length=20, choices=KYC_STATUS, default="en_attente")
     date_validation = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nom} {self.prenoms} - {self.email}"
+        return f"KYC {self.client.nom} {self.client.prenoms} - {self.get_statut_display()}"
 
 class Validateur(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='validateur', editable=False)
@@ -98,7 +118,7 @@ class Vente(models.Model):
     valeur = models.FloatField(editable=False)
     montant = models.FloatField(editable=False)
     adresse = models.CharField(max_length=200, null=True)
-    statut = models.IntegerField(choices=STATUS, default="En attente")
+    statut = models.CharField(choices=STATUS, default="En attente")
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -121,13 +141,11 @@ class Vente(models.Model):
         super().save(*args, **kwargs)
 
 class Achat(models.Model):
-    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
+    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
     quantite = models.FloatField()
-    valeur = models.FloatField(editable=False)
-    montant = models.FloatField(editable=False)
-    adresse = models.CharField(max_length=200, null=True)
-    statut = models.IntegerField(choices=STATUS, default="En attente")
+    adresse = models.CharField(max_length=255, null = True)  # <-- ce champ doit exister
+    statut = models.CharField(choices=STATUS, default="En attente")
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -146,29 +164,28 @@ class Achat(models.Model):
         super().save(*args, **kwargs)
 
 class Transaction(models.Model):
-    vente = models.ForeignKey(Vente, on_delete=models.CASCADE, null=True)
-    achat = models.ForeignKey(Achat, on_delete=models.CASCADE, null=True)
-    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
+    STATUS_CHOICES = [
+        ('en_attente', 'En attente'),
+        ('approuve', 'Approuvé'),
+        ('rejete', 'Rejeté')
+    ]
+    achat = models.ForeignKey('Achat', on_delete=models.CASCADE, null=True, blank=True)
+    vente = models.ForeignKey('Vente', on_delete=models.CASCADE, null=True, blank=True)
+    crypto = models.ForeignKey('Crypto', on_delete=models.CASCADE)
     quantite = models.FloatField()
     montant = models.FloatField()
-    statut = models.IntegerField(choices=STATUS, default="En attente")
+    statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_attente')
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.crypto.nom
+        return f"Transaction de {self.quantite} {self.crypto.sigle} - Statut: {self.get_statut_display()}"
 
     def save(self, *args, **kwargs):
         # 
-        if self.vente:
-            self.montant = self.vente.montant
-            self.quantite = self.vente.quantite
-            self.crypto = self.vente.crypto
-            self.statut = self.vente.statut
-        else:
-            self.montant = self.achat.montant
-            self.quantite = self.achat.quantite
-            self.crypto = self.achat.crypto
-            self.statut = self.achat.statut
+        if self.achat:
+            self.montant = self.achat.quantite * self.achat.crypto.prix_achat
+        elif self.vente:
+            self.montant = self.vente.quantite * self.vente.crypto.prix_vente
         super().save(*args, **kwargs)
 
 class Tutoriel(models.Model):
@@ -229,14 +246,10 @@ def adresses(request):
     }
     return render(request, 'dashboard/adresses.html', context)
 
+class Tutoriel(models.Model):
+    titre = models.CharField(max_length=100)
+    description = models.TextField()
+    media = models.FileField(upload_to='tutoriels/')
 
-HISTORIQUE_TYPE = (
-    ("Achat", "Achat"),
-    ("Vente", "Vente"),
-)
-
-HISTORIQUE_STATUT = (
-    ("En attente", "En attente"),
-    ("Approuvé", "Approuvé"),
-    ("Rejeté", "Rejeté"),
-)
+    def __str__(self):
+        return self.titre
