@@ -6,18 +6,15 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.db import models
-<<<<<<< HEAD
+
 from django.core.mail import send_mail
 
 from .models import *
 from .forms import *
 from backend import forms
-
-=======
-from .form import *
 from django.utils import timezone
 import os
->>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
+
 
 # Create your views here.
 
@@ -136,7 +133,6 @@ def connexion(request):
     error_message = None
     email = ''
     if request.method == 'POST':
-<<<<<<< HEAD
         email = request.POST.get('email')
         password = request.POST.get('motdepasse')
         try:
@@ -158,17 +154,7 @@ def connexion(request):
                 'email': email
             })
     return render(request, 'connexion.html')
-=======
-        email = request.POST.get('email', '').strip()
-        motdepasse = request.POST.get('motdepasse', '').strip()
-        user = authenticate(request, username=email, password=motdepasse)
-        if user is not None:
-            login(request, user)
-            return redirect('index')
-        else:
-            error_message = "Nom d'utilisateur ou mot de passe incorrect."
-    return render(request, 'connexion.html', {'error_message': error_message, 'email': email})
->>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
+
 
 def inscription(request):
     if request.method == 'POST':
@@ -256,9 +242,9 @@ def profile(request):
 def propos(request):
     return render(request, 'Apropos.html')
 
-<<<<<<< HEAD
 
-=======
+
+
 def contact(request):
     message_sent = False
     if request.method == 'POST':
@@ -266,7 +252,7 @@ def contact(request):
         email = request.POST.get('email')
         sujet = request.POST.get('subject')
         message = request.POST.get('message')
->>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
+
 
     success = False
     if request.method == 'POST':
@@ -365,12 +351,12 @@ def achat(request, crypto_id):
         'error_message': error_message
     })
 
-<<<<<<< HEAD
+
 from .forms import VenteForm
 from .models import Client, Crypto
 
-=======
->>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
+
+
 @login_required
 def vente(request, crypto_id):
     crypto = get_object_or_404(Crypto, id=crypto_id)

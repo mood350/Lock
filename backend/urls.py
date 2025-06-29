@@ -43,11 +43,11 @@ urlpatterns = [
     path('propos/', views.propos, name='propos'),
     path('connexion/', views.connexion, name='connexion'),
     path('inscription/', views.inscription, name='inscription'),
-<<<<<<< HEAD
+
     path('auth/', views.auth, name='auth'),
-=======
+
     path('contact/', views.contact, name='contact'),
->>>>>>> 75bb34b5396952830af9d11de8dcd33f810e8de3
+
     path('politique_confidentialite/', views.politique_confidentialite, name='politique_confidentialite'),
     path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),
     path('support_contact/', views.support_contact, name='support_contact'),
