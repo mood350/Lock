@@ -14,23 +14,15 @@
                     {% if error_message %}
                         <div class="alert alert-danger">{{ error_message }}</div>
                     {% endif %}
-                    <form method="post" novalidate>
+                    <form method="post">
                         {% csrf_token %}
-                        {% for field in form %}
-                            <div class="mb-3">
-                                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <div class="form-text">{{ field.help_text }}</div>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                    <div class="text-danger small">{{ error }}</div>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
-                        <button type="submit" class="btn btn-primary w-100">
-                            {{ bouton|default:"Valider" }}
-                        </button>
+                        {{ form.non_field_errors }}
+                        {{ form.nom.label_tag }} {{ form.nom }}
+                        {{ form.email.label_tag }} {{ form.email }}
+                        {{ form.sujet.label_tag }} {{ form.sujet }}
+                        {{ form.message.label_tag }} {{ form.message }}
+                        {{ form.captcha }}  <!-- Affiche le captcha ici -->
+                        <button type="submit">Envoyer</button>
                     </form>
                 </div>
             </div>

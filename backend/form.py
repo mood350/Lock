@@ -1,8 +1,5 @@
-from django.shortcuts import render, redirect
-from .models import Client, KYC
-from django.contrib.auth.decorators import login_required
+from .models import *
 from django import forms
-from .models import Client, Achat, Vente, Transaction, Adresse
 
 class ClientForm(forms.ModelForm):
     class Meta:
