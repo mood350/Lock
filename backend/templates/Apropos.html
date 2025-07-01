@@ -1,77 +1,169 @@
 {% extends "base.html" %}
 {% block head %}
     <style>
-        /* ...tout ton CSS 
-        existant inchangé... */
-        * {
+       * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Roboto', sans-serif;
             line-height: 1.6;
             color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f8f9fa;
             min-height: 100vh;
         }
-        .navbar {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 1rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        
+        /* Navbar styles identiques au template principal */
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 28px 0 rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 997;
+            transition: all 0.5s;
+            padding: 15px 0;
         }
-        .nav-container {
-            max-width: 1200px;
+        
+        .container-fluid {
+            max-width: 1140px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 15px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 3rem;
+            justify-content: space-between;
         }
-        .nav-link {
+        
+        .logo {
+            display: flex;
+            align-items: center;
             text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            position: relative;
+            color: #2c4964;
+            margin-right: auto;
         }
-        .nav-link:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
-            transform: translateY(-2px);
+        
+        .logo img {
+            max-height: 40px;
+            margin-right: 8px;
         }
-        .nav-link.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        
+        .sitename {
+            font-size: 30px;
+            font-weight: 700;
+            color: #2c4964;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .navmenu ul {
+            display: flex;
+            list-style: none;
+            gap: 0;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navmenu a {
+            color: color-mix(in srgb, #2c4964, transparent 20%);
+            padding: 18px 15px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+        
+        .navmenu a:hover,
+        .navmenu .active,
+        .navmenu .active:focus {
+            color: #388da8;
+        }
+        
+        .navmenu a:hover:before,
+        .navmenu .active:before,
+        .navmenu .active:focus:before {
+            visibility: visible;
+            width: 25px;
+        }
+        
+        .mobile-nav-toggle {
+            color: #2c4964;
+            font-size: 27px;
+            line-height: 0;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: color 0.3s;
+            display: none;
+        }
+        
+        .mobile-nav-toggle:hover {
+            color: #388da8;
+        }
+        
+        /* Prix crypto dynamiques */
+        .crypto-ticker {
+            background: #2c4964;
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            padding: 10px 0;
+            position: fixed;
+            top: 80px;
+            width: 100%;
+            z-index: 996;
+            overflow: hidden;
         }
-        .nav-link.active:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
         }
-        .container {
+        
+        .crypto-item {
+            margin: 0 30px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .crypto-price.positive {
+            color: #28a745;
+        }
+        
+        .crypto-price.negative {
+            color: #dc3545;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        /* Contenu principal avec marge pour la navbar fixe */
+        .main-content {
+            margin-top: 130px;
             max-width: 1200px;
-            margin: 0 auto;
+            margin-left: auto;
+            margin-right: auto;
             padding: 2rem;
         }
-        .header {
+        
+        .page-header {
             text-align: center;
             margin-bottom: 4rem;
-            color: white;
+            color: #2c4964;
         }
-        .header h1 {
+        .page-header h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
         }
-        .header p {
+        .page-header p {
             font-size: 1.2rem;
-            opacity: 0.9;
+            opacity: 0.8;
         }
         .content-grid {
             display: grid;
@@ -80,21 +172,20 @@
             margin-bottom: 4rem;
         }
         .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: #fff;
+            border-radius: 10px;
             padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.15);
         }
         .card-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #388da8;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -106,33 +197,30 @@
         .card h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
-            color: #333;
+            color: #2c4964;
+            font-weight: 600;
         }
         .card p {
-            color: #666;
+            color: #6c757d;
             line-height: 1.8;
         }
         .mission-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: #fff;
+            border-radius: 10px;
             padding: 3rem;
             margin-bottom: 4rem;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
         }
         .mission-section h2 {
             font-size: 2.5rem;
             margin-bottom: 2rem;
-            color: #333;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #2c4964;
+            font-weight: 700;
         }
         .mission-section p {
             font-size: 1.1rem;
-            color: #666;
+            color: #6c757d;
             max-width: 800px;
             margin: 0 auto;
             line-height: 1.8;
@@ -144,13 +232,12 @@
             margin-bottom: 4rem;
         }
         .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
+            background: #388da8;
+            border-radius: 10px;
             padding: 2rem;
             text-align: center;
             color: white;
+            box-shadow: 0 5px 30px 0 rgba(56, 141, 168, 0.3);
         }
         .stat-number {
             font-size: 2.5rem;
@@ -163,18 +250,18 @@
             opacity: 0.9;
         }
         .team-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: #fff;
+            border-radius: 10px;
             padding: 3rem;
             margin-bottom: 4rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
         }
         .team-section h2 {
             text-align: center;
             font-size: 2.5rem;
             margin-bottom: 3rem;
-            color: #333;
+            color: #2c4964;
+            font-weight: 700;
         }
         .team-grid {
             display: grid;
@@ -184,8 +271,8 @@
         .team-member {
             text-align: center;
             padding: 1.5rem;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            background: #f8f9fa;
             transition: transform 0.3s ease;
         }
         .team-member:hover {
@@ -194,7 +281,7 @@
         .member-avatar {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #388da8;
             border-radius: 50%;
             margin: 0 auto 1rem;
             display: flex;
@@ -206,80 +293,53 @@
         }
         .cta-section {
             text-align: center;
-            color: white;
+            color: #2c4964;
+            background: #fff;
+            padding: 3rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px 0 rgba(0, 0, 0, 0.1);
         }
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: #388da8;
             color: white;
             padding: 1rem 2rem;
-            border-radius: 50px;
+            border-radius: 5px;
             text-decoration: none;
             font-weight: bold;
             font-size: 1.1rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
         }
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-        .floating-shapes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        .shape {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        .shape:nth-child(1) {
-            width: 100px;
-            height: 100px;
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
-        }
-        .shape:nth-child(2) {
-            width: 150px;
-            height: 150px;
-            top: 60%;
-            right: 10%;
-            animation-delay: 2s;
-        }
-        .shape:nth-child(3) {
-            width: 80px;
-            height: 80px;
-            bottom: 20%;
-            left: 20%;
-            animation-delay: 4s;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+            background: #2c4964;
+            transform: translateY(-2px);
         }
         @media (max-width: 768px) {
-            .nav-container {
-                flex-wrap: wrap;
-                gap: 1rem;
+            .container-fluid {
                 padding: 0 1rem;
             }
-            .nav-link {
-                padding: 0.6rem 1rem;
-                font-size: 0.9rem;
+            
+            .navmenu ul {
+                display: none;
             }
-            .header h1 {
-                font-size: 2rem;
+            
+            .mobile-nav-toggle {
+                display: block;
             }
-            .container {
+            
+            .crypto-ticker {
+                top: 70px;
+            }
+            
+            .main-content {
+                margin-top: 120px;
                 padding: 1rem;
             }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
             .content-grid {
                 grid-template-columns: 1fr;
             }
@@ -289,26 +349,87 @@
         }
     </style>
     {% load static %}
-</head>
-<body>
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="{% url 'accueil' %}" class="nav-link" data-page="accueil">Accueil</a>
-            <a href="{% url 'propos' %}" class="nav-link active" data-page="apropos">À propos</a>
-            <a href="{% url 'connexion' %}" class="nav-link" data-page="connexion">Connexion</a>
-            <a href="{% url 'inscription' %}" class="nav-link" data-page="inscription">Créer un compte</a>
-        </div>
-    </nav>
+    <script>
+        // API pour récupérer les prix des cryptos en temps réel
+        async function fetchCryptoPrices() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,tether,tron,binancecoin&vs_currencies=usd&include_24hr_change=true');
+                const data = await response.json();
+                
+                const cryptos = [
+                    { name: 'Bitcoin (BTC)', id: 'bitcoin' },
+                    { name: 'Ethereum (ETH)', id: 'ethereum' },
+                    { name: 'Tether (USDT)', id: 'tether' },
+                    { name: 'Tron (TRX)', id: 'tron' },
+                    { name: 'BNB (BNB)', id: 'binancecoin' }
+                ];
+                
+                let tickerContent = '';
+                cryptos.forEach(crypto => {
+                    const price = data[crypto.id].usd;
+                    const change = data[crypto.id].usd_24h_change;
+                    const changeClass = change >= 0 ? 'positive' : 'negative';
+                    const changeSymbol = change >= 0 ? '+' : '';
+                    
+                    tickerContent += `
+                        <span class="crypto-item">
+                            ${crypto.name}: ${price.toFixed(2)} 
+                            <span class="crypto-price ${changeClass}">${changeSymbol}${change.toFixed(2)}%</span>
+                        </span>
+                    `;
+                });
+                
+                document.querySelector('.ticker-content').innerHTML = tickerContent;
+            } catch (error) {
+                console.error('Erreur lors de la récupération des prix:', error);
+                // Prix par défaut en cas d'erreur
+                document.querySelector('.ticker-content').innerHTML = `
+                    <span class="crypto-item">Bitcoin (BTC): $67,000 <span class="crypto-price positive">+2.1%</span></span>
+                    <span class="crypto-item">Ethereum (ETH): $3,100 <span class="crypto-price negative">-0.8%</span></span>
+                    <span class="crypto-item">Tether (USDT): $1.00 <span class="crypto-price">0.0%</span></span>
+                    <span class="crypto-item">Tron (TRX): $0.12 <span class="crypto-price positive">+1.5%</span></span>
+                    <span class="crypto-item">BNB (BNB): $310 <span class="crypto-price positive">+0.7%</span></span>
+                `;
+            }
+        }
+        
+        // Mettre à jour les prix toutes les 60 secondes
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCryptoPrices();
+            setInterval(fetchCryptoPrices, 60000);
+        });
+    </script>
+{% endblock %}
 
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
+{% block content %}
+    <!-- Header avec navbar unifiée -->
+    <header id="header" class="header d-flex align-items-center fixed-top">
+        <div class="container-fluid container-xl position-relative d-flex align-items-center">
+            <a href="{% url 'accueil' %}" class="logo d-flex align-items-center me-auto">
+                <img src="{% static 'assets/img/logo.png' %}" alt="">
+                <h1 class="sitename">LOCK</h1>
+            </a>
+            <nav id="navmenu" class="navmenu">
+                <ul>
+                    <li><a href="{% url 'accueil' %}">Accueil</a></li>
+                    <li><a href="{% url 'propos' %}" class="active">À propos</a></li>
+                    <li><a href="{% url 'connexion' %}">Connexion</a></li>
+                    <li><a href="{% url 'inscription' %}">Créer un compte</a></li>
+                </ul>
+                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Ticker des prix crypto dynamique -->
+    <div class="crypto-ticker">
+        <div class="ticker-content">
+            <span class="crypto-item">Chargement des prix...</span>
+        </div>
     </div>
 
-    <div class="container">
-        <header class="header">
+    <div class="main-content">
+        <header class="page-header">
             <h1>À propos de Lock</h1>
             <p>Votre partenaire de confiance dans l'univers des cryptomonnaies</p>
         </header>
@@ -436,27 +557,4 @@
             <a href="{% url 'inscription' %}" class="cta-button" data-page="inscription">Créer un compte gratuitement</a>
         </section>
     </div>
-
-    <script>
-        // Navigation functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const navLinks = document.querySelectorAll('.nav-link');
-            // Active link management
-            function setActiveLink(clickedLink) {
-                navLinks.forEach(link => link.classList.remove('active'));
-                clickedLink.classList.add('active');
-            }
-            // Handle navigation clicks
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    // Si c'est déjà la page active, ne fait rien
-                    if (this.classList.contains('active')) return;
-                    // Laisse le comportement par défaut (navigation Django)
-                    setActiveLink(this);
-                });
-            });
-        });
-    </script>
-</body>
-</html>
 {% endblock %}
