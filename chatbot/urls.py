@@ -8,7 +8,7 @@ app_name = 'chatbot' # C'est le namespace de l'application
 
 urlpatterns = [
     # Le chemin VIDE '' correspondra à /chatbot/
-    path('', views.chatbot_view, name='chatbot_home'),
+    path('', views.chatbot_view, name='chatbot_view'),
 
     # Le chemin 'api/chat/' correspondra à /chatbot/api/chat/
     path('api/chat/', views.chatbot_view, name='chat_api'),

@@ -1,2 +1,6 @@
 __pycache__/
 media/
+
+#fichier env
+.env
+.env.local

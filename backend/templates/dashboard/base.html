@@ -58,6 +58,11 @@
                         <i class="fas fa-question-circle mr-2"></i>FAQ & Support
                     </a>
                 </li>
+                <li>
+                    <a class="{% if request.resolver_match.url_name == 'chatbot_view' %}active{% endif %}" href="{% url 'chatbot:chatbot_view' %}">
+                        <i class="fas fa-comment-dots mr-2"></i>Support Chat
+                    </a>
+                </li>
             </ul>
         </aside>
 

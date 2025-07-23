@@ -1,9 +1,12 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+
+    #Chatbot URLs
+    path('chatbot/', include('chatbot.urls')),  # Inclure les URLs de l'application chatbot
 
     #Admin URLs
     path('admin/', views.admin_dashboard, name='admin'),
