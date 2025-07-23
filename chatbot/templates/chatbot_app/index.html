@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de Service Client</title>
+    <style>
+        /* Styles de base pour l'apparence du chatbot */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9eff7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 500px;
+        }
+
+        .chat-header {
+            background-color: #4CAF50; /* Vert pour le header */
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #45a049;
+        }
+
+        .chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 400px; /* Hauteur maximale de la zone de discussion */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Espacement entre les messages */
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            word-wrap: break-word; /* Casse les mots longs */
+        }
+
+        .user-message {
+            align-self: flex-end; /* Aligné à droite */
+            background-color: #007bff; /* Bleu pour l'utilisateur */
+            color: white;
+            border-bottom-right-radius: 5px; /* Angle plus doux */
+        }
+
+        .bot-message {
+            align-self: flex-start; /* Aligné à gauche */
+            background-color: #f0f0f0; /* Gris clair pour le bot */
+            color: #333;
+            border-bottom-left-radius: 5px; /* Angle plus doux */
+        }
+
+        .input-container {
+            display: flex;
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        .input-container input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px; /* Bords arrondis */
+            margin-right: 10px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-container input:focus {
+            border-color: #007bff;
+        }
+
+        .input-container button {
+            padding: 12px 20px;
+            background-color: #007bff; /* Bleu pour le bouton */
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .input-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            Service Client AI
+        </div>
+        <div class="chat-box" id="chat-box">
+            <div class="message bot-message">Bonjour ! Comment puis-je vous aider aujourd'hui ?</div>
+        </div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Tapez votre message ici...">
+            <button onclick="sendMessage()">Envoyer</button>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour envoyer un message
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim(); // Récupère le texte et supprime les espaces
+            if (message === '') return; // Ne fait rien si le message est vide
+
+            const chatBox = document.getElementById('chat-box');
+
+            // 1. Afficher le message de l'utilisateur dans la boîte de discussion
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-message';
+            userDiv.textContent = message;
+            chatBox.appendChild(userDiv);
+
+            userInput.value = ''; // Vider le champ de saisie
+            chatBox.scrollTop = chatBox.scrollHeight; // Faire défiler vers le bas
+
+            // 2. Envoyer le message au backend Django via l'API
+            fetch('/api/chat/', { // <-- Chemin de l'API corrigé pour la configuration actuelle (racine)
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Pour la sécurité en production, activez le jeton CSRF :
+                    // 'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ message: message }) // Convertit le message en JSON
+            })
+            .then(response => {
+                // Vérifie si la réponse HTTP est OK (200)
+                if (!response.ok) {
+                    // Si la réponse n'est pas OK, lance une erreur
+                    return response.json().then(err => { throw new Error(err.error || 'Erreur serveur'); });
+                }
+                return response.json(); // Analyse la réponse JSON
+            })
+            .then(data => {
+                // 3. Afficher la réponse du bot
+                const botResponse = data.response;
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot-message';
+                botDiv.textContent = botResponse;
+                chatBox.appendChild(botDiv);
+                chatBox.scrollTop = chatBox.scrollHeight; // Faire défiler vers le bas
+            })
+            .catch(error => {
+                // 4. Gérer les erreurs (affichage d'un message d'erreur pour l'utilisateur)
+                console.error('Erreur lors de l\'envoi du message:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message bot-message';
+                errorDiv.textContent = "Désolé, une erreur est survenue lors du traitement de votre demande.";
+                chatBox.appendChild(errorDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        // Permet d'envoyer le message en appuyant sur la touche 'Entrée'
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Fonction pour récupérer le jeton CSRF (nécessaire en production pour les requêtes POST)
+        // Décommentez et utilisez-la dans la section 'headers' de votre fetch() quand vous activerez CSRF
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+    </script>
+</body>
+</html>
