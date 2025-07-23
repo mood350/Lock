@@ -3,89 +3,83 @@
 {% block title %}Mon Profil - Lock Exchange{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
+<div class="container mx-auto mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Informations du profil -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Informations personnelles</h5>
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h5 class="card-title text-lg font-bold text-primary mb-4">Informations personnelles</h5>
+                <div class="mb-3">
+                    <span class="font-semibold text-base-content/80">Nom :</span>
+                    <span>{{ client.nom }}</span>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="fw-bold">Nom:</label>
-                        <p>{{ client.nom }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Prénoms:</label>
-                        <p>{{ client.prenoms }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Email:</label>
-                        <p>{{ client.email }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Téléphone:</label>
-                        <p>{{ client.telephone }}</p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Date d'inscription:</label>
-                        <p>{{ client.date_inscription|date:"d/m/Y" }}</p>
-                    </div>
+                <div class="mb-3">
+                    <span class="font-semibold text-base-content/80">Prénoms :</span>
+                    <span>{{ client.prenoms }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="font-semibold text-base-content/80">Email :</span>
+                    <span>{{ client.email }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="font-semibold text-base-content/80">Téléphone :</span>
+                    <span>{{ client.telephone }}</span>
+                </div>
+                <div class="mb-3">
+                    <span class="font-semibold text-base-content/80">Date d'inscription :</span>
+                    <span>{{ client.date_inscription|date:"d/m/Y" }}</span>
                 </div>
             </div>
         </div>
 
         <!-- Section KYC -->
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Vérification KYC</h5>
-                </div>
-                <div class="card-body">
-                    {% if kyc %}
-                        <div class="alert 
-                            {% if kyc.statut == 'valide' %}alert-success
-                            {% elif kyc.statut == 'refuse' %}alert-danger
-                            {% else %}alert-warning{% endif %}">
-                            Statut: 
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h5 class="card-title text-lg font-bold text-primary mb-4">Vérification KYC</h5>
+                {% if kyc %}
+                    <div class="alert mb-4
+                        {% if kyc.statut == 'valide' %}alert-success
+                        {% elif kyc.statut == 'refuse' %}alert-error
+                        {% else %}alert-warning{% endif %}">
+                        <span>
+                            Statut :
                             {% if kyc.statut == 'valide' %}
-                                <span class="badge bg-success">Validée</span>
+                                <span class="badge badge-success">Validée</span>
                             {% elif kyc.statut == 'refuse' %}
-                                <span class="badge bg-danger">Refusée</span>
+                                <span class="badge badge-error">Refusée</span>
                             {% else %}
-                                <span class="badge bg-warning">En attente</span>
+                                <span class="badge badge-warning">En attente</span>
                             {% endif %}
                             {% if kyc.date_validation %}
-                                <br>Date de validation: {{ kyc.date_validation|date:"d/m/Y" }}
+                                <br>Date de validation : {{ kyc.date_validation|date:"d/m/Y" }}
                             {% endif %}
+                        </span>
+                    </div>
+                    {% if kyc.statut == 'refuse' %}
+                        <div class="alert alert-info mb-4">
+                            Votre demande KYC a été refusée.<br>
+                            <a href="{% url 'kyc_form' %}" class="btn btn-primary mt-2">Soumettre une nouvelle demande KYC</a>
                         </div>
-                        {% if kyc.statut == 'refuse' %}
-                            <div class="alert alert-info">
-                                Votre demande KYC a été refusée.<br>
-                                <a href="{% url 'kyc_form' %}" class="btn btn-primary mt-2">Soumettre une nouvelle demande KYC</a>
-                            </div>
-                        {% else %}
-                            <div class="mb-3">
-                                <label class="fw-bold">Date de naissance:</label>
-                                <p>{{ kyc.date_naissance|date:"d/m/Y" }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="fw-bold">Adresse:</label>
-                                <p>{{ kyc.adresse }}</p>
-                            </div>
-                            <div class="mb-3">
-                                <label class="fw-bold">Numéro CNI:</label>
-                                <p>{{ kyc.cni }}</p>
-                            </div>
-                        {% endif %}
                     {% else %}
-                        <div class="alert alert-info">
-                            Vous n'avez pas encore soumis de demande de vérification KYC.
+                        <div class="mb-3">
+                            <span class="font-semibold text-base-content/80">Date de naissance :</span>
+                            <span>{{ kyc.date_naissance|date:"d/m/Y" }}</span>
                         </div>
-                        <a href="{% url 'kyc_form' %}" class="btn btn-primary">Soumettre ma demande KYC</a>
+                        <div class="mb-3">
+                            <span class="font-semibold text-base-content/80">Adresse :</span>
+                            <span>{{ kyc.adresse }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <span class="font-semibold text-base-content/80">Numéro CNI :</span>
+                            <span>{{ kyc.cni }}</span>
+                        </div>
                     {% endif %}
-                </div>
+                {% else %}
+                    <div class="alert alert-info mb-4">
+                        Vous n'avez pas encore soumis de demande de vérification KYC.
+                    </div>
+                    <a href="{% url 'kyc_form' %}" class="btn btn-primary">Soumettre ma demande KYC</a>
+                {% endif %}
             </div>
         </div>
     </div>

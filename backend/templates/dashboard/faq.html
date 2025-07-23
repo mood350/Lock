@@ -1,75 +1,28 @@
-{% extends 'dashboard/base.html' %}
-
+{% extends "dashboard/base.html" %}
 {% block title %}FAQ & Support - Lock Exchange{% endblock %}
-
 {% block content %}
-<div class="container">
-    <h2 class="mt-4 mb-4"><i class="fas fa-question-circle me-2"></i>FAQ & Support</h2>
-
-    <div class="accordion" id="faqAccordion">
-        <div class="card">
-            <div class="card-header" id="headingOne">
-                <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseOne">
-                        Comment acheter de la crypto sur Lock ?
-                    </button>
-                </h2>
+<div class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-6 text-primary">Questions Fréquentes</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
+            <input type="checkbox" class="peer" />
+            <div class="collapse-title text-lg font-semibold text-secondary">
+                Comment créer un compte ?
             </div>
-
-            <div id="collapseOne" class="collapse" data-parent="#faqAccordion">
-                <div class="card-body">
-                    Pour acheter de la crypto, connectez-vous à votre compte, cliquez sur "Achat/Vente", sélectionnez la crypto souhaitée, entrez le montant, puis suivez les instructions de paiement.
-                </div>
+            <div class="collapse-content text-base-content/80">
+                L'inscription est gratuite et ne prend que quelques minutes. Cliquez sur "Créer un compte" et suivez les étapes de vérification.
             </div>
         </div>
-
-        <div class="card">
-            <div class="card-header" id="headingTwo">
-                <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo">
-                        Quels moyens de paiement sont acceptés ?
-                    </button>
-                </h2>
+        <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
+            <input type="checkbox" class="peer" />
+            <div class="collapse-title text-lg font-semibold text-secondary">
+                Quels sont les frais de transaction ?
             </div>
-
-            <div id="collapseTwo" class="collapse" data-parent="#faqAccordion">
-                <div class="card-body">
-                    Nous acceptons plusieurs moyens de paiement, y compris Mobile Money (TMoney, Flooz), transferts bancaires et autres selon votre région.
-                </div>
+            <div class="collapse-content text-base-content/80">
+                Nos frais sont parmi les plus compétitifs du marché, à partir de 0.1% par transaction selon le volume.
             </div>
         </div>
-
-        <div class="card">
-            <div class="card-header" id="headingThree">
-                <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseThree">
-                        Comment contacter le support client ?
-                    </button>
-                </h2>
-            </div>
-
-            <div id="collapseThree" class="collapse" data-parent="#faqAccordion">
-                <div class="card-body">
-                    Vous pouvez nous contacter à tout moment via l’adresse email <strong>contact@Lock.com</strong>, ou par téléphone au <strong>+228 90 01 02 03</strong>. Nous sommes également disponibles sur Telegram et Discord.
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header" id="headingFour">
-                <h2 class="mb-0">
-                    <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseFour">
-                        Est-ce que Lock est sécurisé ?
-                    </button>
-                </h2>
-            </div>
-
-            <div id="collapseFour" class="collapse" data-parent="#faqAccordion">
-                <div class="card-body">
-                    Oui, notre plateforme utilise des protocoles de sécurité avancés pour protéger vos données et vos fonds. Toutes les transactions sont cryptées et surveillées.
-                </div>
-            </div>
-        </div>
+        <!-- Ajoute d'autres questions/réponses ici -->
     </div>
 </div>
 {% endblock %}

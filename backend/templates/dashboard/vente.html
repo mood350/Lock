@@ -3,71 +3,38 @@
 {% block title %}Vendre {{ crypto.nom }} - Lock Exchange{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0">Vendre {{ crypto.nom }} ({{ crypto.sigle }})</h4>
-                </div>
-                <div class="card-body">
-                    {% if error_message %}
-                        <div class="alert alert-danger">{{ error_message }}</div>
-                    {% endif %}
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">Quantité de {{ crypto.sigle }}</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   name="quantite" 
-                                   placeholder="Ex: 0.001"
-                                   required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Adresse de réception</label>
-                            <select class="form-select" id="adresse_existante" name="adresse_existante" onchange="onAdresseChange()">
-                                <option value="">-- Saisir une nouvelle adresse --</option>
-                                {% for adresse in adresses %}
-                                    <option value="{{ adresse.adresse }}">{{ adresse.nom }} ({{ adresse.adresse|truncatechars:18 }})</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3" id="nouvelleAdresseDiv">
-                            <input type="text" class="form-control" name="nouvelle_adresse" placeholder="Nouvelle adresse {{ crypto.nom }}">
-                        </div>
-                        
-                        <button type="submit" class="btn btn-danger w-100">Vendre</button>
-                    </form>
-                </div>
+<div class="container mx-auto mt-8">
+    <div class="flex justify-center">
+        <div class="card bg-base-100 shadow-xl w-full max-w-lg">
+            <div class="card-body">
+                <h4 class="card-title text-primary mb-4">Vendre {{ crypto.nom }} ({{ crypto.sigle }})</h4>
+                {% if error_message %}
+                    <div class="alert alert-error mb-4">{{ error_message }}</div>
+                {% endif %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="font-semibold text-base-content/80">Quantité de {{ crypto.sigle }}</label>
+                        <input type="text" name="quantite" class="input input-bordered w-full" placeholder="Ex: 0.001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="font-semibold text-base-content/80">Adresse de réception</label>
+                        <select class="select select-bordered w-full" id="adresse_existante" name="adresse_existante" onchange="onAdresseChange()">
+                            <option value="">-- Saisir une nouvelle adresse --</option>
+                            {% for adresse in adresses %}
+                                <option value="{{ adresse.adresse }}">{{ adresse.nom }} ({{ adresse.adresse|truncatechars:18 }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3" id="nouvelleAdresseDiv">
+                        <input type="text" class="input input-bordered w-full" name="nouvelle_adresse" id="nouvelle_adresse" placeholder="Nouvelle adresse {{ crypto.nom }}">
+                    </div>
+                    <button type="submit" class="btn btn-success w-full">Vendre</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-.card {
-    border-radius: 12px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-}
-.card-header {
-    border-radius: 12px 12px 0 0;
-}
-.btn-danger {
-    background: linear-gradient(90deg, #dc3545 60%, #a71d2a 100%);
-    border: none;
-}
-.btn-danger:hover {
-    background: linear-gradient(90deg, #a71d2a 60%, #dc3545 100%);
-}
-.form-label {
-    font-weight: 600;
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -77,6 +44,7 @@ function onAdresseChange() {
     const nouvelleAdresseDiv = document.getElementById('nouvelleAdresseDiv');
     if (select.value) {
         nouvelleAdresseDiv.style.display = 'none';
+        document.getElementById('nouvelle_adresse').value = '';
     } else {
         nouvelleAdresseDiv.style.display = '';
     }

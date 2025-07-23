@@ -3,30 +3,30 @@
 {% block title %}Lock Exchange - Cryptomonnaies{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Cryptomonnaies disponibles</h2>
-    <div class="row">
+<div class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-6 text-primary">Cryptomonnaies disponibles</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {% for crypto in cryptos %}
         {% if crypto.disponibilite == "Oui" %}
-        <div class="col-md-4 mb-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ crypto.nom }} ({{ crypto.sigle }})</h5>
-                    <div class="mb-3">
-                        <p class="card-text mb-1">Prix d'achat: {{ crypto.prix_achat }} </p>
-                        <p class="card-text">Prix de vente: {{ crypto.prix_vente }} </p>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'achat' crypto.id %}" class="btn btn-success">Acheter</a>
-                        <a href="{% url 'vente' crypto.id %}" class="btn btn-primary">Vendre</a>
-                    </div>
+        <div class="card bg-base-100 shadow-xl border border-base-200">
+            <div class="card-body">
+                <h5 class="card-title text-lg font-semibold text-secondary">{{ crypto.nom }} ({{ crypto.sigle }})</h5>
+                <div class="mb-3">
+                    <p class="mb-1 text-base-content/80">Prix d'achat : <span class="font-bold">{{ crypto.prix_achat }}</span>
+                    </p>
+                    <p class="text-base-content/80">Prix de vente : <span class="font-bold">{{ crypto.prix_vente }}</span>
+                    </p>
+                </div>
+                <div class="flex justify-between gap-2">
+                    <a href="{% url 'achat' crypto.id %}" class="btn btn-success btn-sm w-1/2">Acheter</a>
+                    <a href="{% url 'vente' crypto.id %}" class="btn btn-primary btn-sm w-1/2">Vendre</a>
                 </div>
             </div>
         </div>
         {% endif %}
         {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info" role="alert">
+        <div class="col-span-3">
+            <div class="alert alert-info shadow-lg">
                 Aucune cryptomonnaie n'est disponible pour le moment.
             </div>
         </div>

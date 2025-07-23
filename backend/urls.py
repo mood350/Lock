@@ -37,6 +37,7 @@ urlpatterns = [
     path('profiles/', views.profiles, name='profiles'),
     path('kyc/', views.kyc_form, name='kyc_form'),
     path('tutoriels/', views.tutoriels, name='tutoriels'),
+    path('supprimer_adresse/<int:adresse_id>/', views.supprimer_adresse, name='supprimer_adresse'),
 
     #No connection URLs
     path('', views.accueil, name='accueil'),
@@ -47,6 +48,8 @@ urlpatterns = [
     path('politique_confidentialite/', views.politique_confidentialite, name='politique_confidentialite'),
     path('conditions_utilisation/', views.conditions_utilisation, name='conditions_utilisation'),
     path('support_contact/', views.support_contact, name='support_contact'),
+    path('test/', views.test, name='test'),
+    path('adresses/supprimer/<int:adresse_id>/', views.supprimer_adresse, name='supprimer_adresse'),
 
 ]
 

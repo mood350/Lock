@@ -10,6 +10,9 @@ from .form import *
 from django.utils import timezone
 import os
 
+def test(request):
+    return render(request, 'test.html')
+
 # Create your views here.
 
 # Admin views
@@ -701,3 +704,11 @@ def supprimer_tutoriel(request, tutoriel_id):
     if request.method == 'POST':
         tutoriel.delete()
     return redirect('tutoriels_admin')
+
+@login_required
+def supprimer_adresse(request, adresse_id):
+    client = Client.objects.get(user=request.user)
+    adresse = get_object_or_404(Adresse, id=adresse_id, client=client)
+    if request.method == 'POST':
+        adresse.delete()
+    return redirect('adresses')

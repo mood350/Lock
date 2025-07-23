@@ -3,29 +3,23 @@
 {% block title %}{{ titre|default:"Formulaire" }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">{{ titre|default:"Formulaire" }}</h4>
-                </div>
-                <div class="card-body">
-                    {% if error_message %}
-                        <div class="alert alert-danger">{{ error_message }}</div>
-                    {% endif %}
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ form.non_field_errors }}
-                        {{ form.nom.label_tag }} {{ form.nom }}
-                        {{ form.email.label_tag }} {{ form.email }}
-                        {{ form.sujet.label_tag }} {{ form.sujet }}
-                        {{ form.message.label_tag }} {{ form.message }}
-                        {{ form.captcha }}  <!-- Affiche le captcha ici -->
-                        <button type="submit">Envoyer</button>
-                    </form>
-                </div>
-            </div>
+<div class="flex items-center justify-center min-h-screen bg-base-200">
+    <div class="card w-full max-w-lg bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title mb-4 text-primary">{{ titre|default:"Formulaire" }}</h2>
+            {% if error_message %}
+                <div class="alert alert-error mb-4">{{ error_message }}</div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.nom.label_tag }} {{ form.nom }}
+                {{ form.email.label_tag }} {{ form.email }}
+                {{ form.sujet.label_tag }} {{ form.sujet }}
+                {{ form.message.label_tag }} {{ form.message }}
+                {{ form.captcha }}
+                <button type="submit" class="btn btn-primary w-full mt-4">Envoyer</button>
+            </form>
         </div>
     </div>
 </div>

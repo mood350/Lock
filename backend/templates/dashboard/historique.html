@@ -3,56 +3,49 @@
 {% block title %}Historique des transactions - Lock Exchange{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">Historique des transactions</h2>
-    
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Crypto</th>
-                            <th>Quantité</th>
-                            <th>Montant</th>
-                            <th>Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for transaction in transactions %}
-                        <tr>
-                            <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
-                            <td>
-                                {% if transaction.vente %}
-                                    <span class="badge badge-danger">Vente</span>
-                                {% else %}
-                                    <span class="badge badge-success">Achat</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ transaction.crypto.nom }}</td>
-                            <td>{{ transaction.quantite }}</td>
-                            <td>{{ transaction.montant }} FCFA</td>
-                            <td>
-                                {% if transaction.statut == 'approuve' %}
-                                    <span class="badge badge-success">Approuvé</span>
-                                {% elif transaction.statut == 'rejete' %}
-                                    <span class="badge badge-danger">Rejeté</span>
-                                {% else %}
-                                    <span class="badge badge-warning">En attente</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center">Aucune transaction trouvée</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-6 text-primary">Historique des transactions</h2>
+    <div class="overflow-x-auto">
+        <table class="table w-full bg-base-100 shadow">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Crypto</th>
+                    <th>Quantité</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if transaction.achat %}<span class="badge badge-success">Achat</span>
+                        {% elif transaction.vente %}<span class="badge badge-error">Vente</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ transaction.crypto.nom }}</td>
+                    <td>{{ transaction.quantite }}</td>
+                    <td>{{ transaction.montant }}</td>
+                    <td>
+                        {% if transaction.statut == "approuve" %}
+                            <span class="badge badge-success">Approuvé</span>
+                        {% elif transaction.statut == "rejete" %}
+                            <span class="badge badge-error">Rejeté</span>
+                        {% else %}
+                            <span class="badge badge-warning">En attente</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">Aucune transaction trouvée.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
