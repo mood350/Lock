@@ -1,14 +1,25 @@
+from decimal import InvalidOperation
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from .models import *
 from multiprocessing.connection import Client
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login
 from django.db import models
 from .form import *
 from django.utils import timezone
 import os
+from django.db import transaction
+from django.contrib import messages
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import BuyCryptoRequestSerializer,CryptoDetailSerializer, SellCryptoRequestSerializer, TransactionResultSerializer
+import requests
 
 def test(request):
     return render(request, 'test.html')
@@ -61,10 +72,106 @@ def admin_dashboard(request):
     })
 
 # Dashboard views
-@login_required
+class CryptoDetailAPIView(APIView):
+    def get(self, request, sigle, *args, **kwargs):
+        crypto = get_object_or_404(Crypto, sigle__iexact=sigle)
+        serializer = CryptoDetailSerializer(crypto)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BuyCryptoAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = BuyCryptoRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        amount_fcfa = serializer.validated_data['amount_fcfa']
+        crypto_sigle = serializer.validated_data['crypto_sigle'].upper()
+
+        crypto = get_object_or_404(Crypto, sigle__iexact=crypto_sigle)
+
+        if not crypto.is_active:
+            return Response({"error": f"{crypto.nom} n'est pas active pour le trading."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if amount_fcfa < crypto.min_achat_fcfa or amount_fcfa > crypto.max_achat_fcfa:
+            return Response({"error": f"Le montant FCFA doit être entre {crypto.min_achat_fcfa} et {crypto.max_achat_fcfa} pour {crypto.sigle}."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if crypto.valeur_sur_le_marche_fcfa <= Decimal('0.0'):
+             return Response({"error": f"La valeur sur le marché de {crypto.sigle} n'est pas définie ou invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        amount_crypto_to_receive = amount_fcfa / crypto.valeur_sur_le_marche_fcfa
+
+        if amount_crypto_to_receive <= Decimal('0.0'):
+            return Response({"error": "Le montant de crypto calculé est invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        if crypto.quantite_disponible < amount_crypto_to_receive:
+            return Response({"error": f"Quantité insuffisante de {crypto.sigle} disponible pour l'achat."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        transaction = ConversionTransaction.objects.create(
+            crypto=crypto,
+            transaction_type='BUY',
+            amount_fcfa=amount_fcfa,
+            amount_crypto=amount_crypto_to_receive,
+        )
+        
+        crypto.quantite_disponible -= amount_crypto_to_receive
+        crypto.save()
+
+        response_serializer = TransactionResultSerializer(transaction)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+class SellCryptoAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = SellCryptoRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        amount_crypto = serializer.validated_data['amount_crypto']
+        crypto_sigle = serializer.validated_data['crypto_sigle'].upper()
+
+        crypto = get_object_or_404(Crypto, sigle__iexact=crypto_sigle)
+
+        if not crypto.is_active:
+            return Response({"error": f"{crypto.nom} n'est pas active pour le trading."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        if crypto.valeur_sur_le_marche_fcfa <= Decimal('0.0'):
+             return Response({"error": f"La valeur sur le marché de {crypto.sigle} n'est pas définie ou invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        amount_fcfa_to_receive = amount_crypto * crypto.valeur_sur_le_marche_fcfa
+
+        if amount_fcfa_to_receive <= Decimal('0.0'):
+            return Response({"error": "Le montant FCFA calculé est invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if amount_fcfa_to_receive < crypto.min_vente_fcfa or amount_fcfa_to_receive > crypto.max_vente_fcfa:
+            return Response({"error": f"Le montant FCFA résultant doit être entre {crypto.min_vente_fcfa} et {crypto.max_vente_fcfa} pour {crypto.sigle}."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        transaction = ConversionTransaction.objects.create(
+            crypto=crypto,
+            transaction_type='SELL',
+            amount_fcfa=amount_fcfa_to_receive,
+            amount_crypto=amount_crypto,
+        )
+
+        crypto.quantite_disponible += amount_crypto
+        crypto.save()
+
+        response_serializer = TransactionResultSerializer(transaction)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
 def index(request):
-    cryptos = Crypto.objects.all()
-    return render(request, 'dashboard/index.html', {'cryptos': cryptos})
+    cryptos = Crypto.objects.all().order_by('nom')
+
+    context = {
+        'cryptos': cryptos,
+    }
+    
+    return render(request, 'dashboard/index.html', context)
 
 @login_required
 def base(request):
@@ -265,62 +372,180 @@ def conditions_utilisation(request):
 def support_contact(request):
     return render(request, 'support_contact.html')
 
-@login_required
-def achat(request, crypto_id):
+def acheter_crypto_view(request, crypto_id):
+    if not request.user.is_authenticated:
+        messages.error(request, "Veuillez vous connecter pour effectuer un achat.")
+        return redirect('login')
+
+    try:
+        current_client = request.user.client
+    except Client.DoesNotExist:
+        messages.error(request, "Votre compte client n'a pas été trouvé. Veuillez contacter le support.")
+        return redirect('accueil_dashboard_ou_profil')
+
     crypto = get_object_or_404(Crypto, id=crypto_id)
-    client = get_object_or_404(Client, user=request.user)
-    adresses = Adresse.objects.filter(client=client, crypto=crypto)
-    error_message = None
+    
+    adresses_enregistrees = Adresse.objects.filter(client=current_client, crypto=crypto)
+
+    initial_amount_fcfa = None
+    initial_address = None
+    initial_new_address = None
 
     if request.method == 'POST':
+        amount_fcfa = request.POST.get('amount_fcfa')
+        selected_address = request.POST.get('adresse_existante')
+        new_address = request.POST.get('nouvelle_adresse')
+
+        recipient_address = selected_address if selected_address else new_address.strip()
+
         try:
-            quantite_str = request.POST.get('quantite', '').strip().replace(',', '.')
-            if not quantite_str:
-                raise ValueError("La quantité est requise")
-            
-            quantite = float(quantite_str)
-            if quantite <= 0:
-                raise ValueError("La quantité doit être positive")
+            amount_fcfa = float(amount_fcfa)
+            if amount_fcfa <= 0:
+                raise ValueError("Le montant doit être positif.")
+            if amount_fcfa < float(crypto.min_achat_fcfa) or amount_fcfa > float(crypto.max_achat_fcfa):
+                raise ValueError(f"Le montant doit être entre {crypto.min_achat_fcfa} et {crypto.max_achat_fcfa} FCFA.")
+        except (ValueError, TypeError):
+            messages.error(request, "Veuillez entrer un montant FCFA valide.")
+            return render(request, 'dashboard/achat.html', {
+                'crypto': crypto,
+                'adresses': adresses_enregistrees,
+                'initial_amount_fcfa': amount_fcfa,
+                'initial_address': selected_address,
+                'initial_new_address': new_address,
+            })
+        
+        if not recipient_address:
+            messages.error(request, "Veuillez spécifier une adresse de réception.")
+            return render(request, 'dashboard/achat.html', {
+                'crypto': crypto,
+                'adresses': adresses_enregistrees,
+                'initial_amount_fcfa': amount_fcfa,
+                'initial_address': selected_address,
+                'initial_new_address': new_address,
+            })
+        
+        try:
+            valeur_crypto_fcfa = float(crypto.valeur_sur_le_marche_fcfa)
+            amount_crypto = amount_fcfa / valeur_crypto_fcfa
+        except (TypeError, ValueError, ZeroDivisionError):
+            messages.error(request, "Impossible de calculer la quantité de crypto. La valeur de la crypto est invalide.")
+            return render(request, 'dashboard/achat.html', {
+                'crypto': crypto,
+                'adresses': adresses_enregistrees,
+                'initial_amount_fcfa': amount_fcfa,
+                'initial_address': selected_address,
+                'initial_new_address': new_address,
+            })
 
-            adresse_existante = request.POST.get('adresse_existante')
-            nouvelle_adresse = request.POST.get('nouvelle_adresse')
-            adresse_val = adresse_existante if adresse_existante else nouvelle_adresse
+        try:
+            if not selected_address and new_address.strip():
+                adresse_obj, created = Adresse.objects.get_or_create(
+                    client=current_client,
+                    crypto=crypto,
+                    adresse=recipient_address,
+                    defaults={'nom': f"Adresse {crypto.sigle} ({recipient_address[:10]}...)"}
+                )
+                if created:
+                    messages.success(request, f"Nouvelle adresse {crypto.sigle} enregistrée : {recipient_address}.")
 
-            if not adresse_val:
-                raise ValueError("Une adresse est requise")
-
-            montant = quantite * crypto.prix_achat
-
-            # Création de l'achat
-            achat = Achat.objects.create(
-                client=client,
+            conversion_transaction = ConversionTransaction.objects.create(
+                user=request.user,
                 crypto=crypto,
-                quantite=quantite,
-                adresse=adresse_val
+                transaction_type='BUY',
+                amount_fcfa=Decimal(str(amount_fcfa)),
+                amount_crypto=Decimal(str(amount_crypto)),
+                status='PENDING',
+                user_receiving_address=recipient_address,
             )
+            request.session['conversion_transaction_id'] = conversion_transaction.id
 
-            # Création de la transaction
-            Transaction.objects.create(
-                achat=achat,
-                crypto=crypto,
-                quantite=quantite,
-                montant=montant,
-                statut='en_attente'
-            )
-
-            return redirect('historique')
-
-        except ValueError as e:
-            error_message = str(e)
         except Exception as e:
-            print(f"Erreur: {str(e)}")
-            error_message = "Une erreur est survenue"
+            messages.error(request, f"Une erreur est survenue lors de la préparation de la transaction : {e}")
+            return render(request, 'dashboard/achat.html', {
+                'crypto': crypto,
+                'adresses': adresses_enregistrees,
+                'initial_amount_fcfa': amount_fcfa,
+                'initial_address': selected_address,
+                'initial_new_address': new_address,
+            })
 
-    return render(request, 'dashboard/achat.html', {
+        return redirect('confirmer_achat')
+
+    context = {
         'crypto': crypto,
-        'adresses': adresses,
-        'error_message': error_message
-    })
+        'adresses': adresses_enregistrees,
+        'initial_amount_fcfa': initial_amount_fcfa,
+        'initial_address': initial_address,
+        'initial_new_address': initial_new_address,
+    }
+    return render(request, 'dashboard/achat.html', context)
+
+
+def confirmer_achat_view(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Veuillez vous connecter pour confirmer un achat.")
+        return redirect('login')
+
+    conversion_transaction_id = request.session.pop('conversion_transaction_id', None)
+
+    if not conversion_transaction_id:
+        messages.error(request, "Aucune transaction à confirmer. Veuillez recommencer.")
+        # Assurez-vous d'avoir une URL valide pour rediriger si pas de transaction_id
+        # J'ai mis un exemple avec un crypto_id=1, à adapter selon votre besoin
+        return redirect('achat.html', crypto_id=1) 
+
+    conversion_transaction = get_object_or_404(ConversionTransaction, id=conversion_transaction_id, user=request.user)
+
+    if conversion_transaction.status != 'PENDING':
+        messages.warning(request, f"Cette transaction est déjà {conversion_transaction.get_status_display()}.")
+        return redirect('historique')
+
+    transaction_data_for_fedapay = {
+        'amount_fcfa': float(conversion_transaction.amount_fcfa),
+        'crypto_id': conversion_transaction.crypto.id,
+        'crypto_nom': conversion_transaction.crypto.nom,
+        'crypto_sigle': conversion_transaction.crypto.sigle,
+        'recipient_address': conversion_transaction.user_receiving_address,
+        'user_email': request.user.email,
+        'user_id': request.user.id,
+        'callback_url': request.build_absolute_uri(reverse('fedapay_webhook')),
+        'internal_transaction_id': conversion_transaction.id, 
+    }
+
+    fedapay_public_key = settings.FEDAPAY_PUBLIC_KEY
+
+    context = {
+        'transaction_data': transaction_data_for_fedapay,
+        'fedapay_public_key': fedapay_public_key,
+    }
+    return render(request, 'dashboard/confirmer_paiement.html', context)
+
+
+@csrf_exempt
+def fedapay_webhook(request):
+    if request.method == "POST":
+        try:
+            body_unicode = request.body.decode('utf-8')
+            if not body_unicode:
+                return JsonResponse({'error': 'Empty body'}, status=400)
+            data = json.loads(body_unicode)
+        except Exception as e:
+            return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
+
+        event = data.get('event')
+        transaction = data.get('transaction')
+        status = transaction.get('status') if transaction else None
+        meta = transaction.get('meta') if transaction else None
+
+        # Log pour debug
+        print(f"FedaPay Webhook received: Event={event}, Transaction ID={transaction.get('id') if transaction else None}, Status={status}")
+        print(f"Meta Data: {meta}")
+
+        # Ici, traite le paiement selon le statut
+        # ...
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Invalid method'}, status=405)
 
 @login_required
 def vente(request, crypto_id):
@@ -712,3 +937,118 @@ def supprimer_adresse(request, adresse_id):
     if request.method == 'POST':
         adresse.delete()
     return redirect('adresses')
+
+class CryptoDetailAPIView(APIView):
+    def get(self, request, sigle, *args, **kwargs):
+        crypto = get_object_or_404(Crypto, sigle__iexact=sigle)
+        serializer = CryptoDetailSerializer(crypto)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class BuyCryptoAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = BuyCryptoRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        amount_fcfa = serializer.validated_data['amount_fcfa']
+        crypto_sigle = serializer.validated_data['crypto_sigle'].upper()
+
+        crypto = get_object_or_404(Crypto, sigle__iexact=crypto_sigle)
+
+        if not crypto.is_active:
+            return Response({"error": f"{crypto.nom} n'est pas active pour le trading."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if amount_fcfa < crypto.min_buy_fcfa or amount_fcfa > crypto.max_buy_fcfa:
+            return Response({"error": f"Le montant FCFA doit être entre {crypto.min_buy_fcfa} et {crypto.max_buy_fcfa} pour {crypto.sigle}."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            exchange_rate_obj = ExchangeRate.objects.get(currency_from='USD', currency_to='XOF')
+            usd_to_fcfa_rate = Decimal(str(exchange_rate_obj.rate))
+        except ExchangeRate.DoesNotExist:
+            return Response({"error": "Le taux de change USD vers FCFA n'est pas disponible."},
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        if crypto.market_price_usd <= Decimal('0.0'):
+             return Response({"error": f"Le prix de marché de {crypto.sigle} n'est pas disponible ou invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        amount_usd_from_fcfa = amount_fcfa / usd_to_fcfa_rate
+        amount_crypto_to_receive = amount_usd_from_fcfa / crypto.current_buy_price_usd
+
+        if amount_crypto_to_receive <= Decimal('0.0'):
+            return Response({"error": "Le montant de crypto calculé est invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        if crypto.quantite_disponible < amount_crypto_to_receive:
+            return Response({"error": f"Quantité insuffisante de {crypto.sigle} disponible pour l'achat."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        transaction = ConversionTransaction.objects.create(
+            crypto=crypto,
+            transaction_type='BUY',
+            amount_fcfa=amount_fcfa,
+            amount_crypto=amount_crypto_to_receive,
+            exchange_rate_usd_fcfa=usd_to_fcfa_rate,
+            crypto_price_usd_at_transaction=crypto.market_price_usd,
+            applied_margin_percentage=crypto.buy_margin_percentage
+        )
+        
+        crypto.quantite_disponible -= amount_crypto_to_receive
+        crypto.save()
+
+        response_serializer = TransactionResultSerializer(transaction)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+class SellCryptoAPIView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = SellCryptoRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        amount_crypto = serializer.validated_data['amount_crypto']
+        crypto_sigle = serializer.validated_data['crypto_sigle'].upper()
+
+        crypto = get_object_or_404(Crypto, sigle__iexact=crypto_sigle)
+
+        if not crypto.is_active:
+            return Response({"error": f"{crypto.nom} n'est pas active pour le trading."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        if crypto.market_price_usd <= Decimal('0.0'):
+             return Response({"error": f"Le prix de marché de {crypto.sigle} n'est pas disponible ou invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        amount_usd_from_crypto = amount_crypto * crypto.current_sell_price_usd
+
+        try:
+            exchange_rate_obj = ExchangeRate.objects.get(currency_from='USD', currency_to='XOF')
+            usd_to_fcfa_rate = Decimal(str(exchange_rate_obj.rate))
+        except ExchangeRate.DoesNotExist:
+            return Response({"error": "Le taux de change USD vers FCFA n'est pas disponible."},
+                            status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        amount_fcfa_to_receive = amount_usd_from_crypto * usd_to_fcfa_rate
+
+        if amount_fcfa_to_receive <= Decimal('0.0'):
+            return Response({"error": "Le montant FCFA calculé est invalide."},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if amount_fcfa_to_receive < crypto.min_sell_fcfa or amount_fcfa_to_receive > crypto.max_sell_fcfa:
+            return Response({"error": f"Le montant FCFA résultant doit être entre {crypto.min_sell_fcfa} et {crypto.max_sell_fcfa} pour {crypto.sigle}."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        transaction = ConversionTransaction.objects.create(
+            crypto=crypto,
+            transaction_type='SELL',
+            amount_fcfa=amount_fcfa_to_receive,
+            amount_crypto=amount_crypto,
+            exchange_rate_usd_fcfa=usd_to_fcfa_rate,
+            crypto_price_usd_at_transaction=crypto.market_price_usd,
+            applied_margin_percentage=crypto.sell_margin_percentage
+        )
+
+        crypto.quantite_disponible += amount_crypto
+        crypto.save()
+
+        response_serializer = TransactionResultSerializer(transaction)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
