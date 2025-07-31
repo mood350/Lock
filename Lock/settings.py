@@ -8,7 +8,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -16,12 +15,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$m^et4!pm_nixz!4p%niy927(ie!9h32_u(=ygd=&u3yh+4m@@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # Temporairement True pour le débogage
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://d3168bd494b8.ngrok-free.app']
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'chatbot',
     'backend',
-
 ]
 
 MIDDLEWARE = [
@@ -64,10 +62,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Lock.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -80,8 +75,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -97,30 +90,22 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
-LANGUAGE_CODE = 'FR'
-
+LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Ajout pour collectstatic
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 MEDIA_URL = '/media/'
+
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+FEDAPAY_PUBLIC_KEY = os.getenv("FEDAPAY_PUBLIC_KEY")
+FEDAPAY_SECRET_KEY = os.getenv("FEDAPAY_SECRET_KEY")
+FEDAPAY_WEBHOOK_SECRET = os.getenv("FEDAPAY_WEBHOOK_SECRET")
