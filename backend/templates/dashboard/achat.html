@@ -1,26 +1,55 @@
 {% extends "dashboard/base.html" %}
 {% block title %}Acheter {{ crypto.nom }} - Lock Exchange{% endblock %}
+
 {% block content %}
 <div class="container mx-auto mt-8">
     <div class="flex justify-center">
         <div class="card bg-base-100 shadow-xl w-full max-w-lg">
             <div class="card-body">
                 <h4 class="card-title text-primary mb-4">Acheter {{ crypto.nom }} ({{ crypto.sigle }})</h4>
-                {% if error_message %}
-                    <div class="alert alert-error mb-4">{{ error_message }}</div>
+                
+                {# Affichage des messages de Django (succès, erreur, info) #}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-4">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 {% endif %}
-                <form method="post" novalidate>
+
+                <form method="post" id="buyForm" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label class="font-semibold text-base-content/80">Quantité de {{ crypto.sigle }}</label>
-                        <input type="text" name="quantite" class="input input-bordered w-full" placeholder="Ex: 0.001" required>
+                        <label class="font-semibold text-base-content/80">Montant en FCFA que vous souhaitez dépenser</label>
+                        <input type="number" 
+                               name="amount_fcfa" 
+                               id="amount_fcfa_input" 
+                               class="input input-bordered w-full" 
+                               placeholder="Ex: 10000" 
+                               min="{{ crypto.min_achat_fcfa }}" 
+                               max="{{ crypto.max_achat_fcfa }}" 
+                               step="any" required
+                               value="{{ initial_amount_fcfa|default:'' }}">
                     </div>
+                    
                     <div class="mb-3">
-                        <label class="font-semibold text-base-content/80">Adresse de réception</label>
+                        <p class="font-semibold text-base-content/80">Vous recevrez environ :</p>
+                        <p class="text-xl font-bold text-success" id="crypto_to_receive">0.00000000 {{ crypto.sigle }}</p>
+                    </div>
+
+                    <div class="mb-4 text-sm text-base-content/70">
+                        <p>Valeur actuelle: <span class="font-bold">{{ crypto.valeur_sur_le_marche_fcfa|floatformat:2 }} FCFA / {{ crypto.sigle }}</span></p>
+                        <p>Minimum d'achat : <span class="font-bold">{{ crypto.min_achat_fcfa|floatformat:2 }} FCFA</span></p>
+                        <p>Maximum d'achat : <span class="font-bold">{{ crypto.max_achat_fcfa|floatformat:2 }} FCFA</span></p>
+                        <p>Quantité disponible: <span class="font-bold">{{ crypto.quantite_disponible|floatformat:8 }} {{ crypto.sigle }}</span></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="font-semibold text-base-content/80">Adresse de réception (où nous enverrons le {{ crypto.sigle }})</label>
                         <select class="select select-bordered w-full" id="adresse_existante" name="adresse_existante" onchange="onAdresseChange()">
                             <option value="">-- Saisir une nouvelle adresse --</option>
                             {% for adresse in adresses %}
-                                <option value="{{ adresse.adresse }}">{{ adresse.nom }} ({{ adresse.adresse|truncatechars:18 }})</option>
+                                <option value="{{ adresse.adresse }}" {% if initial_address == adresse.adresse %}selected{% endif %}>{{ adresse.nom|default:"Adresse enregistrée" }} ({{ adresse.adresse|truncatechars:25 }})</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -28,9 +57,12 @@
                         <input type="text" 
                                class="input input-bordered w-full" 
                                name="nouvelle_adresse" 
-                               placeholder="Nouvelle adresse {{ crypto.nom }}">
+                               id="nouvelle_adresse_input"
+                               placeholder="Saisir la nouvelle adresse {{ crypto.nom }}"
+                               value="{{ initial_new_address|default:'' }}">
                     </div>
-                    <button type="submit" class="btn btn-primary w-full">Acheter</button>
+                    
+                    <button type="submit" id="pay-btn" class="btn btn-primary w-full">Payer avec FedaPay</button>
                 </form>
             </div>
         </div>
@@ -40,6 +72,7 @@
 
 {% block extra_css %}
 <style>
+/* Vos styles existants */
 .card {
     border-radius: 12px;
     box-shadow: 0 2px 16px rgba(0,0,0,0.08);
@@ -57,21 +90,22 @@
 .form-label {
     font-weight: 600;
 }
+.text-wrap { 
+    word-wrap: break-word;
+    white-space: normal;
+}
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function onAdresseChange() {
-    const select = document.getElementById('adresse_existante');
-    const nouvelleAdresseDiv = document.getElementById('nouvelleAdresseDiv');
-    if (select.value) {
-        nouvelleAdresseDiv.style.display = 'none';
-        document.getElementById('nouvelle_adresse').value = '';
-    } else {
-        nouvelleAdresseDiv.style.display = '';
-    }
-}
-onAdresseChange();
+document.addEventListener('DOMContentLoaded', () => {
+    onAdresseChange();
+    calculateCryptoAmount();
+    document.getElementById('amount_fcfa_input').addEventListener('input', calculateCryptoAmount);
+
+    // On laisse le formulaire se soumettre normalement
+    // (Le JS ne doit pas appeler FedaPay ici)
+});
 </script>
 {% endblock %}
