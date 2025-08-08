@@ -8,27 +8,61 @@
         <div class="card bg-base-100 shadow-xl w-full max-w-lg">
             <div class="card-body">
                 <h4 class="card-title text-primary mb-4">Vendre {{ crypto.nom }} ({{ crypto.sigle }})</h4>
-                {% if error_message %}
-                    <div class="alert alert-error mb-4">{{ error_message }}</div>
+                
+                {# Affichage des messages de Django (succès, erreur, info) #}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-4">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 {% endif %}
+
                 <form method="post" novalidate>
                     {% csrf_token %}
+                    
                     <div class="mb-3">
-                        <label class="font-semibold text-base-content/80">Quantité de {{ crypto.sigle }}</label>
-                        <input type="text" name="quantite" class="input input-bordered w-full" placeholder="Ex: 0.001" required>
+                        <label class="font-semibold text-base-content/80">Quantité de {{ crypto.sigle }} à vendre</label>
+                        <input type="number" 
+                               name="quantite_crypto" 
+                               id="quantite_crypto_input" 
+                               class="input input-bordered w-full" 
+                               placeholder="Ex: 0.001" 
+                               step="any" required>
                     </div>
+                    
+                    {# Nouvelle section pour afficher le montant FCFA à recevoir #}
                     <div class="mb-3">
-                        <label class="font-semibold text-base-content/80">Adresse de réception</label>
-                        <select class="select select-bordered w-full" id="adresse_existante" name="adresse_existante" onchange="onAdresseChange()">
-                            <option value="">-- Saisir une nouvelle adresse --</option>
-                            {% for adresse in adresses %}
-                                <option value="{{ adresse.adresse }}">{{ adresse.nom }} ({{ adresse.adresse|truncatechars:18 }})</option>
-                            {% endfor %}
-                        </select>
+                        <p class="font-semibold text-base-content/80">Vous recevrez environ :</p>
+                        <p class="text-xl font-bold text-success" id="fcfa_to_receive">0.00 FCFA</p>
                     </div>
-                    <div class="mb-3" id="nouvelleAdresseDiv">
-                        <input type="text" class="input input-bordered w-full" name="nouvelle_adresse" id="nouvelle_adresse" placeholder="Nouvelle adresse {{ crypto.nom }}">
+
+                    {# Affichage du prix actuel et des limites #}
+                    <div class="mb-4 text-sm text-base-content/70">
+                        <p>Valeur actuelle: <span class="font-bold">{{ crypto.valeur_sur_le_marche_fcfa|floatformat:2 }} FCFA / {{ crypto.sigle }}</span></p>
+                        <p>Minimum de vente : <span class="font-bold">{{ crypto.min_vente_fcfa|floatformat:2 }} FCFA</span></p>
+                        <p>Maximum de vente : <span class="font-bold">{{ crypto.max_vente_fcfa|floatformat:2 }} FCFA</span></p>
                     </div>
+
+                    {# Information pour l'utilisateur sur l'adresse où envoyer la crypto #}
+                    <div class="mb-4 p-4 bg-info border border-info-focus rounded-lg"> {# CHANGEMENTS ICI: bg-info et border-info-focus #}
+                        <p class="font-semibold text-info-content">Adresse de dépôt {{ crypto.sigle }} de Lock Exchange :</p>
+                        <p class="font-bold text-info-content text-lg text-wrap break-all">{{ crypto.deposit_address }}</p> {# CHANGEMENT ICI: text-lg pour l'adresse #}
+                        <p class="text-xs text-info-content/80 mt-2">Veuillez envoyer la quantité de {{ crypto.sigle }} que vous souhaitez vendre à cette adresse. Une fois la transaction confirmée sur la blockchain, vos FCFA seront traités.</p>
+                        {% if crypto.deposit_address %}
+                            <button type="button" class="btn btn-xs btn-info mt-2" onclick="copyToClipboard('{{ crypto.deposit_address }}')">Copier l'adresse</button>
+                        {% endif %}
+                    </div>
+
+                    {# Champ pour les détails de réception FCFA de l'utilisateur #}
+                    <div class="mb-3">
+                        <label class="font-semibold text-base-content/80">Votre Numéro Mobile Money ou Détails Bancaires (pour recevoir vos FCFA)</label>
+                        <input type="text" 
+                               class="input input-bordered w-full" 
+                               name="recipient_fcfa_details" 
+                               placeholder="Ex: 07xxxxxx (Mobile Money) ou Nom Banque - Compte n° (RIB)" required>
+                    </div>
+                    
                     <button type="submit" class="btn btn-success w-full">Vendre</button>
                 </form>
             </div>
@@ -37,18 +71,66 @@
 </div>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+/* Vos styles personnalisés existants */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+}
+.card-header {
+    border-radius: 12px 12px 0 0;
+}
+.btn-success {
+    background: linear-gradient(90deg, #28a745 60%, #218838 100%);
+    border: none;
+}
+.btn-success:hover {
+    background: linear-gradient(90deg, #218838 60%, #28a745 100%);
+}
+.form-label {
+    font-weight: 600;
+}
+.text-wrap { 
+    word-wrap: break-word;
+    white-space: normal;
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 <script>
-function onAdresseChange() {
-    const select = document.getElementById('adresse_existante');
-    const nouvelleAdresseDiv = document.getElementById('nouvelleAdresseDiv');
-    if (select.value) {
-        nouvelleAdresseDiv.style.display = 'none';
-        document.getElementById('nouvelle_adresse').value = '';
-    } else {
-        nouvelleAdresseDiv.style.display = '';
+// Fonction pour calculer le montant FCFA en temps réel
+function calculateFcfaAmount() {
+    const cryptoInput = document.getElementById('quantite_crypto_input');
+    const fcfaToReceiveSpan = document.getElementById('fcfa_to_receive');
+    const cryptoAmount = parseFloat(cryptoInput.value);
+    const cryptoMarketValue = parseFloat("{{ crypto.valeur_sur_le_marche_fcfa|floatformat:8 }}"); // Valeur depuis Django
+
+    if (isNaN(cryptoAmount) || cryptoAmount <= 0 || cryptoMarketValue <= 0) {
+        fcfaToReceiveSpan.textContent = `0.00 FCFA`;
+        return;
     }
+
+    const fcfaAmountToReceive = cryptoAmount * cryptoMarketValue;
+    fcfaToReceiveSpan.textContent = `${fcfaAmountToReceive.toFixed(2)} FCFA`; // Afficher avec 2 décimales pour FCFA
 }
-onAdresseChange();
+
+// Fonction pour copier l'adresse au presse-papiers
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Adresse copiée au presse-papiers !");
+    }).catch(err => {
+        console.error('Erreur lors de la copie: ', err);
+        alert("Impossible de copier l'adresse. Veuillez la copier manuellement.");
+    });
+}
+
+// Appeler les fonctions au chargement de la page et lors de la saisie
+document.addEventListener('DOMContentLoaded', () => {
+    calculateFcfaAmount(); // Calculer au chargement
+    const cryptoInput = document.getElementById('quantite_crypto_input');
+    cryptoInput.addEventListener('input', calculateFcfaAmount); // Mettre à jour en temps réel
+});
 </script>
 {% endblock %}

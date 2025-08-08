@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import pre_delete
@@ -80,26 +81,65 @@ class KYC(models.Model):
 class Validateur(Utilisateur):
     niveau_acces = models.CharField(max_length=50, default='validateur', editable=False)
 
+
 class Crypto(models.Model):
     nom = models.CharField(max_length=100)
     sigle = models.CharField(max_length=10)
-    adresse = models.CharField(max_length=200)
-    prix_achat = models.FloatField()
-    prix_vente = models.FloatField()
-    prix_achat_min = models.FloatField(null=True, blank=True)
-    prix_vente_min = models.FloatField(null=True, blank=True)
-    quantite = models.FloatField(null=True, blank=True)
-    disponibilite = models.CharField(choices=DISPONIBILITE, default="Oui")
-
-    def save(self, *args, **kwargs):
-        if self.quantite == 0 :
-            self.disponible = "Non"
-        else:
-            self.disponible = "Oui"
-        super().save(*args, **kwargs)
+    valeur_sur_le_marche_fcfa = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    quantite_disponible = models.DecimalField(max_digits=20, decimal_places=10, default=0.00)
+    min_achat_fcfa = models.DecimalField(max_digits=15, decimal_places=2, default=1000)
+    max_achat_fcfa = models.DecimalField(max_digits=15, decimal_places=2, default=10000000)
+    min_vente_fcfa = models.DecimalField(max_digits=15, decimal_places=2, default=1000)
+    max_vente_fcfa = models.DecimalField(max_digits=15, decimal_places=2, default=10000000)
+    image = models.ImageField(upload_to='crypto_images/', blank=True, null=True)
+    deposit_address = models.CharField(max_length=255, blank=True, null=True, help_text="Adresse de dépôt pour cette crypto (pour les ventes)")
 
     def __str__(self):
-        return f"{self.nom}-({self.sigle})"
+        return f"{self.nom} ({self.sigle})"
+
+class ConversionTransaction(models.Model):
+    TRANSACTION_TYPES = [
+        ('BUY', 'Achat'),
+        ('SELL', 'Vente'),
+    ]
+    TRANSACTION_STATUSES = [
+        ('PENDING', 'En attente de paiement'), # Initial state for payment
+        ('PAID', 'Payé (Attente confirmation crypto)'), # Payment received by FedaPay
+        ('FAILED', 'Échoué'),
+        ('CANCELLED', 'Annulé'),
+        ('COMPLETED', 'Terminé (Crypto envoyée)'), # Crypto sent to user or FCFA sent
+        ('REFUNDED', 'Remboursé'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True) # Lien vers l'utilisateur
+    crypto = models.ForeignKey(Crypto, on_delete=models.PROTECT)
+    transaction_type = models.CharField(max_length=4, choices=TRANSACTION_TYPES, default='BUY')
+    
+    amount_fcfa = models.DecimalField(max_digits=15, decimal_places=2)
+    amount_crypto = models.DecimalField(max_digits=20, decimal_places=10)
+    
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    # Nouveaux champs pour l'intégration de paiement
+    status = models.CharField(max_length=20, choices=TRANSACTION_STATUSES, default='PENDING')
+    fedapay_transaction_id = models.CharField(max_length=100, blank=True, null=True, unique=True, help_text="ID de transaction FedaPay")
+    user_receiving_address = models.CharField(max_length=200, blank=True, null=True, help_text="Adresse où l'utilisateur recevra la crypto (pour les achats)")
+    user_paying_address = models.CharField(max_length=200, blank=True, null=True, help_text="Adresse d'où l'utilisateur envoie la crypto (pour les ventes)") # Pourrait être ses détails bancaires/mobile money pour la vente
+
+    def __str__(self):
+        return f"{self.transaction_type} {self.amount_crypto} {self.crypto.sigle} for {self.amount_fcfa} FCFA (Status: {self.status}) par {self.user.username if self.user else 'N/A'}"
+
+class AdresseCrypto(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
+    adresse = models.CharField(max_length=255)
+    nom = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('user', 'crypto', 'adresse')
+
+    def __str__(self):
+        return f"{self.user.username}'s {self.crypto.sigle} address: {self.adresse}"
 
 class Vente(models.Model):
     crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
@@ -206,40 +246,3 @@ class Adresse(models.Model):
     def __str__(self):
         return f"{self.nom} - {self.crypto.nom}"
 
-def adresses(request):
-    cryptos = Crypto.objects.all()
-    adresses = []
-    if request.user.is_authenticated:
-        try:
-            client = Client.objects.get(user=request.user)
-            adresses = Adresse.objects.filter(client=client)
-        except Client.DoesNotExist:
-            client = None
-    else:
-        client = None
-    if request.method == 'POST' and client:
-        nom = request.POST.get('nom')
-        crypto_id = request.POST.get('crypto')
-        adresse = request.POST.get('adresse')
-        if all([nom, crypto_id, adresse]):
-            crypto = Crypto.objects.get(id=crypto_id)
-            Adresse.objects.create(
-                client=client,
-                crypto=crypto,
-                nom=nom,
-                adresse=adresse
-            )
-            return redirect('adresses')
-    context = {
-        'cryptos': cryptos,
-        'adresses': adresses
-    }
-    return render(request, 'dashboard/adresses.html', context)
-
-class Tutoriel(models.Model):
-    titre = models.CharField(max_length=100)
-    description = models.TextField()
-    media = models.FileField(upload_to='tutoriels/')
-
-    def __str__(self):
-        return self.titre

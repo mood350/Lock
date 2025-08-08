@@ -1,0 +1,89 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+    <title>{% block title %}Paiement{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-white font-sans">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 px-4 py-3 flex items-center">
+        <a href="{% url 'index' %}" class="text-2xl font-bold text-white flex items-center">
+            <i class="fas fa-coins mr-2"></i> Lock
+        </a>
+    </nav>
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 bg-gray-800 p-4">
+            <ul class="space-y-2">
+                <li><a href="{% url 'index' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'index' %}bg-gray-700{% endif %}"><i class="fas fa-exchange-alt mr-2"></i>Achat/Vente</a></li>
+                <li><a href="{% url 'adresses' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'adresses' %}bg-gray-700{% endif %}"><i class="fas fa-wallet mr-2"></i>Mes Portefeuilles</a></li>
+                <li><a href="{% url 'tutoriels' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'tutoriels' %}bg-gray-700{% endif %}"><i class="fas fa-video mr-2"></i>Tutoriels Vidéos</a></li>
+                <li><a href="{% url 'profile' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'profile' %}bg-gray-700{% endif %}"><i class="fas fa-user-circle mr-2"></i>Mon Profil</a></li>
+                <li><a href="{% url 'historique' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'historique' %}bg-gray-700{% endif %}"><i class="fas fa-history mr-2"></i>Historique</a></li>
+                <li><a href="{% url 'faq' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'faq' %}bg-gray-700{% endif %}"><i class="fas fa-question-circle mr-2"></i>FAQ & Support</a></li>
+                <li><a href="{% url 'chatbot:chatbot_view' %}" class="block px-2 py-2 rounded hover:bg-gray-700 {% if request.resolver_match.url_name == 'chatbot_view' %}bg-gray-700{% endif %}"><i class="fas fa-comment-dots mr-2"></i>Support Chat</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            {% for message in messages %}
+            <div class="bg-green-600 text-white px-4 py-2 rounded mb-4">
+                {{ message }}
+            </div>
+            {% endfor %}
+
+            {% block content %}
+            <div class="bg-gray-800 shadow-lg p-6 max-w-lg mx-auto text-center rounded-lg">
+                <h2 class="text-2xl font-bold mb-4">Paiement sécurisé</h2>
+                <p class="mb-2">Vous êtes sur le point d’acheter :</p>
+                <h4 class="text-lg font-semibold">{{ transaction_data.crypto_nom }} ({{ transaction_data.crypto_sigle }})</h4>
+                <p class="text-green-400 mb-4">Montant : <strong>{{ transaction_data.amount_fcfa|default:"100" }} FCFA</strong></p>
+                <button id="pay-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full">
+                    <i class="fas fa-credit-card mr-2"></i>Payer {{ transaction_data.amount_fcfa|default:"100" }} FCFA
+                </button>
+            </div>
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 text-center p-6 mt-8">
+        <p>&copy; {% now "Y" %} Lock. Tous droits réservés.</p>
+    </footer>
+
+    <!-- FedaPay Script -->
+    <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    FedaPay.init("#pay-btn", {
+        public_key: "pk_sandbox_Ng8au9ZKjaRDeljfWBkmK-W6",
+        transaction: {
+            amount: {{ transaction_data.amount_fcfa|default:"100"|escapejs }},
+            description: "Achat de {{ transaction_data.crypto_nom|escapejs }} ({{ transaction_data.crypto_sigle|escapejs }}) sur Lock Exchange",
+            currency: "XOF",
+            callback_url: "https://d3168bd494b8.ngrok-free.app/fedapay-webhook/",
+            customer: {
+                email: "{{ transaction_data.user_email|escapejs }}"
+            },
+            meta: {
+                user_id: "{{ transaction_data.user_id|escapejs }}",
+                crypto_id: "{{ transaction_data.crypto_id|escapejs }}",
+                recipient_crypto_address: "{{ transaction_data.recipient_address|escapejs }}"
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

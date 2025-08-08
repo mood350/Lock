@@ -11,5 +11,5 @@ urlpatterns = [
     path('', views.chatbot_view, name='chatbot_view'),
 
     # Le chemin 'api/chat/' correspondra à /chatbot/api/chat/
-    path('api/chat/', views.chatbot_view, name='chat_api'),
+    path('chat/', views.chatbot_view, name='chat_api'),
 ]
