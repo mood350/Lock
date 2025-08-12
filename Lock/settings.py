@@ -17,8 +17,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")  # Temporairement True pour le débogage
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'lock-c61t.onrender.com',]
-CSRF_TRUSTED_ORIGINS = ['https://lock-c61t.onrender.com']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'lock-1-r3rz.onrender.com',]
+CSRF_TRUSTED_ORIGINS = ['https://lock-1-r3rz.onrender.com']
 
 # Application definition
 INSTALLED_APPS = [
