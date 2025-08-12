@@ -63,10 +63,25 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Lock.wsgi.application'
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 # Database
-if DEBUG:
-    # Configuration de la base de données locale pour le développement
+if DATABASE_URL:
+    # Si DATABASE_URL est définie, utilisez-la (mode production)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+    # Assurez-vous que DEBUG est désactivé en production
+    DEBUG = False
+else:
+    # Sinon, utilisez la configuration locale (mode développement)
+    # Assurez-vous que le .env est chargé pour cette configuration
+    from dotenv import load_dotenv
+    load_dotenv()
+    
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -77,23 +92,6 @@ if DEBUG:
             "PORT": "5432",
         }
     }
-else:
-    # Configuration de la base de données pour la production sur Render
-    # Utilisez l'URL de connexion fournie par Render via les variables d'environnement
-    DATABASE_URL = os.getenv("DATABASE_URL")
-    if DATABASE_URL:
-        DATABASES = {
-            'default': dj_database_url.config(default=DATABASE_URL)
-        }
-    else:
-        # Fallback si DATABASE_URL n'est pas définie (devrait pas arriver)
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
