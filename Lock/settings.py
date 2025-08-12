@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url 
 
 # Load environment variables from .env file
 load_dotenv()
@@ -64,16 +65,34 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Lock.wsgi.application'
 
 # Database
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "Lock",
-        "USER": "postgres",
-        "PASSWORD": "Prince@#2006",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+if DEBUG:
+    # Configuration de la base de données locale pour le développement
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "Lock",
+            "USER": "postgres",
+            "PASSWORD": "Prince@#2006",
+            "HOST": "127.0.0.1",
+            "PORT": "5432",
+        }
     }
-}
+else:
+    # Configuration de la base de données pour la production sur Render
+    # Utilisez l'URL de connexion fournie par Render via les variables d'environnement
+    DATABASE_URL = os.getenv("DATABASE_URL")
+    if DATABASE_URL:
+        DATABASES = {
+            'default': dj_database_url.config(default=DATABASE_URL)
+        }
+    else:
+        # Fallback si DATABASE_URL n'est pas définie (devrait pas arriver)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
