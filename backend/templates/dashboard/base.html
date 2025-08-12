@@ -2,16 +2,19 @@
 <!DOCTYPE html>
 <html lang="fr" data-theme="forest">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="{% static 'assets/img/favicon.png' %}" rel="icon" />
     <title>{% block title %}Lock{% endblock %}</title>
+
     <!-- DaisyUI & Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Font Awesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-base-200 font-sans">
@@ -22,12 +25,17 @@
                 <i class="fas fa-coins mr-2"></i>Lock
             </a>
         </div>
+        <div class="md:hidden">
+            <button id="menu-toggle" class="btn btn-ghost">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </nav>
 
     <div class="flex flex-col md:flex-row min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-full md:w-64 bg-base-300 text-base-content p-4">
-            <ul class="menu space-y-4">  <!-- <== Ajouté space-y-4 pour espacement vertical -->
+        <aside id="sidebar" class="w-full md:w-64 bg-base-300 text-base-content p-4 hidden md:block">
+            <ul class="menu space-y-4">
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">
                         <i class="fas fa-exchange-alt mr-2"></i>Achat/Vente
@@ -59,7 +67,7 @@
                     </a>
                 </li>
                 <li>
-                    <a class="{% if request.resolver_match.url_name == 'chatbot_view' %}active{% endif %}" href="{% url 'chatbot:chatbot_view' %}">
+                    <a href="/chat/">
                         <i class="fas fa-comment-dots mr-2"></i>Support Chat
                     </a>
                 </li>
@@ -73,14 +81,12 @@
                 <span>{{ message }}</span>
             </div>
             {% endfor %}
-            {% block content %}
-            <!-- Le contenu spécifique à chaque page viendra ici -->
-            {% endblock %}
+            {% block content %}{% endblock %}
         </main>
     </div>
 
     <!-- Footer -->
-    <footer class="footer p-10 bg-base-300 text-base-content mt-8">
+    <footer class="footer p-10 bg-base-300 text-base-content mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
             <span class="footer-title"><i class="fas fa-coins mr-2"></i>Lock</span>
             <p class="text-sm">Plateforme sécurisée d'achat et de vente de crypto-monnaies.</p>
@@ -95,7 +101,7 @@
         <div>
             <span class="footer-title">Contact</span>
             <p class="text-sm">
-                <i class="fas fa-envelope mr-2"></i> contact@Lock.com<br>
+                <i class="fas fa-envelope mr-2"></i> contact@Lock.com<br />
                 <i class="fas fa-phone mr-2"></i> +228 90 01 02 03
             </p>
             <div class="flex space-x-2 mt-2">
@@ -108,6 +114,13 @@
             <p class="text-xs text-base-content/60">&copy; {% now "Y" %} Lock. Tous droits réservés.</p>
         </div>
     </footer>
+
+    <!-- Script pour menu mobile -->
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('hidden');
+        });
+    </script>
 
     {% block extra_js %}{% endblock %}
 </body>

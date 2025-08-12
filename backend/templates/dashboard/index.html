@@ -4,30 +4,32 @@
 {% block title %}Lock Exchange - Cryptomonnaies{% endblock %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
-    <h2 class="text-2xl font-bold mb-6 text-primary">Cryptomonnaies disponibles</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> 
+<div class="container mx-auto mt-8 px-4">
+    <h2 class="text-3xl font-extrabold mb-8 text-primary">Cryptomonnaies disponibles</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {% for crypto in cryptos %}
         {% if crypto.quantite_disponible > 0 %}
-        <div class="card bg-base-100 shadow-xl border border-base-200">
-            <div class="card-body">
-                <h5 class="card-title text-lg font-semibold text-secondary">{{ crypto.nom }} ({{ crypto.sigle }})</h5>
-                <div class="mb-3">
-                    {# Affiche la valeur unique sur le marché #}
-                    <p class="mb-1 text-base-content/80">Valeur d'une pièce : <span class="font-bold">{{ crypto.valeur_sur_le_marche_fcfa|floatformat:2 }} FCFA</span></p>
-                </div>
-
-                <div class="flex justify-between gap-2">
-                    <a href="{% url 'achat' crypto.id %}" class="btn btn-success btn-sm w-1/2">Acheter</a>
-                    <a href="{% url 'vente' crypto.id %}" class="btn btn-primary btn-sm w-1/2">Vendre</a>
+        <div class="card bg-base-100 shadow-lg border border-base-300 hover:shadow-xl transition-shadow duration-300 rounded-lg">
+            <div class="card-body flex flex-col justify-between">
+                <h5 class="card-title text-xl font-semibold text-secondary mb-4">{{ crypto.nom }} ({{ crypto.sigle }})</h5>
+                <p class="mb-6 text-base-content/80 text-sm">
+                    Valeur d'une pièce : <span class="font-bold text-lg">{{ crypto.valeur_sur_le_marche_fcfa|floatformat:2 }} FCFA</span>
+                </p>
+                <div class="flex gap-4">
+                    <a href="{% url 'achat' crypto.id %}" class="btn btn-success btn-sm flex-1 hover:scale-105 transition-transform duration-200">
+                        Acheter
+                    </a>
+                    <a href="{% url 'vente' crypto.id %}" class="btn btn-primary btn-sm flex-1 hover:scale-105 transition-transform duration-200">
+                        Vendre
+                    </a>
                 </div>
             </div>
         </div>
         {% endif %}
         {% empty %}
-        <div class="col-span-full"> {# Changed from col-span-3 to col-span-full for better layout #}
+        <div class="col-span-full">
             <div class="alert alert-info shadow-lg">
-                Aucune cryptomonnaie n'est disponible pour le moment .
+                Aucune cryptomonnaie n'est disponible pour le moment.
             </div>
         </div>
         {% endfor %}
