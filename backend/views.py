@@ -249,57 +249,47 @@ def connexion(request):
 
 def inscription(request):
     if request.method == 'POST':
-        nom = request.POST['nom']
-        prenoms = request.POST['prenoms']
-        date_naissance = request.POST['date_naissance']
-        email = request.POST['email']
-        telephone = request.POST['telephone']
-        password = request.POST['password']  # À hasher en vrai projet !
-        try:
-            Client.objects.create(
-                nom=nom,
-                prenoms=prenoms,
-                date_naissance=date_naissance,
-                email=email,
-                telephone=telephone,
-                password=password
-            )
-            return redirect('connexion')
-        except ValueError as e:
-            # Affiche le message d’erreur dans le template
-            nom = request.POST.get('nom')
-            prenoms = request.POST.get('prenoms')
-            email = request.POST.get('email')
-            telephone = request.POST.get('telephone')
-            password = request.POST.get('motdepasse')
-            confirm_password = request.POST.get('confirm_motdepasse')
-            nom = request.POST.get('nom')
-            prenoms = request.POST.get('prenoms')
-            date_naissance = request.POST.get('date_naissance')
-            email = request.POST.get('email')
-            telephone = request.POST.get('telephone')
-            password = request.POST.get('password')
-            confirm_password = request.POST.get('confirmPassword')
-            if password != confirm_password:
-                return render(request, 'inscription.html', {
-                'error_message': "Les mots de passe ne correspondent pas",
+        # Récupération des données du formulaire
+        nom = request.POST.get('nom')
+        prenoms = request.POST.get('prenoms')
+        date_naissance = request.POST.get('date_naissance')
+        email = request.POST.get('email')
+        telephone = request.POST.get('telephone')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirmPassword')
+
+        # 1. Vérification de la correspondance des mots de passe
+        if password != confirm_password:
+            return render(request, 'inscription.html', {
+                'error_message': "Les mots de passe ne correspondent pas.",
                 'nom': nom,
                 'prenoms': prenoms,
                 'email': email,
-                'telephone': telephone
+                'telephone': telephone,
+            })
+        
+        # 2. Vérification de l'existence d'un utilisateur avec le même email
+        if User.objects.filter(email=email).exists():
+            return render(request, 'inscription.html', {
+                'error_message': "Un utilisateur avec cet email existe déjà.",
+                'nom': nom,
+                'prenoms': prenoms,
+                'email': email,
+                'telephone': telephone,
             })
 
+        # 3. Création de l'utilisateur Django et du client
         try:
             # Créer l'utilisateur Django
             user = User.objects.create_user(
-                username=email,
+                username=email, # L'email est souvent utilisé comme nom d'utilisateur
                 email=email,
                 password=password,
                 first_name=prenoms,
                 last_name=nom
             )
-
-            # Créer le profil client associé (sans password)
+            
+            # Créer le profil client associé (sans le champ password, car il est dans le modèle User)
             client = Client.objects.create(
                 user=user,
                 nom=nom,
@@ -309,27 +299,25 @@ def inscription(request):
                 telephone=telephone
             )
 
-            # Authentifier et connecter l'utilisateur
-            user = authenticate(username=email, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('index')
+            # 4. Connexion automatique de l'utilisateur
+            user_auth = authenticate(request, username=email, password=password)
+            if user_auth is not None:
+                login(request, user_auth)
+                return redirect('index') # Rediriger vers la page d'accueil après l'inscription
             else:
-             return render(request, 'inscription.html', {
-                    'error_message': "Erreur lors de la connexion automatique.",
-                    'nom': nom,
-                    'prenoms': prenoms,
-                    'email': email,
-                    'telephone': telephone
+                return render(request, 'inscription.html', {
+                    'error_message': "Erreur lors de la connexion automatique. Veuillez vous connecter manuellement.",
+                    # Vous pouvez laisser les champs vides ici, car l'utilisateur est créé
                 })
 
         except Exception as e:
-         return render(request, 'inscription.html', {
-                'error_message': "Une erreur est survenue lors de l'inscription",
+            # Gérer les autres exceptions (ex: problème de base de données)
+            return render(request, 'inscription.html', {
+                'error_message': f"Une erreur est survenue lors de l'inscription: {e}",
                 'nom': nom,
                 'prenoms': prenoms,
                 'email': email,
-                'telephone': telephone
+                'telephone': telephone,
             })
 
     return render(request, 'inscription.html')
