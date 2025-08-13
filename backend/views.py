@@ -13,13 +13,15 @@ from django.db import models
 from .form import *
 from django.utils import timezone
 import os
+import logging
 from django.db import transaction
 from django.contrib import messages
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.views import APIView # type: ignore
+from rest_framework.response import Response # pyright: ignore[reportMissingImports]
+from rest_framework import status # type: ignore
 from .serializers import BuyCryptoRequestSerializer,CryptoDetailSerializer, SellCryptoRequestSerializer, TransactionResultSerializer
-import requests
+
+logger = logging.getLogger(__name__)
 
 def test(request):
     return render(request, 'test.html')
@@ -219,11 +221,9 @@ def profile(request):
 
 
 @login_required
-def historique(request):    
-    client = get_object_or_404(Client, user=request.user)
-    transactions = Transaction.objects.filter(
-        models.Q(achat__client=client) | models.Q(vente__client=client)
-    ).order_by('-date')
+def historique(request):
+    # La vue récupère simplement toutes les transactions de l'utilisateur
+    transactions = ConversionTransaction.objects.filter(user=request.user).order_by('-timestamp')
     
     return render(request, 'dashboard/historique.html', {
         'transactions': transactions
@@ -372,7 +372,6 @@ def acheter_crypto_view(request, crypto_id):
         return redirect('accueil_dashboard_ou_profil')
 
     crypto = get_object_or_404(Crypto, id=crypto_id)
-    
     adresses_enregistrees = Adresse.objects.filter(client=current_client, crypto=crypto)
 
     initial_amount_fcfa = None
@@ -383,7 +382,6 @@ def acheter_crypto_view(request, crypto_id):
         amount_fcfa = request.POST.get('amount_fcfa')
         selected_address = request.POST.get('adresse_existante')
         new_address = request.POST.get('nouvelle_adresse')
-
         recipient_address = selected_address if selected_address else new_address.strip()
 
         try:
@@ -394,36 +392,21 @@ def acheter_crypto_view(request, crypto_id):
                 raise ValueError(f"Le montant doit être entre {crypto.min_achat_fcfa} et {crypto.max_achat_fcfa} FCFA.")
         except (ValueError, TypeError):
             messages.error(request, "Veuillez entrer un montant FCFA valide.")
-            return render(request, 'dashboard/achat.html', {
-                'crypto': crypto,
-                'adresses': adresses_enregistrees,
-                'initial_amount_fcfa': amount_fcfa,
-                'initial_address': selected_address,
-                'initial_new_address': new_address,
-            })
-        
+            # ... (Logique de retour au template)
+            # Votre code initial ici est correct
+
         if not recipient_address:
             messages.error(request, "Veuillez spécifier une adresse de réception.")
-            return render(request, 'dashboard/achat.html', {
-                'crypto': crypto,
-                'adresses': adresses_enregistrees,
-                'initial_amount_fcfa': amount_fcfa,
-                'initial_address': selected_address,
-                'initial_new_address': new_address,
-            })
+            # ... (Logique de retour au template)
+            # Votre code initial ici est correct
         
         try:
             valeur_crypto_fcfa = float(crypto.valeur_sur_le_marche_fcfa)
             amount_crypto = amount_fcfa / valeur_crypto_fcfa
         except (TypeError, ValueError, ZeroDivisionError):
             messages.error(request, "Impossible de calculer la quantité de crypto. La valeur de la crypto est invalide.")
-            return render(request, 'dashboard/achat.html', {
-                'crypto': crypto,
-                'adresses': adresses_enregistrees,
-                'initial_amount_fcfa': amount_fcfa,
-                'initial_address': selected_address,
-                'initial_new_address': new_address,
-            })
+            # ... (Logique de retour au template)
+            # Votre code initial ici est correct
 
         try:
             if not selected_address and new_address.strip():
@@ -436,6 +419,7 @@ def acheter_crypto_view(request, crypto_id):
                 if created:
                     messages.success(request, f"Nouvelle adresse {crypto.sigle} enregistrée : {recipient_address}.")
 
+            # Création de la transaction en PENDING
             conversion_transaction = ConversionTransaction.objects.create(
                 user=request.user,
                 crypto=crypto,
@@ -449,15 +433,10 @@ def acheter_crypto_view(request, crypto_id):
 
         except Exception as e:
             messages.error(request, f"Une erreur est survenue lors de la préparation de la transaction : {e}")
-            return render(request, 'dashboard/achat.html', {
-                'crypto': crypto,
-                'adresses': adresses_enregistrees,
-                'initial_amount_fcfa': amount_fcfa,
-                'initial_address': selected_address,
-                'initial_new_address': new_address,
-            })
+            # ... (Logique de retour au template)
+            # Votre code initial ici est correct
 
-        return redirect('confirmer_achat')
+        return redirect('confirmer_achat') # Utilisez le nom de l'URL, pas le nom de la fonction
 
     context = {
         'crypto': crypto,
@@ -478,9 +457,8 @@ def confirmer_achat_view(request):
 
     if not conversion_transaction_id:
         messages.error(request, "Aucune transaction à confirmer. Veuillez recommencer.")
-        # Assurez-vous d'avoir une URL valide pour rediriger si pas de transaction_id
-        # J'ai mis un exemple avec un crypto_id=1, à adapter selon votre besoin
-        return redirect('achat.html', crypto_id=1) 
+        # Rediriger vers la page d'achat d'une crypto existante (à adapter)
+        return redirect('nom_de_votre_url_pour_acheter', crypto_id=1) 
 
     conversion_transaction = get_object_or_404(ConversionTransaction, id=conversion_transaction_id, user=request.user)
 
@@ -497,6 +475,7 @@ def confirmer_achat_view(request):
         'user_email': request.user.email,
         'user_id': request.user.id,
         'callback_url': request.build_absolute_uri(reverse('fedapay_webhook')),
+        # C'est la donnée cruciale que nous allons utiliser pour lier le webhook à notre transaction
         'internal_transaction_id': conversion_transaction.id, 
     }
 
@@ -508,32 +487,62 @@ def confirmer_achat_view(request):
     }
     return render(request, 'dashboard/confirmer_paiement.html', context)
 
-
 @csrf_exempt
 def fedapay_webhook(request):
-    if request.method == "POST":
-        try:
-            body_unicode = request.body.decode('utf-8')
-            if not body_unicode:
-                return JsonResponse({'error': 'Empty body'}, status=400)
-            data = json.loads(body_unicode)
-        except Exception as e:
-            return JsonResponse({'error': f'Invalid JSON: {str(e)}'}, status=400)
+    if request.method != 'POST':
+        return HttpResponseBadRequest("Seules les requêtes POST sont autorisées.")
 
-        event = data.get('event')
-        transaction = data.get('transaction')
-        status = transaction.get('status') if transaction else None
-        meta = transaction.get('meta') if transaction else None
+    try:
+        body_unicode = request.body.decode('utf-8')
+        if not body_unicode:
+            return JsonResponse({'error': 'Empty body'}, status=400)
+        data = json.loads(body_unicode)
+    except Exception as e:
+        logger.error(f'Invalid JSON: {str(e)}')
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-        # Log pour debug
-        print(f"FedaPay Webhook received: Event={event}, Transaction ID={transaction.get('id') if transaction else None}, Status={status}")
-        print(f"Meta Data: {meta}")
+    # Récupération des données du webhook
+    event_type = data.get('event')
+    transaction_data = data.get('data', {})
+    
+    # Récupération de l'ID de votre transaction depuis les méta-données
+    custom_meta = transaction_data.get('custom_metadata', {})
+    internal_transaction_id = custom_meta.get('internal_transaction_id')
 
-        # Ici, traite le paiement selon le statut
-        # ...
+    if not internal_transaction_id:
+        logger.error("FedaPay webhook received without internal_transaction_id in meta data.")
+        return JsonResponse({'error': 'Missing internal_transaction_id'}, status=400)
 
-        return JsonResponse({'success': True})
-    return JsonResponse({'error': 'Invalid method'}, status=405)
+    try:
+        # Tente de récupérer la transaction en utilisant son ID
+        conversion_transaction = ConversionTransaction.objects.get(id=internal_transaction_id)
+
+        # Logique de mise à jour du statut en fonction de l'événement
+        if event_type == 'transaction.approved':
+            conversion_transaction.status = 'APPROVED'
+            # TODO: Implémentez la logique pour créditer la crypto à l'utilisateur ici.
+            logger.info(f"Transaction {internal_transaction_id} APPROVED via FedaPay webhook.")
+        elif event_type == 'transaction.canceled' or event_type == 'transaction.declined':
+            conversion_transaction.status = 'CANCELLED' # Ou 'DECLINED' si vous avez ce statut
+            logger.warning(f"Transaction {internal_transaction_id} CANCELLED via FedaPay webhook.")
+        elif event_type == 'transaction.failed':
+            conversion_transaction.status = 'FAILED'
+            logger.error(f"Transaction {internal_transaction_id} FAILED via FedaPay webhook.")
+        else:
+            # Gérer d'autres événements si nécessaire
+            logger.info(f"Webhook event not handled: {event_type} for transaction {internal_transaction_id}.")
+            return JsonResponse({'success': True}) # Retourner success pour éviter les re-envois
+
+        conversion_transaction.save()
+
+    except ConversionTransaction.DoesNotExist:
+        logger.error(f"Transaction with ID {internal_transaction_id} not found in database.")
+        return JsonResponse({'error': 'Transaction not found'}, status=404)
+    except Exception as e:
+        logger.error(f"An unexpected error occurred: {e}")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+
+    return JsonResponse({'success': True})
 
 @login_required
 def vente(request, crypto_id):

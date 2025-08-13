@@ -3,61 +3,50 @@
 {% block title %}Historique des transactions - Lock Exchange{% endblock %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
-    <h2 class="text-2xl font-bold mb-6 text-primary">Historique des transactions</h2>
-    <div class="overflow-x-auto">
-        <table class="table w-full bg-base-100 shadow">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Crypto</th>
-                    <th>Quantité</th>
-                    <th>Montant</th>
-                    <th>Statut</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for transaction in transactions %}
-                <tr>
-                    <td>{{ transaction.date|date:"d/m/Y H:i" }}</td>
-                    <td>
-                        {% if transaction.achat %}<span class="badge badge-success">Achat</span>
-                        {% elif transaction.vente %}<span class="badge badge-error">Vente</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ transaction.crypto.nom }}</td>
-                    <td>{{ transaction.quantite }}</td>
-                    <td>{{ transaction.montant }}</td>
-                    <td>
-                        {% if transaction.statut == "approuve" %}
-                            <span class="badge badge-success">Approuvé</span>
-                        {% elif transaction.statut == "rejete" %}
-                            <span class="badge badge-error">Rejeté</span>
-                        {% else %}
-                            <span class="badge badge-warning">En attente</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="6" class="text-center">Aucune transaction trouvée.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="overflow-x-auto">
+    <table class="table w-full bg-base-100 shadow">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Crypto</th>
+                <th>Quantité</th>
+                <th>Montant</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{ transaction.timestamp|date:"d/m/Y H:i" }}</td>
+                <td>
+                    {% if transaction.transaction_type == "BUY" %}
+                        <span class="badge badge-success">Achat</span>
+                    {% elif transaction.transaction_type == "SELL" %}
+                        <span class="badge badge-error">Vente</span>
+                    {% endif %}
+                </td>
+                <td>{{ transaction.crypto.sigle }}</td>
+                <td>{{ transaction.amount_crypto }}</td>
+                <td>{{ transaction.amount_fcfa }} FCFA</td>
+                <td>
+                    {% if transaction.status == "APPROVED" %}
+                        <span class="badge badge-success">Approuvé</span>
+                    {% elif transaction.status == "CANCELLED" %}
+                        <span class="badge badge-error">Annulé</span>
+                    {% elif transaction.status == "FAILED" %}
+                        <span class="badge badge-error">Échec</span>
+                    {% else %}
+                        <span class="badge badge-warning">En attente</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Aucune transaction trouvée.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .badge {
-        padding: 8px 12px;
-        font-size: 0.9em;
-    }
-    .table td, .table th {
-        vertical-align: middle;
-    }
-</style>
 {% endblock %}

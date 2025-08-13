@@ -67,12 +67,12 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     FedaPay.init("#pay-btn", {
-        public_key: "pk_sandbox_Ng8au9ZKjaRDeljfWBkmK-W6",
+        public_key: "pk_live_6CFr27kxTkRqOJUR1PgYDVEr",
         transaction: {
-            amount: {{ transaction_data.amount_fcfa|default:"100"|escapejs }},
+            amount: {{ transaction_data.amount_fcfa|escapejs }},
             description: "Achat de {{ transaction_data.crypto_nom|escapejs }} ({{ transaction_data.crypto_sigle|escapejs }}) sur Lock Exchange",
             currency: "XOF",
-            callback_url: "https://d3168bd494b8.ngrok-free.app/fedapay-webhook/",
+            callback_url: "https://127.0.0.1/fedapay-webhook/",
             customer: {
                 email: "{{ transaction_data.user_email|escapejs }}"
             },
