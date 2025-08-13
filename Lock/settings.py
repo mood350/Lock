@@ -80,7 +80,6 @@ WSGI_APPLICATION = 'Lock.wsgi.application'
 #     # Assurez-vous que le .env est chargé pour cette configuration
 #     from dotenv import load_dotenv
 #     load_dotenv()
-    
 DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
