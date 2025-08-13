@@ -1,189 +1,217 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connexion</title>
-    <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+    <link
+      href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}"
+      rel="stylesheet"
+    />
+    <link
+      href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}"
+      rel="stylesheet"
+    />
+    <link href="{% static 'assets/css/main.css' %}" rel="stylesheet" />
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .login-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        margin-top: 120px;
+      }
+      .logo {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .logo-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 15px;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
         }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .logo-icon::before {
+        content: "🔒";
+        font-size: 24px;
+        color: white;
+      }
+      h1 {
+        color: #333;
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 16px;
+      }
+      .form-group {
+        margin-bottom: 25px;
+        position: relative;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+        font-size: 14px;
+      }
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #fff;
+      }
+      input[type="email"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+      }
+      .submit-btn {
+        width: 100%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      }
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+      .submit-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+      .submit-btn:hover::before {
+        left: 100%;
+      }
+      .error-message {
+        background: #ffe6e6;
+        color: #d63031;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #d63031;
+        display: none;
+        animation: slideIn 0.3s ease;
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .success-message {
+        background: #e8f5e8;
+        color: #00b894;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border-left: 4px solid #00b894;
+        display: none;
+        animation: slideIn 0.3s ease;
+      }
+      .signup-link {
+        text-align: center;
+        margin-top: 25px;
+        color: #666;
+      }
+      .signup-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+      .signup-link a:hover {
+        color: #764ba2;
+      }
+      @media (max-width: 480px) {
         .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            width: 100%;
-            max-width: 450px;
-            margin: 0 auto;
-            margin-top: 120px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .logo-icon::before {
-            content: "🔒";
-            font-size: 24px;
-            color: white;
+          padding: 30px 25px;
+          margin: 10px;
         }
         h1 {
-            color: #333;
-            font-size: 28px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 10px;
+          font-size: 24px;
         }
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 16px;
-        }
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
-        }
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-        .error-message {
-            background: #ffe6e6;
-            color: #d63031;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #d63031;
-            display: none;
-            animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .success-message {
-            background: #e8f5e8;
-            color: #00b894;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #00b894;
-            display: none;
-            animation: slideIn 0.3s ease;
-        }
-        .signup-link {
-            text-align: center;
-            margin-top: 25px;
-            color: #666;
-        }
-        .signup-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
-        }
-        .signup-link a:hover {
-            color: #764ba2;
-        }
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 30px 25px;
-                margin: 10px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- NAVBAR de index.html -->
     <header id="header" class="header d-flex align-items-center fixed-top">
-      <div class="container-fluid container-xl position-relative d-flex align-items-center">
-        <a href="{% url 'accueil' %}" class="logo d-flex align-items-center me-auto">
-          <img src="{% static 'assets/img/logo.png' %}" alt="">
+      <div
+        class="container-fluid container-xl position-relative d-flex align-items-center"
+      >
+        <a
+          href="{% url 'accueil' %}"
+          class="logo d-flex align-items-center me-auto"
+        >
+          <img src="{% static 'assets/img/logo.png' %}" alt="" />
           <h1 class="sitename">LOCK</h1>
         </a>
         <nav id="navmenu" class="navmenu">
@@ -191,7 +219,9 @@
             <li><a href="{% url 'accueil' %}">Accueil</a></li>
             <li><a href="{% url 'propos' %}">À propos</a></li>
             <li><a href="{% url 'contact' %}">Contact</a></li>
-            <li><a href="{% url 'connexion' %}" class="active">Connexion</a></li>
+            <li>
+              <a href="{% url 'connexion' %}" class="active">Connexion</a>
+            </li>
             <li><a href="{% url 'inscription' %}">Créer un compte</a></li>
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
@@ -201,46 +231,55 @@
     <!-- /NAVBAR -->
 
     <div class="login-container">
-        <div class="logo">
-            <div class="logo-icon"></div>
-            <h1>Connexion</h1>
-            <p class="subtitle">Connectez-vous à votre compte</p>
+      <div class="logo">
+        <div class="logo-icon"></div>
+        <h1>Connexion</h1>
+        <p class="subtitle">Connectez-vous à votre compte</p>
+      </div>
+
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <form id="loginForm" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="email">Adresse email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            value="{{ email|default:'' }}"
+          />
         </div>
-
-        <div id="errorMessage" class="error-message"></div>
-        <div id="successMessage" class="success-message"></div>
-
-        <form id="loginForm" method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email" required value="{{ email|default:'' }}">
-            </div>
-            <div class="form-group">
-                <label for="motdepasse">Mot de passe</label>
-                <input type="password" id="motdepasse" name="motdepasse" required>
-            </div>
-            <button type="submit" class="submit-btn">Se connecter</button>
-        </form>
-
-        <div class="signup-link">
-            Pas de compte ? 
-            <a href="{% url 'inscription' %}">S'inscrire</a>
+        <div class="form-group">
+          <label for="motdepasse">Mot de passe</label>
+          <input type="password" id="motdepasse" name="motdepasse" required />
         </div>
+        <button type="submit" class="submit-btn">Se connecter</button>
+      </form>
+
+      <div class="signup-link">
+        Pas de compte ?
+        <a href="{% url 'inscription' %}">S'inscrire</a>
+      </div>
     </div>
 
     <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script>
-         // Animation d'entrée
-        window.addEventListener('load', function() {
-            document.querySelector('.login-container').style.opacity = '0';
-            document.querySelector('.login-container').style.transform = 'translateY(30px)';
-            setTimeout(() => {
-                document.querySelector('.login-container').style.opacity = '1';
-                document.querySelector('.login-container').style.transform = 'translateY(0)';
-                document.querySelector('.login-container').style.transition = 'all 0.6s ease';
-            }, 100);
-        });
+      // Animation d'entrée
+      window.addEventListener("load", function () {
+        document.querySelector(".login-container").style.opacity = "0";
+        document.querySelector(".login-container").style.transform =
+          "translateY(30px)";
+        setTimeout(() => {
+          document.querySelector(".login-container").style.opacity = "1";
+          document.querySelector(".login-container").style.transform =
+            "translateY(0)";
+          document.querySelector(".login-container").style.transition =
+            "all 0.6s ease";
+        }, 100);
+      });
     </script>
-</body>
+  </body>
 </html>
