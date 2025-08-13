@@ -481,7 +481,6 @@
     {% load static %}
   </head>
   <body>
-    <!-- Navigation Bar -->
     <nav class="navbar">
       <div class="nav-container">
         <a href="{% url 'accueil' %}" class="logo">Lock</a>
@@ -493,9 +492,7 @@
           </li>
           <div class="auth-buttons">
             <a href="{% url 'connexion' %}" class="btn-login">Connexion</a>
-            <a href="{% url 'inscription' %}" class="btn-signup"
-              >Créer un compte</a
-            >
+            <a href="{% url 'inscription' %}" class="btn-signup">Créer un compte</a>
           </div>
         </ul>
         <div class="mobile-menu-toggle" aria-label="Menu mobile" tabindex="0">
@@ -524,16 +521,15 @@
         <div class="contact-form">
           <h2 class="form-title">Envoyez-nous un message</h2>
 
-          <div
-            id="success-message"
-            class="success-message"
-            style="display: none"
-          >
+          {% if message_sent %}
+          <div id="success-message" class="success-message">
             ✅ Votre message a bien été envoyé ! Nous vous répondrons dans les
             plus brefs délais.
           </div>
+          {% endif %}
 
-          <form id="contact-form">
+          <form method="post">
+            {% csrf_token %}
             <div class="form-group">
               <label for="name" class="form-label">Nom complet *</label>
               <input
@@ -601,7 +597,7 @@
             <div class="contact-icon">📞</div>
             <div class="contact-details">
               <h4>Téléphone</h4>
-              <p>+33 1 23 45 67 89</p>
+              <p>+228 90262138</p>
               <p>Du lundi au vendredi, 9h-18h</p>
             </div>
           </div>
@@ -619,75 +615,12 @@
             <div class="contact-icon">📍</div>
             <div class="contact-details">
               <h4>Adresse</h4>
-              <p>123 Avenue des Champs-Élysées</p>
-              <p>75008 Paris, France</p>
+              <p>Lomé , Agoè-Assiyéyé</p>
+              <p>Lomé Togo</p>
             </div>
-          </div>
-
-          <div class="social-links">
-            <a href="#" class="social-link">📘</a>
-            <a href="#" class="social-link">🐦</a>
-            <a href="#" class="social-link">📸</a>
-            <a href="#" class="social-link">💼</a>
           </div>
         </div>
       </div>
-
-      <section class="faq-section">
-        <h2 class="faq-title">Questions Fréquentes</h2>
-        <div class="faq-grid">
-          <div class="faq-item">
-            <div class="faq-question">Comment créer un compte ?</div>
-            <div class="faq-answer">
-              L'inscription est gratuite et ne prend que quelques minutes.
-              Cliquez sur "Créer un compte" et suivez les étapes de
-              vérification.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">
-              Quels sont les frais de transaction ?
-            </div>
-            <div class="faq-answer">
-              Nos frais sont parmi les plus compétitifs du marché, à partir de
-              0.1% par transaction selon le volume.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">Comment sécuriser mon compte ?</div>
-            <div class="faq-answer">
-              Activez l'authentification à deux facteurs (2FA) et utilisez un
-              mot de passe fort. Nos guides de sécurité vous accompagnent.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">Quel est le délai de retrait ?</div>
-            <div class="faq-answer">
-              Les retraits sont généralement traités en moins de 24h. Les
-              virements bancaires peuvent prendre 1-3 jours ouvrés.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">Puis-je trader sur mobile ?</div>
-            <div class="faq-answer">
-              Oui ! Notre application mobile est disponible sur iOS et Android
-              avec toutes les fonctionnalités de la plateforme web.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">Support client disponible ?</div>
-            <div class="faq-answer">
-              Notre équipe support est disponible 24h/24 par chat, email ou
-              téléphone pour répondre à toutes vos questions.
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
 
     <script>
@@ -708,36 +641,6 @@
             navMenu.classList.remove("active");
             mobileMenuToggle.classList.remove("active");
           });
-        });
-
-      // Contact form submission
-      document
-        .getElementById("contact-form")
-        .addEventListener("submit", function (e) {
-          e.preventDefault();
-
-          const submitButton = document.querySelector(".btn-submit");
-          const originalText = submitButton.textContent;
-
-          submitButton.textContent = "Envoi en cours...";
-          submitButton.disabled = true;
-
-          setTimeout(() => {
-            document.getElementById("success-message").style.display = "block";
-            document.getElementById("contact-form").reset();
-
-            submitButton.textContent = originalText;
-            submitButton.disabled = false;
-
-            document.getElementById("success-message").scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-            });
-
-            setTimeout(() => {
-              document.getElementById("success-message").style.display = "none";
-            }, 5000);
-          }, 1500);
         });
 
       // Form field animations

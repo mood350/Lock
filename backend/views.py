@@ -1,6 +1,9 @@
-from decimal import InvalidOperation
+import os
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+import logging
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponseBadRequest, JsonResponse
 import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -9,12 +12,8 @@ from multiprocessing.connection import Client
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from django.db import models
 from .form import *
 from django.utils import timezone
-import os
-import logging
-from django.db import transaction
 from django.contrib import messages
 from rest_framework.views import APIView # type: ignore
 from rest_framework.response import Response # pyright: ignore[reportMissingImports]
@@ -25,8 +24,6 @@ logger = logging.getLogger(__name__)
 
 def test(request):
     return render(request, 'test.html')
-
-# Create your views here.
 
 # Admin views
 @login_required
@@ -219,7 +216,6 @@ def faq(request):
 def profile(request):
     return render(request, 'dashboard/profil.html', {'user': request.user})
 
-
 @login_required
 def historique(request):
     # La vue récupère simplement toutes les transactions de l'utilisateur
@@ -342,13 +338,29 @@ def propos(request):
 
 def contact(request):
     message_sent = False
+    
     if request.method == 'POST':
         nom = request.POST.get('name')
         email = request.POST.get('email')
         sujet = request.POST.get('subject')
-        message = request.POST.get('message')
+        message_body = request.POST.get('message')
 
-        message_sent = True
+        full_message = f"Nom: {nom}\nEmail: {email}\n\nMessage:\n{message_body}"
+
+        try:
+            send_mail(
+                subject=f"Demande de contact - {sujet}",
+                message=full_message,
+                from_email=settings.EMAIL_HOST_USER, # L'e-mail de votre serveur
+                recipient_list=['princiuso350@gmail.com'], # L'e-mail où recevoir les messages
+                fail_silently=False,
+            )
+            message_sent = True
+        except Exception as e:
+            # Gérer l'erreur si l'e-mail ne peut pas être envoyé
+            print(f"Erreur lors de l'envoi de l'e-mail : {e}")
+            message_sent = False
+            
     return render(request, 'contact.html', {'message_sent': message_sent})
 
 def politique_confidentialite(request):
@@ -446,7 +458,6 @@ def acheter_crypto_view(request, crypto_id):
         'initial_new_address': initial_new_address,
     }
     return render(request, 'dashboard/achat.html', context)
-
 
 def confirmer_achat_view(request):
     if not request.user.is_authenticated:
@@ -651,10 +662,8 @@ def transactionadmin(request):
 def clientadmin(request):
     if not request.user.is_staff:
         return redirect('index')
-
     # On ne récupère que les KYC en attente
     kycs = KYC.objects.filter(statut='en_attente').select_related('client')
-
     if request.method == 'POST':
         kyc_id = request.POST.get('kyc_id')
         action = request.POST.get('action')
@@ -803,11 +812,11 @@ def kyc_form(request):
 
 @login_required
 def kyc_verification(request, kyc_id):
+    #
     if not request.user.is_staff:
         return redirect('index')
     kyc = get_object_or_404(KYC, id=kyc_id)
     client = kyc.client
-
     # Vérifie si le document identité est une image supportée
     doc_is_image = False
     if kyc.document_identite and kyc.document_identite.url:
@@ -815,7 +824,6 @@ def kyc_verification(request, kyc_id):
         doc_is_image = ext in [
             '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg', '.jfif', '.pjpeg', '.pjp', '.ico', '.heic', '.heif'
         ]
-
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'valider':
@@ -940,3 +948,4 @@ class CryptoDetailAPIView(APIView):
         crypto = get_object_or_404(Crypto, sigle__iexact=sigle)
         serializer = CryptoDetailSerializer(crypto)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
