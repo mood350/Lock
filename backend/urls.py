@@ -54,4 +54,5 @@ urlpatterns = [
     path('achat/<int:crypto_id>/', views.acheter_crypto_view, name='achat'),
     path('confirmer-achat/', views.confirmer_achat_view, name='confirmer_achat'),
     path('fedapay-webhook/', views.fedapay_webhook, name='fedapay_webhook'),
+    path('parametres/', views.parametres, name='parametres'),
 ]

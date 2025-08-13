@@ -835,7 +835,6 @@ def kyc_verification(request, kyc_id):
             kyc.date_validation = timezone.now()
             kyc.save()
         return redirect('clientadmin')
-
     return render(request, 'admin/kyc_verification.html', {
         'client': client,
         'kyc': kyc,
@@ -949,3 +948,6 @@ class CryptoDetailAPIView(APIView):
         serializer = CryptoDetailSerializer(crypto)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+@login_required
+def parametres(request):
+    return render(request, 'dashboard/parametres.html')
