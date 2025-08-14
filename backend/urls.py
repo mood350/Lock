@@ -55,4 +55,6 @@ urlpatterns = [
     path('confirmer-achat/', views.confirmer_achat_view, name='confirmer_achat'),
     path('fedapay-webhook/', views.fedapay_webhook, name='fedapay_webhook'),
     path('parametres/', views.parametres, name='parametres'),
+    path('parametres/changer-mot-de-passe/', views.change_password, name='change_password'),
+    path('parametres/modifier-profil/', views.update_profile, name='update_profile'),
 ]

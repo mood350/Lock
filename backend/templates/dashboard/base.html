@@ -1,80 +1,108 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="fr" data-theme="forest">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="{% static 'assets/img/favicon.png' %}" rel="icon" />
-    <title>{% block title %}Lock{% endblock %}</title>
+    <title>{% block title %}{% trans "Lock" %}{% endblock %}</title>
 
-    <!-- DaisyUI & Tailwind CSS -->
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-base-200 font-sans">
-    <!-- Navigation -->
     <nav class="navbar bg-primary text-primary-content px-4">
         <div class="flex-1">
             <a class="btn btn-ghost normal-case text-xl" href="{% url 'index' %}">
                 <i class="fas fa-coins mr-2"></i>Lock
             </a>
         </div>
-        <div class="md:hidden">
-            <button id="menu-toggle" class="btn btn-ghost">
-                <i class="fas fa-bars"></i>
-            </button>
+        <div class="flex-none">
+            <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-ghost m-1">
+                    <i class="fas fa-globe mr-2"></i>
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {{ LANGUAGE_CODE|upper }}
+                </label>
+                <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32">
+                    {% get_language_info_list for LANGUAGES as languages %}
+                    {% for lang in languages %}
+                    <li>
+                        <form action="{% url 'set_language' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <input type="hidden" name="language" value="{{ lang.code }}">
+                            <button type="submit" class="w-full text-left">
+                                {{ lang.name_local }}
+                                {% if lang.code == LANGUAGE_CODE %}
+                                <span class="badge badge-sm badge-primary">{% trans "actuel" %}</span>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="md:hidden">
+                <button id="menu-toggle" class="btn btn-ghost">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
         </div>
     </nav>
 
     <div class="flex flex-col md:flex-row min-h-screen">
-        <!-- Sidebar -->
         <aside id="sidebar" class="w-full md:w-64 bg-base-300 text-base-content p-4 hidden md:block">
             <ul class="menu space-y-4">
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">
-                        <i class="fas fa-exchange-alt mr-2"></i>Achat/Vente
+                        <i class="fas fa-exchange-alt mr-2"></i>{% trans "Achat/Vente" %}
                     </a>
                 </li>
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'adresses' %}active{% endif %}" href="{% url 'adresses' %}">
-                        <i class="fas fa-wallet mr-2"></i>Mes Portefeuilles
+                        <i class="fas fa-wallet mr-2"></i>{% trans "Mes Portefeuilles" %}
                     </a>
                 </li>
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'tutoriels' %}active{% endif %}" href="{% url 'tutoriels' %}">
-                        <i class="fas fa-video mr-2"></i>Tutoriels Vidéos
+                        <i class="fas fa-video mr-2"></i>{% trans "Tutoriels Vidéos" %}
                     </a>
                 </li>
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' %}">
-                        <i class="fas fa-user-circle mr-2"></i>Mon Profil
+                        <i class="fas fa-user-circle mr-2"></i>{% trans "Mon Profil" %}
                     </a>
                 </li>
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'historique' %}active{% endif %}" href="{% url 'historique' %}">
-                        <i class="fas fa-history mr-2"></i>Historique
+                        <i class="fas fa-history mr-2"></i>{% trans "Historique" %}
                     </a>
                 </li>
                 <li>
                     <a class="{% if request.resolver_match.url_name == 'faq' %}active{% endif %}" href="{% url 'faq' %}">
-                        <i class="fas fa-question-circle mr-2"></i>FAQ & Support
+                        <i class="fas fa-question-circle mr-2"></i>{% trans "FAQ & Support" %}
                     </a>
                 </li>
                 <li>
                     <a href="/chat/">
-                        <i class="fas fa-comment-dots mr-2"></i>Support Chat
+                        <i class="fas fa-comment-dots mr-2"></i>{% trans "Support Chat" %}
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'parametres' %}">
+                        <i class="fas fa-cog mr-2"></i>{% trans "Paramètres" %}
                     </a>
                 </li>
             </ul>
         </aside>
 
-        <!-- Main Content -->
         <main class="flex-1 p-6">
             {% for message in messages %}
             <div class="alert alert-{{ message.tags }} shadow-lg mb-4">
@@ -85,21 +113,20 @@
         </main>
     </div>
 
-    <!-- Footer -->
     <footer class="footer p-10 bg-base-300 text-base-content mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
-            <span class="footer-title"><i class="fas fa-coins mr-2"></i>Lock</span>
-            <p class="text-sm">Plateforme sécurisée d'achat et de vente de crypto-monnaies.</p>
+            <span class="footer-title"><i class="fas fa-coins mr-2"></i>{% trans "Lock" %}</span>
+            <p class="text-sm">{% trans "Plateforme sécurisée d'achat et de vente de crypto-monnaies." %}</p>
         </div>
         <div>
-            <span class="footer-title">Liens rapides</span>
-            <a href="{% url 'index' %}" class="link link-hover">Achat/Vente</a>
-            <a href="{% url 'profile' %}" class="link link-hover">Profil</a>
-            <a href="{% url 'faq' %}" class="link link-hover">FAQ</a>
-            <a href="{% url 'adresses' %}" class="link link-hover">Adresses</a>
+            <span class="footer-title">{% trans "Liens rapides" %}</span>
+            <a href="{% url 'index' %}" class="link link-hover">{% trans "Achat/Vente" %}</a>
+            <a href="{% url 'profile' %}" class="link link-hover">{% trans "Profil" %}</a>
+            <a href="{% url 'faq' %}" class="link link-hover">{% trans "FAQ" %}</a>
+            <a href="{% url 'adresses' %}" class="link link-hover">{% trans "Adresses" %}</a>
         </div>
         <div>
-            <span class="footer-title">Contact</span>
+            <span class="footer-title">{% trans "Contact" %}</span>
             <p class="text-sm">
                 <i class="fas fa-envelope mr-2"></i> contact@Lock.com<br />
                 <i class="fas fa-phone mr-2"></i> +228 90 01 02 03
@@ -111,11 +138,10 @@
             </div>
         </div>
         <div class="text-center col-span-3 mt-4">
-            <p class="text-xs text-base-content/60">&copy; {% now "Y" %} Lock. Tous droits réservés.</p>
+            <p class="text-xs text-base-content/60">&copy; {% now "Y" %} Lock. {% trans "Tous droits réservés." %}</p>
         </div>
     </footer>
 
-    <!-- Script pour menu mobile -->
     <script>
         document.getElementById('menu-toggle').addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('hidden');

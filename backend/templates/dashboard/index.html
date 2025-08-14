@@ -1,11 +1,11 @@
-{# backend/templates/dashboard/home.html #}
 {% extends "dashboard/base.html" %}
+{% load i18n %}
 
-{% block title %}Lock Exchange - Cryptomonnaies{% endblock %}
+{% block title %}Lock Exchange - {% trans "Cryptomonnaies" %}{% endblock %}
 
 {% block content %}
 <div class="container mx-auto mt-8 px-4">
-    <h2 class="text-3xl font-extrabold mb-8 text-primary">Cryptomonnaies disponibles</h2>
+    <h2 class="text-3xl font-extrabold mb-8 text-primary">{% trans "Cryptomonnaies disponibles" %}</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {% for crypto in cryptos %}
         {% if crypto.quantite_disponible > 0 %}
@@ -13,14 +13,14 @@
             <div class="card-body flex flex-col justify-between">
                 <h5 class="card-title text-xl font-semibold text-secondary mb-4">{{ crypto.nom }} ({{ crypto.sigle }})</h5>
                 <p class="mb-6 text-base-content/80 text-sm">
-                    Valeur d'une pièce : <span class="font-bold text-lg">{{ crypto.valeur_sur_le_marche_fcfa|floatformat:2 }} FCFA</span>
+                    {% trans "Valeur d'une pièce :" %} <span class="font-bold text-lg">{{ crypto.valeur_sur_le_marche_fcfa|floatformat:2 }} FCFA</span>
                 </p>
                 <div class="flex gap-4">
                     <a href="{% url 'achat' crypto.id %}" class="btn btn-success btn-sm flex-1 hover:scale-105 transition-transform duration-200">
-                        Acheter
+                        {% trans "Acheter" %}
                     </a>
                     <a href="{% url 'vente' crypto.id %}" class="btn btn-primary btn-sm flex-1 hover:scale-105 transition-transform duration-200">
-                        Vendre
+                        {% trans "Vendre" %}
                     </a>
                 </div>
             </div>
@@ -29,7 +29,7 @@
         {% empty %}
         <div class="col-span-full">
             <div class="alert alert-info shadow-lg">
-                Aucune cryptomonnaie n'est disponible pour le moment.
+                {% trans "Aucune cryptomonnaie n'est disponible pour le moment." %}
             </div>
         </div>
         {% endfor %}

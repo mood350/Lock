@@ -1,8 +1,10 @@
 {% extends "dashboard/base.html" %}
-{% block title %}Tutoriels vidéos{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Tutoriels vidéos" %}{% endblock %}
 {% block content %}
 <div class="container mx-auto mt-8">
-    <h2 class="text-2xl font-bold mb-6 text-primary">Vidéos éducatives & préventives</h2>
+    <h2 class="text-2xl font-bold mb-6 text-primary">{% trans "Vidéos éducatives & préventives" %}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {% for tuto in tutoriels %}
         <div class="card bg-base-100 shadow-xl">
@@ -22,7 +24,7 @@
         </div>
         {% empty %}
         <div class="col-span-2">
-            <div class="alert alert-info shadow-lg">Aucun tutoriel disponible pour le moment.</div>
+            <div class="alert alert-info shadow-lg">{% trans "Aucun tutoriel disponible pour le moment." %}</div>
         </div>
         {% endfor %}
     </div>

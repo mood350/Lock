@@ -1,28 +1,57 @@
 {% extends "dashboard/base.html" %}
-{% block title %}FAQ & Support - Lock Exchange{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "FAQ & Support" %} - Lock Exchange{% endblock %}
+
 {% block content %}
 <div class="container mx-auto mt-8">
-    <h2 class="text-2xl font-bold mb-6 text-primary">Questions Fréquentes</h2>
+    <h2 class="text-2xl font-bold mb-6 text-primary">{% trans "Questions Fréquentes" %}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
             <input type="checkbox" class="peer" />
             <div class="collapse-title text-lg font-semibold text-secondary">
-                Comment créer un compte ?
+                {% trans "Comment créer un compte ?" %}
             </div>
             <div class="collapse-content text-base-content/80">
-                L'inscription est gratuite et ne prend que quelques minutes. Cliquez sur "Créer un compte" et suivez les étapes de vérification.
+                {% trans "L'inscription est gratuite et ne prend que quelques minutes. Cliquez sur \"Créer un compte\" et suivez les étapes de vérification." %}
             </div>
         </div>
         <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
             <input type="checkbox" class="peer" />
             <div class="collapse-title text-lg font-semibold text-secondary">
-                Quels sont les frais de transaction ?
+                {% trans "Quels sont les frais de transaction ?" %}
             </div>
             <div class="collapse-content text-base-content/80">
-                Nos frais sont parmi les plus compétitifs du marché, à partir de 0.1% par transaction selon le volume.
+                {% trans "Nos frais sont parmi les plus compétitifs du marché, à partir de 0.1% par transaction selon le volume." %}
             </div>
         </div>
-        <!-- Ajoute d'autres questions/réponses ici -->
+        <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
+            <input type="checkbox" class="peer" />
+            <div class="collapse-title text-lg font-semibold text-secondary">
+                {% trans "Comment puis-je sécuriser mon compte ?" %}
+            </div>
+            <div class="collapse-content text-base-content/80">
+                {% trans "Nous recommandons d'activer l'authentification à deux facteurs (2FA) via une application comme Google Authenticator pour une sécurité maximale." %}
+            </div>
+        </div>
+        <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
+            <input type="checkbox" class="peer" />
+            <div class="collapse-title text-lg font-semibold text-secondary">
+                {% trans "Quelles crypto-monnaies sont disponibles ?" %}
+            </div>
+            <div class="collapse-content text-base-content/80">
+                {% trans "Nous supportons actuellement Bitcoin (BTC), Ethereum (ETH), et d'autres cryptos populaires. La liste est régulièrement mise à jour." %}
+            </div>
+        </div>
+        <div class="collapse collapse-arrow bg-base-100 shadow" tabindex="0">
+            <input type="checkbox" class="peer" />
+            <div class="collapse-title text-lg font-semibold text-secondary">
+                {% trans "Quel est le délai pour les dépôts et retraits ?" %}
+            </div>
+            <div class="collapse-content text-base-content/80">
+                {% trans "Les dépôts sont généralement instantanés. Les retraits peuvent prendre jusqu'à quelques minutes selon la congestion du réseau blockchain." %}
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

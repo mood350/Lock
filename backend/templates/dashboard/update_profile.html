@@ -1,0 +1,85 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Modifier le profil" %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-8 px-4 max-w-lg">
+    <div class="card bg-base-100 shadow-xl rounded-lg">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="card-title text-primary text-2xl font-extrabold">{% trans "Informations du profil" %}</h2>
+            </div>
+
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} shadow-lg mb-4">
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-control mb-4">
+                    <label class="label" for="{{ email_form.email.id_for_label }}">
+                        <span class="label-text font-semibold text-base-content/90">{% trans "Adresse e-mail" %}</span>
+                    </label>
+                    <input type="email" name="{{ email_form.email.name }}" value="{{ user.email }}" id="{{ email_form.email.id_for_label }}" class="input input-bordered w-full" required>
+                    {% for error in email_form.email.errors %}
+                        <span class="label-text-alt text-error mt-1">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label" for="{{ profile_form.nom.id_for_label }}">
+                        <span class="label-text font-semibold text-base-content/90">{% trans "Nom" %}</span>
+                    </label>
+                    <input type="text" name="{{ profile_form.nom.name }}" value="{{ user.client.nom }}" id="{{ profile_form.nom.id_for_label }}" class="input input-bordered w-full">
+                    {% for error in profile_form.nom.errors %}
+                        <span class="label-text-alt text-error mt-1">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-control mb-4">
+                    <label class="label" for="{{ profile_form.prenoms.id_for_label }}">
+                        <span class="label-text font-semibold text-base-content/90">{% trans "Prénoms" %}</span>
+                    </label>
+                    <input type="text" name="{{ profile_form.prenoms.name }}" value="{{ user.client.prenoms }}" id="{{ profile_form.prenoms.id_for_label }}" class="input input-bordered w-full">
+                    {% for error in profile_form.prenoms.errors %}
+                        <span class="label-text-alt text-error mt-1">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-control mb-4">
+                    <label class="label" for="{{ profile_form.telephone.id_for_label }}">
+                        <span class="label-text font-semibold text-base-content/90">{% trans "Numéro de téléphone" %}</span>
+                    </label>
+                    <input type="tel" name="{{ profile_form.telephone.name }}" value="{{ user.client.telephone }}" id="{{ profile_form.telephone.id_for_label }}" class="input input-bordered w-full">
+                    {% for error in profile_form.telephone.errors %}
+                        <span class="label-text-alt text-error mt-1">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-control mb-6">
+                    <label class="label" for="{{ profile_form.date_naissance.id_for_label }}">
+                        <span class="label-text font-semibold text-base-content/90">{% trans "Date de naissance" %}</span>
+                    </label>
+                    <input type="date" name="{{ profile_form.date_naissance.name }}" value="{{ user.client.date_naissance|date:'Y-m-d' }}" id="{{ profile_form.date_naissance.id_for_label }}" class="input input-bordered w-full">
+                    {% for error in profile_form.date_naissance.errors %}
+                        <span class="label-text-alt text-error mt-1">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-control flex flex-col items-center">
+                    <button type="submit" class="btn btn-primary w-full transition duration-300 ease-in-out">
+                        {% trans "Enregistrer les modifications" %}
+                    </button>
+                    <a href="{% url 'parametres' %}" class="btn btn-outline btn-error w-full mt-4 transition duration-300 ease-in-out">
+                        {% trans "Annuler" %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

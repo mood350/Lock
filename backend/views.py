@@ -8,6 +8,8 @@ import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import *
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from multiprocessing.connection import Client
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -951,3 +953,62 @@ class CryptoDetailAPIView(APIView):
 @login_required
 def parametres(request):
     return render(request, 'dashboard/parametres.html')
+
+@login_required
+def update_profile(request):
+    try:
+        client_profile = request.user.client
+    except Client.DoesNotExist:
+        # Si le profil client n'existe pas, on le crée (ceci peut arriver)
+        client_profile = Client.objects.create(user=request.user, email=request.user.email)
+
+    if request.method == 'POST':
+        # On instancie les deux formulaires avec les données POST
+        email_form = UserEmailForm(request.POST, instance=request.user)
+        profile_form = ClientProfileForm(request.POST, instance=client_profile)
+        
+        if email_form.is_valid() and profile_form.is_valid():
+            email_form.save()
+            profile_form.save()
+            messages.success(request, 'Votre profil a été mis à jour avec succès !')
+            return redirect('parametres')
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    else:
+        # Pour une requête GET, on instancie les formulaires avec les données actuelles
+        email_form = UserEmailForm(instance=request.user)
+        profile_form = ClientProfileForm(instance=client_profile)
+
+    context = {
+        'email_form': email_form,
+        'profile_form': profile_form
+    }
+
+    return render(request, 'dashboard/update_profile.html', context)
+
+@login_required
+def change_password(request):
+    """
+    Vue pour gérer le changement de mot de passe de l'utilisateur.
+    """
+    if request.method == 'POST':
+        # On utilise le formulaire de changement de mot de passe intégré de Django
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            # Si le formulaire est valide, on sauvegarde le nouveau mot de passe
+            user = form.save()
+            
+            # Ceci est crucial : cela met à jour la session pour éviter que l'utilisateur soit déconnecté
+            update_session_auth_hash(request, user)
+            
+            messages.success(request, 'Votre mot de passe a été mis à jour avec succès !')
+            return redirect('parametres')
+        else:
+            # Si le formulaire est invalide, on ajoute un message d'erreur et on ré-affiche le formulaire
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    else:
+        # Pour une requête GET, on affiche un formulaire vide
+        form = PasswordChangeForm(user=request.user)
+    
+    # On rend le template en lui passant le formulaire
+    return render(request, 'dashboard/change_password.html', {'form': form})

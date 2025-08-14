@@ -1,5 +1,6 @@
 from .models import *
 from django import forms
+from django.core.exceptions import ValidationError
 
 class ClientForm(forms.ModelForm):
     class Meta:
@@ -68,4 +69,28 @@ class KYCForm(forms.ModelForm):
             'cni': forms.TextInput(attrs={'class': 'form-control'}),
             'document_identite': forms.ClearableFileInput(attrs={'class': 'form-control'}),
             'selfie': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+class UserEmailForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Assurez-vous que l'email est requis et n'est pas déjà utilisé
+        self.fields['email'].required = True
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Cette adresse e-mail est déjà utilisée par un autre utilisateur.")
+        return email
+
+# Formulaire pour les champs de votre modèle Client
+class ClientProfileForm(forms.ModelForm):
+    class Meta:
+        model = Client
+        fields = ['nom', 'prenoms', 'date_naissance', 'telephone']
+        widgets = {
+            'date_naissance': forms.DateInput(attrs={'type': 'date'})
         }

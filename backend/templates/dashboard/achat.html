@@ -1,129 +1,147 @@
 {% extends "dashboard/base.html" %}
-{% block title %}Acheter {{ crypto.nom }} - Lock Exchange{% endblock %}
+{% load i18n %}
+
+{% block title %}{% trans "Acheter" %} {{ crypto.nom }} - Lock Exchange{% endblock %}
 
 {% block content %}
 <div class="container mx-auto mt-10 px-4 max-w-md">
-  <div class="card bg-base-100 shadow-md rounded-lg">
-    <div class="card-body p-6">
-      <h2 class="text-2xl font-bold text-primary mb-5">Acheter {{ crypto.nom }} ({{ crypto.sigle }})</h2>
+  <div class="card bg-base-100 shadow-md rounded-lg">
+    <div class="card-body p-6">
+      <h2 class="text-2xl font-bold text-primary mb-5">{% trans "Acheter" %} {{ crypto.nom }} ({{ crypto.sigle }})</h2>
 
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} mb-4">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} mb-4">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
 
-      <form method="post" id="buyForm" novalidate>
-        {% csrf_token %}
+      <form method="post" id="buyForm" novalidate>
+        {% csrf_token %}
 
-        <label for="amount_fcfa_input" class="block mb-1 font-semibold text-gray-700">Montant en FCFA</label>
-        <input
-          type="number"
-          id="amount_fcfa_input"
-          name="amount_fcfa"
-          placeholder="Ex: 10000"
-          step="any"
-          value="{{ initial_amount_fcfa|default:'' }}"
-          required
-          class="input input-bordered w-full mb-4"
-        />
+        <label for="amount_fcfa_input" class="block mb-1 font-semibold text-gray-700">{% trans "Montant en FCFA" %}</label>
+        <input
+          type="number"
+          id="amount_fcfa_input"
+          name="amount_fcfa"
+          placeholder="{% trans 'Ex: 10000' %}"
+          step="any"
+          value="{{ initial_amount_fcfa|default:'' }}"
+          required
+          class="input input-bordered w-full mb-4"
+        />
 
-        <label for="amount_crypto_input" class="block mb-1 font-semibold text-gray-700">Montant en {{ crypto.sigle }}</label>
-        <input
-          type="number"
-          id="amount_crypto_input"
-          name="amount_crypto"
-          placeholder="Ex: 0.01"
-          step="any"
-          value="{{ initial_amount_crypto|default:'' }}"
-          required
-          class="input input-bordered w-full mb-6"
-        />
+        <label for="amount_crypto_input" class="block mb-1 font-semibold text-gray-700">{% trans "Montant en" %} {{ crypto.sigle }}</label>
+        <input
+          type="number"
+          id="amount_crypto_input"
+          name="amount_crypto"
+          placeholder="{% trans 'Ex: 0.01' %}"
+          step="any"
+          value="{{ initial_amount_crypto|default:'' }}"
+          required
+          class="input input-bordered w-full mb-6"
+        />
 
-        <label for="adresse_existante" class="block mb-1 font-semibold text-gray-700">Adresse de réception</label>
-        <select
-          id="adresse_existante"
-          name="adresse_existante"
-          onchange="onAdresseChange()"
-          class="select select-bordered w-full mb-4"
-        >
-          <option value="">-- Saisir une nouvelle adresse --</option>
-          {% for adresse in adresses %}
-            <option value="{{ adresse.adresse }}" {% if initial_address == adresse.adresse %}selected{% endif %}>
-              {{ adresse.nom|default:"Adresse enregistrée" }} ({{ adresse.adresse|truncatechars:25 }})
-            </option>
-          {% endfor %}
-        </select>
+        <label for="adresse_existante" class="block mb-1 font-semibold text-gray-700">{% trans "Adresse de réception" %}</label>
+        <select
+          id="adresse_existante"
+          name="adresse_existante"
+          onchange="onAdresseChange()"
+          class="select select-bordered w-full mb-4"
+        >
+          <option value="">-- {% trans "Saisir une nouvelle adresse" %} --</option>
+          {% for adresse in adresses %}
+            <option value="{{ adresse.adresse }}" {% if initial_address == adresse.adresse %}selected{% endif %}>
+              {{ adresse.nom|default:"Adresse enregistrée" }} ({{ adresse.adresse|truncatechars:25 }})
+            </option>
+          {% endfor %}
+        </select>
 
-        <input
-          type="text"
-          id="nouvelle_adresse_input"
-          name="nouvelle_adresse"
-          placeholder="Nouvelle adresse {{ crypto.nom }}"
-          value="{{ initial_new_address|default:'' }}"
-          class="input input-bordered w-full mb-6"
-        />
+        <input
+          type="text"
+          id="nouvelle_adresse_input"
+          name="nouvelle_adresse"
+          placeholder="{% trans 'Nouvelle adresse' %} {{ crypto.nom }}"
+          value="{{ initial_new_address|default:'' }}"
+          class="input input-bordered w-full mb-6"
+        />
 
-        <button type="submit" class="btn btn-primary w-full">Payer avec FedaPay</button>
-      </form>
-    </div>
-  </div>
+        <button type="submit" class="btn btn-primary w-full">{% trans "Payer avec FedaPay" %}</button>
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function onAdresseChange() {
-  const select = document.getElementById('adresse_existante');
-  const newAddrInput = document.getElementById('nouvelle_adresse_input');
-  if (select.value) {
-    newAddrInput.disabled = true;
-    newAddrInput.value = '';
-    newAddrInput.classList.add('opacity-50', 'cursor-not-allowed');
-  } else {
-    newAddrInput.disabled = false;
-    newAddrInput.classList.remove('opacity-50', 'cursor-not-allowed');
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const marketValue = {{ crypto.valeur_sur_le_marche_fcfa|default:"1" }};
-  const fcfaInput = document.getElementById('amount_fcfa_input');
-  const cryptoInput = document.getElementById('amount_crypto_input');
-
-  function updateCryptoFromFcfa() {
-    const fcfaValue = parseFloat(fcfaInput.value);
-    if (isNaN(fcfaValue) || fcfaValue <= 0) {
-      cryptoInput.value = '';
-      return;
+    function onAdresseChange() {
+        const select = document.getElementById('adresse_existante');
+        const newAddrInput = document.getElementById('nouvelle_adresse_input');
+        if (select && newAddrInput) {
+            if (select.value) {
+                newAddrInput.disabled = true;
+                newAddrInput.value = '';
+                newAddrInput.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                newAddrInput.disabled = false;
+                newAddrInput.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
     }
-    cryptoInput.value = (fcfaValue / marketValue).toFixed(8);
-  }
 
-  function updateFcfaFromCrypto() {
-    const cryptoValue = parseFloat(cryptoInput.value);
-    if (isNaN(cryptoValue) || cryptoValue <= 0) {
-      fcfaInput.value = '';
-      return;
-    }
-    fcfaInput.value = (cryptoValue * marketValue).toFixed(2);
-  }
+    document.addEventListener('DOMContentLoaded', () => {
+        const marketValue = parseFloat("{{ crypto.valeur_sur_le_marche_fcfa|default:'0' }}");
+        
+        const fcfaInput = document.getElementById('amount_fcfa_input');
+        const cryptoInput = document.getElementById('amount_crypto_input');
 
-  fcfaInput.addEventListener('input', () => {
-    updateCryptoFromFcfa();
-  });
+        // Vérification cruciale : s'assurer que les éléments existent
+        if (!fcfaInput || !cryptoInput) {
+            console.error("Erreur: Les champs d'entrée pour les montants n'ont pas été trouvés.");
+            return; // Arrêter l'exécution si les éléments sont manquants
+        }
+        
+        function updateCryptoFromFcfa() {
+            const fcfaValue = parseFloat(fcfaInput.value);
+            if (isNaN(fcfaValue) || fcfaValue <= 0) {
+                cryptoInput.value = '';
+                return;
+            }
+            if (marketValue > 0) {
+                cryptoInput.value = (fcfaValue / marketValue).toFixed(8);
+            } else {
+                cryptoInput.value = ''; // Éviter la division par zéro
+            }
+        }
 
-  cryptoInput.addEventListener('input', () => {
-    updateFcfaFromCrypto();
-  });
+        function updateFcfaFromCrypto() {
+            const cryptoValue = parseFloat(cryptoInput.value);
+            if (isNaN(cryptoValue) || cryptoValue <= 0) {
+                fcfaInput.value = '';
+                return;
+            }
+            if (marketValue > 0) {
+                fcfaInput.value = (cryptoValue * marketValue).toFixed(2);
+            } else {
+                fcfaInput.value = '';
+            }
+        }
 
-  onAdresseChange();
+        // Attacher les écouteurs d'événements
+        fcfaInput.addEventListener('input', updateCryptoFromFcfa);
+        cryptoInput.addEventListener('input', updateFcfaFromCrypto);
 
-  // Initial update au chargement si valeurs déjà remplies
-  if (fcfaInput.value) updateCryptoFromFcfa();
-  else if (cryptoInput.value) updateFcfaFromCrypto();
-});
+        // Appeler les fonctions au chargement si un champ est déjà rempli
+        if (fcfaInput.value) {
+            updateCryptoFromFcfa();
+        } else if (cryptoInput.value) {
+            updateFcfaFromCrypto();
+        }
+
+        onAdresseChange();
+    });
 </script>
 {% endblock %}

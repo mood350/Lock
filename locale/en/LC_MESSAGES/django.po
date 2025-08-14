@@ -1,0 +1,552 @@
+# English translations for Lock Exchange.
+# Copyright (C) 2024 Lock Exchange
+# This file is distributed under the same license as the Lock Exchange project.
+# THE LOCK EXCHANGE TEAM <info@lockexchange.com>, 2024.
+msgid ""
+msgstr ""
+"Project-Id-Version: Lock Exchange\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-08-14 01:07+0000\n"
+"PO-Revision-Date: 2025-08-14 01:00+0000\n"
+"Last-Translator: THE LOCK EXCHANGE TEAM <info@lockexchange.com>\n"
+"Language-Team: English <en@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\Lock\settings.py:109
+msgid "Français"
+msgstr "French"
+
+#: .\Lock\settings.py:110
+msgid "English"
+msgstr "English"
+
+#: .\Lock\settings.py:111
+msgid "Español"
+msgstr "Spanish"
+
+#: .\backend\templates\dashboard\achat.html:4
+#: .\backend\templates\dashboard\achat.html:10
+#: .\backend\templates\dashboard\index.html:20
+msgid "Acheter"
+msgstr "Buy"
+
+#: .\backend\templates\dashboard\achat.html:23
+msgid "Montant en FCFA"
+msgstr "Amount in FCFA"
+
+#: .\backend\templates\dashboard\achat.html:28
+msgid "Ex: 10000"
+msgstr "Ex: 10000"
+
+#: .\backend\templates\dashboard\achat.html:35
+msgid "Montant en"
+msgstr "Amount in"
+
+#: .\backend\templates\dashboard\achat.html:40
+msgid "Ex: 0.01"
+msgstr "Ex: 0.01"
+
+#: .\backend\templates\dashboard\achat.html:47
+msgid "Adresse de réception"
+msgstr "Recipient Address"
+
+#: .\backend\templates\dashboard\achat.html:54
+msgid "Saisir une nouvelle adresse"
+msgstr "Enter a new address"
+
+#: .\backend\templates\dashboard\achat.html:66
+msgid "Nouvelle adresse"
+msgstr "New address"
+
+#: .\backend\templates\dashboard\achat.html:71
+msgid "Payer avec FedaPay"
+msgstr "Pay with FedaPay"
+
+#: .\backend\templates\dashboard\adresses.html:4
+#: .\backend\templates\dashboard\adresses.html:11
+msgid "Mes Adresses"
+msgstr "My Addresses"
+
+#: .\backend\templates\dashboard\adresses.html:14
+#: .\backend\templates\dashboard\adresses.html:95
+msgid "Ajouter une adresse"
+msgstr "Add an address"
+
+#: .\backend\templates\dashboard\adresses.html:23
+#: .\backend\templates\dashboard\update_profile.html:35
+msgid "Nom"
+msgstr "Last Name"
+
+#: .\backend\templates\dashboard\adresses.html:24
+#: .\backend\templates\dashboard\historique.html:13
+msgid "Crypto"
+msgstr "Crypto"
+
+#: .\backend\templates\dashboard\adresses.html:25
+#: .\backend\templates\dashboard\adresses.html:113
+msgid "Adresse"
+msgstr "Address"
+
+#: .\backend\templates\dashboard\adresses.html:26
+#: .\backend\templates\dashboard\historique.html:11
+msgid "Date"
+msgstr "Date"
+
+#: .\backend\templates\dashboard\adresses.html:27
+msgid "Actions"
+msgstr "Actions"
+
+#: .\backend\templates\dashboard\adresses.html:38
+#: .\backend\templates\dashboard\adresses.html:66
+msgid "Copier"
+msgstr "Copy"
+
+#: .\backend\templates\dashboard\adresses.html:48
+#: .\backend\templates\dashboard\adresses.html:75
+msgid "Supprimer cette adresse ?"
+msgstr "Delete this address?"
+
+#: .\backend\templates\dashboard\adresses.html:48
+#: .\backend\templates\dashboard\adresses.html:76
+msgid "Supprimer"
+msgstr "Delete"
+
+#: .\backend\templates\dashboard\adresses.html:70
+msgid "Ajoutée le"
+msgstr "Added on"
+
+#: .\backend\templates\dashboard\adresses.html:86
+msgid "Vous n'avez pas encore enregistré d'adresses."
+msgstr "You haven't registered any addresses yet."
+
+#: .\backend\templates\dashboard\adresses.html:99
+msgid "Nom de l'adresse"
+msgstr "Address name"
+
+#: .\backend\templates\dashboard\adresses.html:101
+msgid "Un nom pour identifier facilement cette adresse"
+msgstr "A name to easily identify this address"
+
+#: .\backend\templates\dashboard\adresses.html:104
+msgid "Crypto-monnaie"
+msgstr "Cryptocurrency"
+
+#: .\backend\templates\dashboard\adresses.html:106
+msgid "Choisir une crypto-monnaie"
+msgstr "Choose a cryptocurrency"
+
+#: .\backend\templates\dashboard\adresses.html:117
+#: .\backend\templates\dashboard\change_password.html:73
+#: .\backend\templates\dashboard\update_profile.html:78
+msgid "Annuler"
+msgstr "Cancel"
+
+#: .\backend\templates\dashboard\adresses.html:118
+msgid "Ajouter"
+msgstr "Add"
+
+#: .\backend\templates\dashboard\adresses.html:129
+msgid "Adresse copiée !"
+msgstr "Address copied!"
+
+#: .\backend\templates\dashboard\base.html:8
+#: .\backend\templates\dashboard\base.html:118
+msgid "Lock"
+msgstr "Lock"
+
+#: .\backend\templates\dashboard\base.html:43
+msgid "actuel"
+msgstr "current"
+
+#: .\backend\templates\dashboard\base.html:65
+#: .\backend\templates\dashboard\base.html:123
+#: .\backend\templates\dashboard\confirmer_paiement.html:25
+msgid "Achat/Vente"
+msgstr "Buy/Sell"
+
+#: .\backend\templates\dashboard\base.html:70
+#: .\backend\templates\dashboard\confirmer_paiement.html:26
+msgid "Mes Portefeuilles"
+msgstr "My Wallets"
+
+#: .\backend\templates\dashboard\base.html:75
+#: .\backend\templates\dashboard\confirmer_paiement.html:27
+msgid "Tutoriels Vidéos"
+msgstr "Video Tutorials"
+
+#: .\backend\templates\dashboard\base.html:80
+#: .\backend\templates\dashboard\confirmer_paiement.html:28
+#: .\backend\templates\dashboard\profil.html:4
+msgid "Mon Profil"
+msgstr "My Profile"
+
+#: .\backend\templates\dashboard\base.html:85
+#: .\backend\templates\dashboard\confirmer_paiement.html:29
+msgid "Historique"
+msgstr "History"
+
+#: .\backend\templates\dashboard\base.html:90
+#: .\backend\templates\dashboard\confirmer_paiement.html:30
+#: .\backend\templates\dashboard\faq.html:4
+msgid "FAQ & Support"
+msgstr "FAQ & Support"
+
+#: .\backend\templates\dashboard\base.html:95
+#: .\backend\templates\dashboard\confirmer_paiement.html:31
+msgid "Support Chat"
+msgstr "Support Chat"
+
+#: .\backend\templates\dashboard\base.html:100
+#: .\backend\templates\dashboard\parametres.html:4
+msgid "Paramètres"
+msgstr "Settings"
+
+#: .\backend\templates\dashboard\base.html:119
+msgid "Plateforme sécurisée d'achat et de vente de crypto-monnaies."
+msgstr "Secure platform for buying and selling cryptocurrencies."
+
+#: .\backend\templates\dashboard\base.html:122
+msgid "Liens rapides"
+msgstr "Quick Links"
+
+#: .\backend\templates\dashboard\base.html:124
+msgid "Profil"
+msgstr "Profile"
+
+#: .\backend\templates\dashboard\base.html:125
+msgid "FAQ"
+msgstr "FAQ"
+
+#: .\backend\templates\dashboard\base.html:126
+msgid "Adresses"
+msgstr "Addresses"
+
+#: .\backend\templates\dashboard\base.html:129
+msgid "Contact"
+msgstr "Contact"
+
+#: .\backend\templates\dashboard\base.html:141
+#: .\backend\templates\dashboard\confirmer_paiement.html:57
+msgid "Tous droits réservés."
+msgstr "All rights reserved."
+
+#: .\backend\templates\dashboard\change_password.html:4
+#: .\backend\templates\dashboard\change_password.html:11
+#: .\backend\templates\dashboard\parametres.html:16
+msgid "Changer le mot de passe"
+msgstr "Change password"
+
+#: .\backend\templates\dashboard\change_password.html:25
+msgid "Ancien mot de passe"
+msgstr "Old password"
+
+#: .\backend\templates\dashboard\change_password.html:40
+msgid "Nouveau mot de passe"
+msgstr "New password"
+
+#: .\backend\templates\dashboard\change_password.html:55
+msgid "Confirmer le nouveau mot de passe"
+msgstr "Confirm new password"
+
+#: .\backend\templates\dashboard\change_password.html:70
+msgid "Mettre à jour le mot de passe"
+msgstr "Update password"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:9
+msgid "Paiement"
+msgstr "Payment"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:44
+msgid "Paiement sécurisé"
+msgstr "Secure payment"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:45
+msgid "Vous êtes sur le point d’acheter :"
+msgstr "You are about to buy:"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:47
+msgid "Montant :"
+msgstr "Amount:"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:49
+msgid "Payer"
+msgstr "Pay"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:67
+msgid "Achat de"
+msgstr "Buy"
+
+#: .\backend\templates\dashboard\confirmer_paiement.html:67
+msgid "sur Lock Exchange"
+msgstr "on Lock Exchange"
+
+#: .\backend\templates\dashboard\faq.html:8
+msgid "Questions Fréquentes"
+msgstr "Frequently Asked Questions"
+
+#: .\backend\templates\dashboard\faq.html:13
+msgid "Comment créer un compte ?"
+msgstr "How to create an account?"
+
+#: .\backend\templates\dashboard\faq.html:16
+msgid ""
+"L'inscription est gratuite et ne prend que quelques minutes. Cliquez sur \\"
+"\"Créer un compte\" et suivez les étapes de vérification."
+msgstr ""
+"Registration is free and takes only a few minutes. Click on \"Create an "
+"account\" and follow the verification steps."
+
+#: .\backend\templates\dashboard\faq.html:22
+msgid "Quels sont les frais de transaction ?"
+msgstr "What are the transaction fees?"
+
+#: .\backend\templates\dashboard\faq.html:25
+#, python-format
+msgid ""
+"Nos frais sont parmi les plus compétitifs du marché, à partir de 0.1%% par "
+"transaction selon le volume."
+msgstr ""
+"Our fees are among the most competitive on the market, starting from 0.1%% "
+"per transaction depending on the volume."
+
+#: .\backend\templates\dashboard\faq.html:31
+msgid "Comment puis-je sécuriser mon compte ?"
+msgstr "How can I secure my account?"
+
+#: .\backend\templates\dashboard\faq.html:34
+msgid ""
+"Nous recommandons d'activer l'authentification à deux facteurs (2FA) via une "
+"application comme Google Authenticator pour une sécurité maximale."
+msgstr ""
+"We recommend enabling two-factor authentication (2FA) via an application "
+"like Google Authenticator for maximum security."
+
+#: .\backend\templates\dashboard\faq.html:40
+msgid "Quelles crypto-monnaies sont disponibles ?"
+msgstr "What cryptocurrencies are available?"
+
+#: .\backend\templates\dashboard\faq.html:43
+msgid ""
+"Nous supportons actuellement Bitcoin (BTC), Ethereum (ETH), et d'autres "
+"cryptos populaires. La liste est régulièrement mise à jour."
+msgstr ""
+"We currently support Bitcoin (BTC), Ethereum (ETH), and other popular "
+"cryptos. The list is regularly updated."
+
+#: .\backend\templates\dashboard\faq.html:49
+msgid "Quel est le délai pour les dépôts et retraits ?"
+msgstr "What is the time frame for deposits and withdrawals?"
+
+#: .\backend\templates\dashboard\faq.html:52
+msgid ""
+"Les dépôts sont généralement instantanés. Les retraits peuvent prendre "
+"jusqu'à quelques minutes selon la congestion du réseau blockchain."
+msgstr ""
+"Deposits are usually instantaneous. Withdrawals can take up to a few "
+"minutes depending on blockchain network congestion."
+
+#: .\backend\templates\dashboard\historique.html:4
+msgid "Historique des transactions"
+msgstr "Transaction History"
+
+#: .\backend\templates\dashboard\historique.html:12
+msgid "Type"
+msgstr "Type"
+
+#: .\backend\templates\dashboard\historique.html:14
+msgid "Quantité"
+msgstr "Quantity"
+
+#: .\backend\templates\dashboard\historique.html:15
+msgid "Montant"
+msgstr "Amount"
+
+#: .\backend\templates\dashboard\historique.html:16
+msgid "Statut"
+msgstr "Status"
+
+#: .\backend\templates\dashboard\historique.html:25
+msgid "Achat"
+msgstr "Buy"
+
+#: .\backend\templates\dashboard\historique.html:27
+msgid "Vente"
+msgstr "Sell"
+
+#: .\backend\templates\dashboard\historique.html:35
+msgid "Approuvé"
+msgstr "Approved"
+
+#: .\backend\templates\dashboard\historique.html:37
+msgid "Annulé"
+msgstr "Cancelled"
+
+#: .\backend\templates\dashboard\historique.html:39
+msgid "Échec"
+msgstr "Failed"
+
+#: .\backend\templates\dashboard\historique.html:41
+#: .\backend\templates\dashboard\profil.html:53
+msgid "En attente"
+msgstr "Pending"
+
+#: .\backend\templates\dashboard\historique.html:47
+msgid "Aucune transaction trouvée."
+msgstr "No transactions found."
+
+#: .\backend\templates\dashboard\index.html:4
+msgid "Cryptomonnaies"
+msgstr "Cryptocurrencies"
+
+#: .\backend\templates\dashboard\index.html:8
+msgid "Cryptomonnaies disponibles"
+msgstr "Available Cryptocurrencies"
+
+#: .\backend\templates\dashboard\index.html:16
+msgid "Valeur d'une pièce :"
+msgstr "Value of one coin:"
+
+#: .\backend\templates\dashboard\index.html:23
+msgid "Vendre"
+msgstr "Sell"
+
+#: .\backend\templates\dashboard\index.html:32
+msgid "Aucune cryptomonnaie n'est disponible pour le moment."
+msgstr "No cryptocurrencies are available at the moment."
+
+#: .\backend\templates\dashboard\parametres.html:9
+msgid "Paramètres du compte"
+msgstr "Account Settings"
+
+#: .\backend\templates\dashboard\parametres.html:19
+msgid "Mettez à jour votre mot de passe pour plus de sécurité."
+msgstr "Update your password for more security."
+
+#: .\backend\templates\dashboard\parametres.html:30
+#: .\backend\templates\dashboard\update_profile.html:11
+msgid "Informations du profil"
+msgstr "Profile Information"
+
+#: .\backend\templates\dashboard\parametres.html:33
+msgid "Modifiez votre e-mail, téléphone et date de naissance."
+msgstr "Edit your email, phone, and date of birth."
+
+#: .\backend\templates\dashboard\parametres.html:44
+msgid "Paramètres de langue"
+msgstr "Language Settings"
+
+#: .\backend\templates\dashboard\parametres.html:47
+msgid "Changez la langue d'affichage du site."
+msgstr "Change the site display language."
+
+#: .\backend\templates\dashboard\profil.html:11
+msgid "Informations personnelles"
+msgstr "Personal Information"
+
+#: .\backend\templates\dashboard\profil.html:13
+msgid "Nom :"
+msgstr "Last Name:"
+
+#: .\backend\templates\dashboard\profil.html:17
+msgid "Prénoms :"
+msgstr "First Names:"
+
+#: .\backend\templates\dashboard\profil.html:21
+msgid "Email :"
+msgstr "Email:"
+
+#: .\backend\templates\dashboard\profil.html:25
+msgid "Téléphone :"
+msgstr "Phone:"
+
+#: .\backend\templates\dashboard\profil.html:29
+msgid "Date d'inscription :"
+msgstr "Registration date:"
+
+#: .\backend\templates\dashboard\profil.html:33
+#: .\backend\templates\dashboard\update_profile.html:4
+msgid "Modifier le profil"
+msgstr "Edit profile"
+
+#: .\backend\templates\dashboard\profil.html:40
+msgid "Vérification KYC"
+msgstr "KYC Verification"
+
+#: .\backend\templates\dashboard\profil.html:47
+msgid "Statut :"
+msgstr "Status:"
+
+#: .\backend\templates\dashboard\profil.html:49
+msgid "Validée"
+msgstr "Validated"
+
+#: .\backend\templates\dashboard\profil.html:51
+msgid "Refusée"
+msgstr "Refused"
+
+#: .\backend\templates\dashboard\profil.html:56
+msgid "Date de validation :"
+msgstr "Validation date:"
+
+#: .\backend\templates\dashboard\profil.html:62
+msgid "Votre demande KYC a été refusée."
+msgstr "Your KYC request was refused."
+
+#: .\backend\templates\dashboard\profil.html:63
+msgid "Soumettre une nouvelle demande KYC"
+msgstr "Submit a new KYC request"
+
+#: .\backend\templates\dashboard\profil.html:67
+msgid "Date de naissance :"
+msgstr "Date of birth:"
+
+#: .\backend\templates\dashboard\profil.html:71
+msgid "Adresse :"
+msgstr "Address:"
+
+#: .\backend\templates\dashboard\profil.html:75
+msgid "Numéro CNI :"
+msgstr "ID Card Number:"
+
+#: .\backend\templates\dashboard\profil.html:81
+msgid "Vous n'avez pas encore soumis de demande de vérification KYC."
+msgstr "You have not yet submitted a KYC verification request."
+
+#: .\backend\templates\dashboard\profil.html:83
+msgid "Soumettre ma demande KYC"
+msgstr "Submit my KYC request"
+
+#: .\backend\templates\dashboard\tutoriels.html:4
+msgid "Tutoriels vidéos"
+msgstr "Video Tutorials"
+
+#: .\backend\templates\dashboard\tutoriels.html:7
+msgid "Vidéos éducatives & préventives"
+msgstr "Educational & preventive videos"
+
+#: .\backend\templates\dashboard\tutoriels.html:27
+msgid "Aucun tutoriel disponible pour le moment."
+msgstr "No tutorials available at the moment."
+
+#: .\backend\templates\dashboard\update_profile.html:25
+msgid "Adresse e-mail"
+msgstr "Email address"
+
+#: .\backend\templates\dashboard\update_profile.html:45
+msgid "Prénoms"
+msgstr "First names"
+
+#: .\backend\templates\dashboard\update_profile.html:55
+msgid "Numéro de téléphone"
+msgstr "Phone number"
+
+#: .\backend\templates\dashboard\update_profile.html:65
+msgid "Date de naissance"
+msgstr "Date of birth"
+
+#: .\backend\templates\dashboard\update_profile.html:75
+msgid "Enregistrer les modifications"
+msgstr "Save changes"

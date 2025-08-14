@@ -1,0 +1,68 @@
+{% extends "dashboard/base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Paramètres" %} - Lock Exchange{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold">{% trans "Paramètres du compte" %}</h1>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <a href="{% url 'change_password' %}" class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-base-content">
+                    <i class="fas fa-key mr-2"></i>{% trans "Changer le mot de passe" %}
+                </h2>
+                <p class="text-base-content opacity-80">
+                    {% trans "Mettez à jour votre mot de passe pour plus de sécurité." %}
+                </p>
+                <div class="card-actions justify-end">
+                    <i class="fas fa-chevron-right text-xl text-base-content opacity-90"></i>
+                </div>
+            </div>
+        </a>
+
+        <a href="{% url 'update_profile' %}" class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-base-content">
+                    <i class="fas fa-user-edit mr-2"></i>{% trans "Informations du profil" %}
+                </h2>
+                <p class="text-base-content opacity-80">
+                    {% trans "Modifiez votre e-mail, téléphone et date de naissance." %}
+                </p>
+                <div class="card-actions justify-end">
+                    <i class="fas fa-chevron-right text-xl text-base-content opacity-90"></i>
+                </div>
+            </div>
+        </a>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-base-content">
+                    <i class="fas fa-globe mr-2"></i>{% trans "Paramètres de langue" %}
+                </h2>
+                <p class="text-base-content opacity-80">
+                    {% trans "Changez la langue d'affichage du site." %}
+                </p>
+                <div class="card-actions justify-end mt-4">
+                    <form action="{% url 'set_language' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <select name="language" onchange="this.form.submit()" class="select select-bordered w-full max-w-xs">
+                            {% get_current_language as LANGUAGE_CODE %}
+                            {% get_language_info_list for LANGUAGES as languages %}
+                            {% for lang in languages %}
+                                <option value="{{ lang.code }}" {% if lang.code == LANGUAGE_CODE %}selected{% endif %}>
+                                    {{ lang.name_local }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
