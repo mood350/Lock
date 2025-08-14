@@ -1,133 +1,141 @@
 {% extends "dashboard/base.html" %}
 {% load i18n %}
-
 {% block title %}{% trans "Mes Adresses" %} - Lock Exchange{% endblock %}
-
 {% block content %}
 <div class="container mx-auto mt-8 px-4 max-w-6xl">
-    <div class="card bg-base-100 shadow-xl rounded-lg">
-        <div class="card-body">
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-                <h2 class="card-title text-primary text-2xl font-extrabold">{% trans "Mes Adresses" %}</h2>
-                <button class="btn btn-primary w-full sm:w-auto hover:bg-primary-focus transition duration-300 ease-in-out" 
-                        onclick="document.getElementById('addAddressModal').showModal();">
-                    <i class="fas fa-plus mr-2"></i>{% trans "Ajouter une adresse" %}
-                </button>
-            </div>
-
-            {% if adresses %}
-                        <div class="hidden sm:block overflow-x-auto rounded-lg border border-base-300">
-                <table class="table w-full bg-base-100 table-zebra">
-                    <thead>
-                        <tr class="bg-primary text-primary-content uppercase text-sm">
-                            <th class="px-4 py-3 text-left">{% trans "Nom" %}</th>
-                            <th class="px-4 py-3 text-left">{% trans "Crypto" %}</th>
-                            <th class="px-4 py-3 text-left">{% trans "Adresse" %}</th>
-                            <th class="px-4 py-3 text-left">{% trans "Date" %}</th>
-                            <th class="px-4 py-3 text-center">{% trans "Actions" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for adresse in adresses %}
-                        <tr class="hover:bg-base-200 transition-colors duration-150">
-                            <td class="px-4 py-3 font-semibold">{{ adresse.nom }}</td>
-                            <td class="px-4 py-3">{{ adresse.crypto.nom }}</td>
-                            <td class="px-4 py-3 max-w-[220px] truncate">
-                                <div class="flex items-center space-x-2">
-                                    <span class="block truncate">{{ adresse.adresse }}</span>
-                                    <button class="btn btn-xs btn-ghost p-1 hover:bg-base-300" title="{% trans 'Copier' %}" onclick="copyToClipboard('{{ adresse.adresse }}')">
-                                        <i class="fas fa-copy text-base-content"></i>
-                                    </button>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3">{{ adresse.date_creation|date:"d/m/Y" }}</td>
-                            <td class="px-4 py-3 text-center">
-                                <form method="post" action="{% url 'supprimer_adresse' adresse.id %}" class="inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-xs btn-error hover:bg-error-focus transition-colors duration-200"
-                                            onclick="return confirm('{% trans "Supprimer cette adresse ?" %}');" title="{% trans 'Supprimer' %}">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-                        <div class="grid grid-cols-1 gap-5 sm:hidden mt-4">
-                {% for adresse in adresses %}
-                <div class="card bg-base-200 rounded-lg shadow-md p-5">
-                    <h3 class="font-bold text-lg text-primary">{{ adresse.nom }}</h3>
-                    <p class="text-sm text-base-content/70 font-medium">{{ adresse.crypto.nom }}</p>
-                    <div class="mt-3 flex items-center space-x-3">
-                        <span class="truncate max-w-[220px] text-sm">{{ adresse.adresse }}</span>
-                        <button class="btn btn-xs btn-ghost p-1 hover:bg-base-300" title="{% trans 'Copier' %}" onclick="copyToClipboard('{{ adresse.adresse }}')">
-                            <i class="fas fa-copy text-base-content"></i>
-                        </button>
-                    </div>
-                    <p class="text-xs text-base-content/50 mt-2">{% trans "Ajoutée le" %} {{ adresse.date_creation|date:"d/m/Y" }}</p>
-                    <div class="mt-4">
-                        <form method="post" action="{% url 'supprimer_adresse' adresse.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-xs btn-error w-full hover:bg-error-focus transition-colors duration-200"
-                                    onclick="return confirm('{% trans "Supprimer cette adresse ?" %}');">
-                                <i class="fas fa-trash mr-2"></i>{% trans "Supprimer" %}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            {% else %}
-            <div class="alert alert-info mt-6 text-center font-semibold text-lg">
-                {% trans "Vous n'avez pas encore enregistré d'adresses." %}
-            </div>
-            {% endif %}
-        </div>
-    </div>
+    <div class="card bg-base-100 shadow-xl rounded-lg">
+        <div class="card-body">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h2 class="card-title text-primary text-2xl font-extrabold">{% trans "Mes Adresses" %}</h2>
+                <button class="btn btn-primary w-full sm:w-auto hover:bg-primary-focus transition duration-300 ease-in-out"
+                        onclick="document.getElementById('addAddressModal').showModal();">
+                    <i class="fas fa-plus mr-2"></i>{% trans "Ajouter une adresse" %}
+                </button>
+            </div>
+            {% if adresses %}
+            <div class="hidden sm:block overflow-x-auto rounded-lg border border-base-300">
+                <table class="table w-full bg-base-100 table-zebra">
+                    <thead>
+                        <tr class="bg-primary text-primary-content uppercase text-sm">
+                            <th class="px-4 py-3 text-left">{% trans "Nom" %}</th>
+                            <th class="px-4 py-3 text-left">{% trans "Crypto" %}</th>
+                            <th class="px-4 py-3 text-left">{% trans "Adresse" %}</th>
+                            <th class="px-4 py-3 text-left">{% trans "Date" %}</th>
+                            <th class="px-4 py-3 text-center">{% trans "Actions" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for adresse in adresses %}
+                        <tr class="hover:bg-base-200 transition-colors duration-150">
+                            <td class="px-4 py-3 font-semibold">{{ adresse.nom }}</td>
+                            <td class="px-4 py-3">{{ adresse.crypto.nom }}</td>
+                            <td class="px-4 py-3 max-w-[220px] truncate">
+                                <div class="flex items-center space-x-2">
+                                    <span class="block truncate">{{ adresse.adresse }}</span>
+                                    <button class="btn btn-xs btn-ghost p-1 hover:bg-base-300" title="{% trans "Copier" %}" onclick="copyToClipboard('{{ adresse.adresse }}')">
+                                        <i class="fas fa-copy text-base-content"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">{{ adresse.date_creation|date:"d/m/Y" }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <form method="post" action="{% url 'supprimer_adresse' adresse.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-xs btn-error hover:bg-error-focus transition-colors duration-200"
+                                            onclick="return confirm('{% trans "Supprimer cette adresse ?" %}');" title="{% trans "Supprimer" %}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="grid grid-cols-1 gap-5 sm:hidden mt-4">
+                {% for adresse in adresses %}
+                <div class="card bg-base-200 rounded-lg shadow-md p-5">
+                    <h3 class="font-bold text-lg text-primary">{{ adresse.nom }}</h3>
+                    <p class="text-sm text-base-content/70 font-medium">{{ adresse.crypto.nom }}</p>
+                    <div class="mt-3 flex items-center space-x-3">
+                        <span class="truncate max-w-[220px] text-sm">{{ adresse.adresse }}</span>
+                        <button class="btn btn-xs btn-ghost p-1 hover:bg-base-300" title="{% trans "Copier" %}" onclick="copyToClipboard('{{ adresse.adresse }}')">
+                            <i class="fas fa-copy text-base-content"></i>
+                        </button>
+                    </div>
+                    <p class="text-xs text-base-content/50 mt-2">{% trans "Ajoutée le" %} {{ adresse.date_creation|date:"d/m/Y" }}</p>
+                    <div class="mt-4">
+                        <form method="post" action="{% url 'supprimer_adresse' adresse.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-xs btn-error w-full hover:bg-error-focus transition-colors duration-200"
+                                    onclick="return confirm('{% trans "Supprimer cette adresse ?" %}');">
+                                <i class="fas fa-trash mr-2"></i>{% trans "Supprimer" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-6 text-center font-semibold text-lg">
+                {% trans "Vous n'avez pas encore enregistré d'adresses." %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
-
 <dialog id="addAddressModal" class="modal">
-    <div class="modal-box max-w-md rounded-lg">
-        <h3 class="font-bold text-xl mb-5 text-primary">{% trans "Ajouter une adresse" %}</h3>
-        <form method="post" class="space-y-5">
-            {% csrf_token %}
-            <div>
-                <label for="nom" class="form-label font-semibold text-base-content/90">{% trans "Nom de l'adresse" %}</label>
-                <input type="text" class="input input-bordered w-full mt-1" id="nom" name="nom" required>
-                <p class="text-xs text-base-content/60 mt-1">{% trans "Un nom pour identifier facilement cette adresse" %}</p>
-            </div>
-            <div>
-                <label for="crypto" class="form-label font-semibold text-base-content/90">{% trans "Crypto-monnaie" %}</label>
-                <select class="select select-bordered w-full mt-1" id="crypto" name="crypto" required>
-                    <option value="">{% trans "Choisir une crypto-monnaie" %}</option>
-                    {% for crypto in cryptos %}
-                        <option value="{{ crypto.id }}">{{ crypto.nom }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="adresse" class="form-label font-semibold text-base-content/90">{% trans "Adresse" %}</label>
-                <input type="text" class="input input-bordered w-full mt-1" id="adresse" name="adresse" required>
-            </div>
-            <div class="modal-action flex justify-between">
-                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('addAddressModal').close();">{% trans "Annuler" %}</button>
-                <button type="submit" class="btn btn-primary btn-sm">{% trans "Ajouter" %}</button>
-            </div>
-        </form>
-    </div>
+    <div class="modal-box max-w-md rounded-lg">
+        <h3 class="font-bold text-xl mb-5 text-primary">{% trans "Ajouter une adresse" %}</h3>
+        <form method="post" class="space-y-5">
+            {% csrf_token %}
+            <div>
+                <label for="nom" class="form-label font-semibold text-base-content/90">{% trans "Nom de l'adresse" %}</label>
+                <input type="text" class="input input-bordered w-full mt-1" id="nom" name="nom" required>
+                <p class="text-xs text-base-content/60 mt-1">{% trans "Un nom pour identifier facilement cette adresse" %}</p>
+            </div>
+            <div>
+                <label for="crypto" class="form-label font-semibold text-base-content/90">{% trans "Crypto-monnaie" %}</label>
+                <select class="select select-bordered w-full mt-1" id="crypto" name="crypto" required>
+                    <option value="">{% trans "Choisir une crypto-monnaie" %}</option>
+                    {% for crypto in cryptos %}
+                    <option value="{{ crypto.id }}">{{ crypto.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="adresse" class="form-label font-semibold text-base-content/90">{% trans "Adresse" %}</label>
+                <input type="text" class="input input-bordered w-full mt-1" id="adresse" name="adresse" required>
+            </div>
+            <div class="modal-action flex justify-between">
+                <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('addAddressModal').close();">{% trans "Annuler" %}</button>
+                <button type="submit" class="btn btn-primary btn-sm">{% trans "Ajouter" %}</button>
+            </div>
+        </form>
+    </div>
 </dialog>
+<div id="toast-container" class="toast toast-end z-[9999]"></div>
 {% endblock %}
-
 {% block extra_js %}
 <script>
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type}`;
+    toast.innerHTML = `<span>${message}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
 function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        alert('{% trans "Adresse copiée !" %}');
-    });
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showToast('{% trans "Adresse copiée !" %}', 'success');
 }
 </script>
 {% endblock %}
