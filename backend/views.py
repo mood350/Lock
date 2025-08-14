@@ -654,7 +654,9 @@ def cryptoadmin(request):
 def transactionadmin(request):
     if not request.user.is_staff:
         return redirect('index')
-    transactions = Transaction.objects.order_by('-date')
+    
+    transactions = ConversionTransaction.objects.order_by('-timestamp')
+    
     return render(request, 'admin/transactionadmin.html', {
         'transactions': transactions,
         'section': 'transactions'

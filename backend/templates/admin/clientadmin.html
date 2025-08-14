@@ -1,63 +1,55 @@
 {% extends "admin/baseadmin.html" %}
 {% block title %}Admin - Demandes KYC{% endblock %}
 {% block content %}
-<h2 class="mb-4">Demandes KYC en attente</h2>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Prénoms</th>
-                <th>Email</th>
-                <th>Téléphone</th>
-                <th>Date inscription</th>
-                <th>Date naissance</th>
-                <th>Adresse</th>
-                <th>Numéro CNI</th>
-                <th>Document</th>
-                <th>Selfie</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for kyc in kycs %}
-            <tr>
-                <td>{{ kyc.client.nom }}</td>
-                <td>{{ kyc.client.prenoms }}</td>
-                <td>{{ kyc.client.email }}</td>
-                <td>{{ kyc.client.telephone }}</td>
-                <td>{{ kyc.client.date_inscription|date:"d/m/Y" }}</td>
-                <td>{{ kyc.date_naissance|date:"d/m/Y" }}</td>
-                <td>{{ kyc.adresse }}</td>
-                <td>{{ kyc.cni }}</td>
-                <td>
-                    {% if kyc.document_identite %}
-                        <a href="{{ kyc.document_identite.url }}" target="_blank">Voir</a>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>
-                    {% if kyc.selfie %}
-                        <a href="{{ kyc.selfie.url }}" target="_blank">Voir</a>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'kyc_verification' kyc.id %}" class="btn btn-sm btn-info">Voir</a>
-                    <form method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="kyc_id" value="{{ kyc.id }}">
-                        <button name="action" value="confirmer" class="btn btn-sm btn-success">Confirmer</button>
-                        <button name="action" value="rejeter" class="btn btn-sm btn-danger">Rejeter</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="11" class="text-center">Aucune demande KYC en attente</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container mx-auto mt-8 px-4 max-w-7xl">
+    <h2 class="text-3xl font-bold mb-6 text-primary">Demandes KYC en attente</h2>
+
+    <div class="card bg-base-100 shadow-xl rounded-lg">
+        <div class="card-body">
+            {% if kycs %}
+            <div class="overflow-x-auto rounded-lg border border-base-300">
+                <!-- Tableau simplifié pour ne pas être trop encombrant -->
+                <table class="table w-full bg-base-100 table-sm table-zebra">
+                    <thead>
+                        <tr class="bg-primary text-primary-content uppercase text-xs">
+                            <th class="px-3 py-2 text-left">Nom</th>
+                            <th class="px-3 py-2 text-left">Prénoms</th>
+                            <th class="px-3 py-2 text-left">Email</th>
+                            <th class="px-3 py-2 text-left">Téléphone</th>
+                            <th class="px-3 py-2 text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for kyc in kycs %}
+                        <tr class="hover:bg-base-200 transition-colors duration-150">
+                            <td class="px-3 py-2">{{ kyc.client.nom }}</td>
+                            <td class="px-3 py-2">{{ kyc.client.prenoms }}</td>
+                            <td class="px-3 py-2">{{ kyc.client.email }}</td>
+                            <td class="px-3 py-2">{{ kyc.client.telephone }}</td>
+                            <td class="px-3 py-2 text-center space-x-2">
+                                <!-- Le bouton a maintenant un style plein pour correspondre aux autres -->
+                                <a href="{% url 'kyc_verification' kyc.id %}" class="btn btn-xs btn-info hover:bg-blue-700 transition-colors duration-200 shadow-md">Voir Détails</a>
+                                <form method="post" style="display:inline;" class="join">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="kyc_id" value="{{ kyc.id }}">
+                                    <!-- Les boutons de confirmation et de rejet ont maintenant les mêmes classes de style -->
+                                    <button name="action" value="confirmer" class="btn btn-xs btn-success join-item hover:bg-green-700 transition-colors duration-200 shadow-md" onclick="return confirm('Confirmer cette demande KYC ?');">Confirmer</button>
+                                    <button name="action" value="rejeter" class="btn btn-xs btn-error join-item hover:bg-red-700 transition-colors duration-200 shadow-md" onclick="return confirm('Rejeter cette demande KYC ?');">Rejeter</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-4">Aucune demande KYC en attente</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center font-semibold text-lg">
+                Aucune demande KYC en attente.
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

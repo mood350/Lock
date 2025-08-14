@@ -4,46 +4,66 @@
 {% block title %}{% trans "Mon Profil" %} - Lock Exchange{% endblock %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
+<div class="container mx-auto mt-8 px-4 max-w-6xl">
+    <h1 class="text-3xl font-bold mb-6">{% trans "Mon Profil" %}</h1>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Carte des informations personnelles -->
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
-                <h5 class="card-title text-lg font-bold text-primary mb-4">{% trans "Informations personnelles" %}</h5>
-                <div class="mb-3">
-                    <span class="font-semibold text-base-content/80">{% trans "Nom :" %}</span>
-                    <span>{{ client.nom }}</span>
+                <h2 class="card-title text-xl font-bold">{% trans "Informations personnelles" %}</h2>
+                <div class="divider"></div>
+                <div class="space-y-2">
+                    <p><span class="font-semibold text-base-content/80">{% trans "Nom :" %}</span> <span>{{ client.nom }}</span></p>
+                    <p><span class="font-semibold text-base-content/80">{% trans "Prénoms :" %}</span> <span>{{ client.prenoms }}</span></p>
+                    <p><span class="font-semibold text-base-content/80">{% trans "Email :" %}</span> <span>{{ client.email }}</span></p>
+                    <p><span class="font-semibold text-base-content/80">{% trans "Téléphone :" %}</span> <span>{{ client.telephone }}</span></p>
+                    <p><span class="font-semibold text-base-content/80">{% trans "Date d'inscription :" %}</span> <span>{{ client.date_inscription|date:"d/m/Y" }}</span></p>
                 </div>
-                <div class="mb-3">
-                    <span class="font-semibold text-base-content/80">{% trans "Prénoms :" %}</span>
-                    <span>{{ client.prenoms }}</span>
-                </div>
-                <div class="mb-3">
-                    <span class="font-semibold text-base-content/80">{% trans "Email :" %}</span>
-                    <span>{{ client.email }}</span>
-                </div>
-                <div class="mb-3">
-                    <span class="font-semibold text-base-content/80">{% trans "Téléphone :" %}</span>
-                    <span>{{ client.telephone }}</span>
-                </div>
-                <div class="mb-3">
-                    <span class="font-semibold text-base-content/80">{% trans "Date d'inscription :" %}</span>
-                    <span>{{ client.date_inscription|date:"d/m/Y" }}</span>
-                </div>
-                <div class="mt-4 text-right">
+                <div class="card-actions justify-end mt-4">
                     <a href="{% url 'update_profile' %}" class="btn btn-primary">{% trans "Modifier le profil" %}</a>
                 </div>
             </div>
         </div>
 
+        <!-- Carte des liens rapides vers les paramètres -->
         <div class="card bg-base-100 shadow-xl">
             <div class="card-body">
-                <h5 class="card-title text-lg font-bold text-primary mb-4">{% trans "Vérification KYC" %}</h5>
+                <h2 class="card-title text-xl font-bold">{% trans "Paramètres rapides" %}</h2>
+                <p class="text-sm text-base-content/70 mb-4">{% trans "Accédez rapidement aux options importantes de votre compte." %}</p>
+                <div class="space-y-4">
+                    <!-- Bouton pour la vérification d'identité (KYC) -->
+                    <a href="{% url 'kyc_form' %}" class="btn btn-block btn-outline btn-accent">
+                        <i class="fas fa-user-check mr-2"></i> {% trans "Vérification d'identité (KYC)" %}
+                    </a>
+                    
+                    <!-- Bouton pour le changement de mot de passe -->
+                    <a href="{% url 'change_password' %}" class="btn btn-block btn-outline btn-primary">
+                        <i class="fas fa-lock mr-2"></i> {% trans "Changer le mot de passe" %}</a>
+
+                    <!-- Bouton pour les paramètres généraux -->
+                    <a href="{% url 'parametres' %}" class="btn btn-block btn-outline btn-info">
+                        <i class="fas fa-cogs mr-2"></i> {% trans "Tous les paramètres" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Carte de vérification KYC existante -->
+        <div class="card bg-base-100 shadow-xl md:col-span-2">
+            <div class="card-body">
+                <h2 class="card-title text-xl font-bold">{% trans "Vérification KYC" %}</h2>
+                <div class="divider"></div>
                 {% if kyc %}
                     <div class="alert mb-4
                         {% if kyc.statut == 'valide' %}alert-success
                         {% elif kyc.statut == 'refuse' %}alert-error
                         {% else %}alert-warning{% endif %}">
                         <span>
+                            <i class="fas
+                            {% if kyc.statut == 'valide' %}fa-check-circle
+                            {% elif kyc.statut == 'refuse' %}fa-times-circle
+                            {% else %}fa-exclamation-triangle{% endif %} mr-2"></i>
                             {% trans "Statut :" %}
                             {% if kyc.statut == 'valide' %}
                                 <span class="badge badge-success">{% trans "Validée" %}</span>
@@ -63,27 +83,22 @@
                             <a href="{% url 'kyc_form' %}" class="btn btn-primary mt-2">{% trans "Soumettre une nouvelle demande KYC" %}</a>
                         </div>
                     {% else %}
-                        <div class="mb-3">
-                            <span class="font-semibold text-base-content/80">{% trans "Date de naissance :" %}</span>
-                            <span>{{ kyc.date_naissance|date:"d/m/Y" }}</span>
-                        </div>
-                        <div class="mb-3">
-                            <span class="font-semibold text-base-content/80">{% trans "Adresse :" %}</span>
-                            <span>{{ kyc.adresse }}</span>
-                        </div>
-                        <div class="mb-3">
-                            <span class="font-semibold text-base-content/80">{% trans "Numéro CNI :" %}</span>
-                            <span>{{ kyc.cni }}</span>
+                        <div class="space-y-2">
+                            <p><span class="font-semibold text-base-content/80">{% trans "Date de naissance :" %}</span> <span>{{ kyc.date_naissance|date:"d/m/Y" }}</span></p>
+                            <p><span class="font-semibold text-base-content/80">{% trans "Adresse :" %}</span> <span>{{ kyc.adresse }}</span></p>
+                            <p><span class="font-semibold text-base-content/80">{% trans "Numéro CNI :" %}</span> <span>{{ kyc.cni }}</span></p>
                         </div>
                     {% endif %}
                 {% else %}
                     <div class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle mr-2"></i>
                         {% trans "Vous n'avez pas encore soumis de demande de vérification KYC." %}
                     </div>
                     <a href="{% url 'kyc_form' %}" class="btn btn-primary">{% trans "Soumettre ma demande KYC" %}</a>
                 {% endif %}
             </div>
         </div>
+
     </div>
 </div>
 {% endblock %}
@@ -92,16 +107,10 @@
 <style>
     .card {
         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border-radius: 0.5rem;
     }
-    .card-header {
-        border-bottom: 0;
-    }
-    .fw-bold {
-        font-weight: 600;
-    }
-    .form-control:focus {
-        border-color: #80bdff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    .card-actions {
+        justify-content: flex-end;
     }
 </style>
 {% endblock %}
