@@ -1,52 +1,61 @@
 {% extends "admin/baseadmin.html" %}
-{% block title %}Ajouter une cryptomonnaie{% endblock %}
+{% block title %}Ajouter une nouvelle cryptomonnaie{% endblock %}
 {% block content %}
-<h2 class="mb-4">Ajouter une cryptomonnaie</h2>
-{% if error_message %}
-    <div class="alert alert-danger">{{ error_message }}</div>
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label class="form-label">Nom</label>
-        <input type="text" name="nom" class="form-control" required>
+<div class="container mx-auto px-4 max-w-2xl mt-8">
+    <h2 class="text-3xl font-bold mb-6 text-primary">Ajouter une nouvelle cryptomonnaie</h2>
+
+    {% if error_message %}
+    <div role="alert" class="alert alert-warning alert-accent mb-4 shadow-lg">
+        <span>{{ error_message }}</span>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Sigle</label>
-        <input type="text" name="sigle" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Adresse</label>
-        <input type="text" name="adresse" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix d'achat</label>
-        <input type="number" name="prix_achat" class="form-control" step="any" min="0.01" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix de vente</label>
-        <input type="number" name="prix_vente" class="form-control" step="any" min="0.01" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix achat min</label>
-        <input type="number" name="prix_achat_min" class="form-control" step="any" min="0.01" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix vente min</label>
-        <input type="number" name="prix_vente_min" class="form-control" step="any" min="0.01" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Quantité</label>
-        <input type="number" name="quantite" class="form-control" step="any" min="0.01" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Disponibilité</label>
-        <select name="disponibilite" class="form-control" required>
-            <option value="Oui">Oui</option>
-            <option value="Non">Non</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-success">Ajouter</button>
-    <a href="{% url 'cryptoadmin' %}" class="btn btn-secondary">Annuler</a>
-</form>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'ajouter_crypto' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="nom">Nom de la crypto</label>
+            <input type="text" id="nom" name="nom" placeholder="Ex: Bitcoin" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="sigle">Sigle</label>
+            <input type="text" id="sigle" name="sigle" placeholder="Ex: BTC" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="image">Image de la crypto (Optionnelle)</label>
+            <input type="file" id="image" name="image" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="deposit_address">Adresse de dépôt</label>
+            <input type="text" id="deposit_address" name="deposit_address" placeholder="Adresse de dépôt (pour les ventes)" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="valeur_marche">Valeur sur le marché (FCFA)</label>
+            <input type="number" step="0.01" id="valeur_marche" name="valeur_marche" placeholder="Ex: 25000000" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="quantite_disponible">Quantité disponible</label>
+            <input type="number" step="0.00000001" id="quantite_disponible" name="quantite_disponible" placeholder="Ex: 50.12345678" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="min_achat">Minimum d'achat (FCFA)</label>
+            <input type="number" step="0.01" id="min_achat" name="min_achat" placeholder="Ex: 1000" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="max_achat">Maximum d'achat (FCFA)</label>
+            <input type="number" step="0.01" id="max_achat" name="max_achat" placeholder="Ex: 10000000" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="min_vente">Minimum de vente (FCFA)</label>
+            <input type="number" step="0.01" id="min_vente" name="min_vente" placeholder="Ex: 1000" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="max_vente">Maximum de vente (FCFA)</label>
+            <input type="number" step="0.01" id="max_vente" name="max_vente" placeholder="Ex: 10000000" class="form-control" required>
+        </div>
+        <div class="mt-6 flex justify-end gap-2">
+            <a href="{% url 'cryptoadmin' %}" class="btn btn-secondary shadow-md">Annuler</a>
+            <button type="submit" class="btn btn-success shadow-md">Ajouter</button>
+        </div>
+    </form>
+</div>
 {% endblock %}

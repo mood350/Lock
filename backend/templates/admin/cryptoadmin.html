@@ -1,48 +1,61 @@
 {% extends "admin/baseadmin.html" %}
 {% block title %}Admin - Cryptomonnaies{% endblock %}
 {% block content %}
-<h2 class="mb-4">Gestion des cryptomonnaies</h2>
-<a href="{%url 'ajouter_crypto'%}" class="btn btn-primary mb-3">Ajouter une crypto</a>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Sigle</th>
-                <th>Prix achat</th>
-                <th>Prix vente</th>
-                <th>Quantité</th>
-                <th>Disponible</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for crypto in cryptos %}
-            <tr>
-                <td>{{ crypto.nom }}</td>
-                <td>{{ crypto.sigle }}</td>
-                <td>{{ crypto.prix_achat }}</td>
-                <td>{{ crypto.prix_vente }}</td>
-                <td>{{ crypto.quantite }}</td>
-                <td>
-                    {% if crypto.disponibilite == "Oui" %}
-                        <span class="badge badge-success">Oui</span>
-                    {% else %}
-                        <span class="badge badge-danger">Non</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'modifier_crypto' crypto.id %}" class="btn btn-sm btn-warning">Modifier</a>
-                    <form method="post" action="{% url 'supprimer_crypto' crypto.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette crypto ?');">Supprimer</button>
-                    </form>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7" class="text-center">Aucune cryptomonnaie</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container mx-auto mt-8 px-4 max-w-7xl">
+    <h2 class="text-3xl font-bold mb-6 text-primary">Gestion des cryptomonnaies</h2>
+    <a href="{% url 'ajouter_crypto' %}" class="btn btn-primary mb-3 shadow-md">Ajouter une crypto</a>
+
+    <div class="card bg-base-100 shadow-xl rounded-lg">
+        <div class="card-body p-0">
+            {% if cryptos %}
+            <div class="overflow-x-auto rounded-lg border border-base-300">
+                <table class="table w-full bg-base-100 table-sm table-zebra">
+                    <thead>
+                        <tr class="bg-primary text-primary-content uppercase text-xs">
+                            <th class="px-3 py-2 text-left">Nom</th>
+                            <th class="px-3 py-2 text-left">Sigle</th>
+                            <th class="px-3 py-2 text-left">Prix achat minimum</th>
+                            <th class="px-3 py-2 text-left">Prix vente minimum</th>
+                            <th class="px-3 py-2 text-left">Quantité disponible</th>
+                            <th class="px-3 py-2 text-left">Disponible</th>
+                            <th class="px-3 py-2 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for crypto in cryptos %}
+                        <tr class="hover:bg-base-200 transition-colors duration-150">
+                            <td class="px-3 py-2">{{ crypto.nom }}</td>
+                            <td class="px-3 py-2">{{ crypto.sigle }}</td>
+                            <td class="px-3 py-2">{{ crypto.min_achat_fcfa }} FCFA</td>
+                            <td class="px-3 py-2">{{ crypto.min_vente_fcfa }} FCFA</td>
+                            <td class="px-3 py-2">{{ crypto.quantite_disponible }}</td>
+                            <td class="px-3 py-2">
+                                {% if crypto.quantite_disponible > 0 %}
+                                    <span class="badge badge-success">Oui</span>
+                                {% else %}
+                                    <span class="badge badge-error">Non</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-3 py-2 space-x-2">
+                                <a href="{% url 'modifier_crypto' crypto.id %}" class="btn btn-sm btn-warning shadow-md">Modifier</a>
+                                <form method="post" action="{% url 'supprimer_crypto' crypto.id %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-error shadow-md" onclick="return confirm('Supprimer cette crypto ?');">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center py-4">Aucune cryptomonnaie</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center font-semibold text-lg">
+                Aucune cryptomonnaie n'est disponible.
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

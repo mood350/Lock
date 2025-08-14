@@ -1,52 +1,64 @@
 {% extends "admin/baseadmin.html" %}
 {% block title %}Modifier la cryptomonnaie{% endblock %}
 {% block content %}
-<h2 class="mb-4">Modifier la cryptomonnaie</h2>
-{% if error_message %}
-    <div class="alert alert-danger">{{ error_message }}</div>
-{% endif %}
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label class="form-label">Nom</label>
-        <input type="text" name="nom" class="form-control" value="{{ crypto.nom }}" required>
+<div class="container mx-auto px-4 max-w-2xl mt-8">
+    <h2 class="text-3xl font-bold mb-6 text-primary">Modifier la cryptomonnaie</h2>
+
+    {% if error_message %}
+    <div role="alert" class="alert alert-warning alert-accent mb-4 shadow-lg">
+        <span>{{ error_message }}</span>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Sigle</label>
-        <input type="text" name="sigle" class="form-control" value="{{ crypto.sigle }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Adresse</label>
-        <input type="text" name="adresse" class="form-control" value="{{ crypto.adresse }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix d'achat</label>
-        <input type="number" name="prix_achat" class="form-control" step="any" min="0.01" value="{{ crypto.prix_achat }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix de vente</label>
-        <input type="number" name="prix_vente" class="form-control" step="any" min="0.01" value="{{ crypto.prix_vente }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix achat min</label>
-        <input type="number" name="prix_achat_min" class="form-control" step="any" min="0.01" value="{{ crypto.prix_achat_min }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Prix vente min</label>
-        <input type="number" name="prix_vente_min" class="form-control" step="any" min="0.01" value="{{ crypto.prix_vente_min }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Quantité</label>
-        <input type="number" name="quantite" class="form-control" step="any" min="0.01" value="{{ crypto.quantite }}" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Disponibilité</label>
-        <select name="disponibilite" class="form-control" required>
-            <option value="Oui" {% if crypto.disponibilite == "Oui" %}selected{% endif %}>Oui</option>
-            <option value="Non" {% if crypto.disponibilite == "Non" %}selected{% endif %}>Non</option>
-        </select>
-    </div>
-    <button type="submit" class="btn btn-success">Enregistrer</button>
-    <a href="{% url 'cryptoadmin' %}" class="btn btn-secondary">Annuler</a>
-</form>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label" for="nom">Nom</label>
+            <input type="text" id="nom" name="nom" class="form-control" value="{{ crypto.nom }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="sigle">Sigle</label>
+            <input type="text" id="sigle" name="sigle" class="form-control" value="{{ crypto.sigle }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="deposit_address">Adresse de dépôt</label>
+            <input type="text" id="deposit_address" name="deposit_address" class="form-control" value="{{ crypto.deposit_address }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="valeur_marche_fcfa">Valeur sur le marché (FCFA)</label>
+            <input type="number" id="valeur_marche_fcfa" name="valeur_marche_fcfa" class="form-control" step="0.01" min="0.01" value="{{ crypto.valeur_sur_le_marche_fcfa }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="quantite_disponible">Quantité disponible</label>
+            <input type="number" id="quantite_disponible" name="quantite_disponible" class="form-control" step="0.00000001" min="0.00000001" value="{{ crypto.quantite_disponible }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="min_achat_fcfa">Minimum d'achat (FCFA)</label>
+            <input type="number" id="min_achat_fcfa" name="min_achat_fcfa" class="form-control" step="0.01" min="0.01" value="{{ crypto.min_achat_fcfa }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="max_achat_fcfa">Maximum d'achat (FCFA)</label>
+            <input type="number" id="max_achat_fcfa" name="max_achat_fcfa" class="form-control" step="0.01" min="0.01" value="{{ crypto.max_achat_fcfa }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="min_vente_fcfa">Minimum de vente (FCFA)</label>
+            <input type="number" id="min_vente_fcfa" name="min_vente_fcfa" class="form-control" step="0.01" min="0.01" value="{{ crypto.min_vente_fcfa }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="max_vente_fcfa">Maximum de vente (FCFA)</label>
+            <input type="number" id="max_vente_fcfa" name="max_vente_fcfa" class="form-control" step="0.01" min="0.01" value="{{ crypto.max_vente_fcfa }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="disponibilite">Disponibilité</label>
+            <select id="disponibilite" name="disponibilite" class="form-control" required>
+                <option value="True" {% if crypto.disponible %}selected{% endif %}>Oui</option>
+                <option value="False" {% if not crypto.disponible %}selected{% endif %}>Non</option>
+            </select>
+        </div>
+        <div class="mt-6 flex justify-end gap-2">
+            <a href="{% url 'cryptoadmin' %}" class="btn btn-secondary shadow-md">Annuler</a>
+            <button type="submit" class="btn btn-success shadow-md">Enregistrer</button>
+        </div>
+    </form>
+</div>
 {% endblock %}

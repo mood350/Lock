@@ -688,49 +688,84 @@ def clientadmin(request):
     })
 
 def ajouter_crypto(request):
+    """
+    Gère l'ajout d'une nouvelle cryptomonnaie par un administrateur.
+    
+    Cette vue:
+    1. Vérifie si l'utilisateur est un membre du staff.
+    2. Gère les requêtes POST pour créer une instance de Crypto.
+    3. Valide les données du formulaire (champs obligatoires, valeurs numériques).
+    4. Gère le téléchargement de l'image de la crypto.
+    5. Redirige vers la page d'administration des cryptos si l'ajout est réussi.
+    6. Affiche des messages d'erreur si la validation échoue.
+    """
+    # Vérifier que l'utilisateur est un administrateur
     if not request.user.is_staff:
         return redirect('index')
+    
     error_message = None
+    
     if request.method == 'POST':
+        # Récupération des données du formulaire
         nom = request.POST.get('nom', '').strip()
         sigle = request.POST.get('sigle', '').strip()
-        adresse = request.POST.get('adresse', '').strip()
-        prix_achat = request.POST.get('prix_achat', '').strip()
-        prix_vente = request.POST.get('prix_vente', '').strip()
-        prix_achat_min = request.POST.get('prix_achat_min', '').strip()
-        prix_vente_min = request.POST.get('prix_vente_min', '').strip()
-        quantite = request.POST.get('quantite', '').strip()
-        disponibilite = request.POST.get('disponibilite', '').strip()
-        try:
-            prix_achat = float(prix_achat)
-            prix_vente = float(prix_vente)
-            prix_achat_min = float(prix_achat_min)
-            prix_vente_min = float(prix_vente_min)
-            quantite = float(quantite)
-        except ValueError:
-            error_message = "Les prix et la quantité doivent être des nombres valides."
+        deposit_address = request.POST.get('deposit_address', '').strip()
+        image = request.FILES.get('image', None)
+
+        # Récupération des valeurs numériques sous forme de chaînes
+        valeur_marche_str = request.POST.get('valeur_marche', '').strip()
+        quantite_disponible_str = request.POST.get('quantite_disponible', '').strip()
+        min_achat_str = request.POST.get('min_achat', '').strip()
+        max_achat_str = request.POST.get('max_achat', '').strip()
+        min_vente_str = request.POST.get('min_vente', '').strip()
+        max_vente_str = request.POST.get('max_vente', '').strip()
+
+        # Validation des champs de texte obligatoires
+        if not all([nom, sigle, deposit_address]):
+            error_message = "Les champs 'Nom', 'Sigle' et 'Adresse de dépôt' sont obligatoires."
         else:
-            if not all([nom, sigle, adresse, disponibilite]):
-                error_message = "Tous les champs sont obligatoires."
-            elif prix_achat <= 0 or prix_vente <= 0 or prix_achat_min <= 0 or prix_vente_min <= 0 or quantite <= 0:
-                error_message = "Les prix et la quantité doivent être strictement supérieurs à 0."
+            try:
+                # Conversion des champs numériques
+                valeur_marche = float(valeur_marche_str)
+                quantite_disponible = float(quantite_disponible_str)
+                min_achat = float(min_achat_str)
+                max_achat = float(max_achat_str)
+                min_vente = float(min_vente_str)
+                max_vente = float(max_vente_str)
+            except (ValueError, TypeError):
+                error_message = "Veuillez vous assurer que tous les champs numériques sont remplis avec des valeurs valides."
             else:
-                Crypto.objects.create(
-                    nom=nom,
-                    sigle=sigle,
-                    adresse=adresse,
-                    prix_achat=prix_achat,
-                    prix_vente=prix_vente,
-                    prix_achat_min=prix_achat_min,
-                    prix_vente_min=prix_vente_min,
-                    quantite=quantite,
-                    disponibilite=disponibilite
-                )
-                return redirect('cryptoadmin')
+                # Validation des valeurs numériques
+                if any(v <= 0 for v in [valeur_marche, quantite_disponible, min_achat, max_achat, min_vente, max_vente]):
+                    error_message = "Toutes les valeurs numériques doivent être strictement supérieures à 0."
+                elif min_achat > max_achat:
+                    error_message = "Le minimum d'achat ne peut pas être supérieur au maximum d'achat."
+                elif min_vente > max_vente:
+                    error_message = "Le minimum de vente ne peut pas être supérieur au maximum de vente."
+                else:
+                    try:
+                        # Création de l'objet Crypto avec toutes les données
+                        Crypto.objects.create(
+                            nom=nom,
+                            sigle=sigle,
+                            valeur_sur_le_marche_fcfa=valeur_marche,
+                            quantite_disponible=quantite_disponible,
+                            min_achat_fcfa=min_achat,
+                            max_achat_fcfa=max_achat,
+                            min_vente_fcfa=min_vente,
+                            max_vente_fcfa=max_vente,
+                            image=image,
+                            deposit_address=deposit_address
+                        )
+                        return redirect('cryptoadmin') # Redirection en cas de succès
+                    except Exception as e:
+                        error_message = f"Une erreur s'est produite lors de la création de la crypto: {e}"
+
     return render(request, 'admin/ajouter_crypto.html', {
         'error_message': error_message,
         'section': 'cryptos'
     })
+
 
 def supprimer_crypto(request, crypto_id):
     if not request.user.is_staff:
@@ -741,26 +776,81 @@ def supprimer_crypto(request, crypto_id):
     return redirect('cryptoadmin')
 
 def modifier_crypto(request, crypto_id):
+    """
+    Gère la modification d'une cryptomonnaie existante par un administrateur.
+
+    Cette vue:
+    1. Vérifie si l'utilisateur est un membre du staff.
+    2. Récupère la cryptomonnaie à modifier ou renvoie une erreur 404 si elle n'existe pas.
+    3. Gère les requêtes POST pour mettre à jour les données de la crypto.
+    4. Valide les données du formulaire (champs obligatoires, valeurs numériques, cohérence des min/max).
+    5. Redirige vers la page d'administration des cryptos si la modification est réussie.
+    6. Affiche des messages d'erreur si la validation échoue.
+    """
+    # Vérifier que l'utilisateur est un administrateur
     if not request.user.is_staff:
         return redirect('index')
-    crypto = Crypto.objects.filter(id=crypto_id).first()
-    if not crypto:
-        return redirect('cryptoadmin')
+
+    crypto = get_object_or_404(Crypto, id=crypto_id)
     error_message = None
+
     if request.method == 'POST':
+        # Récupération des données du formulaire
         nom = request.POST.get('nom', '').strip()
         sigle = request.POST.get('sigle', '').strip()
-        prix_achat = request.POST.get('prix_achat', '').strip()
-        prix_vente = request.POST.get('prix_vente', '').strip()
-        if nom and sigle and prix_achat and prix_vente:
-            crypto.nom = nom
-            crypto.sigle = sigle
-            crypto.prix_achat = float(prix_achat)
-            crypto.prix_vente = float(prix_vente)
-            crypto.save()
-            return redirect('cryptoadmin')
+        deposit_address = request.POST.get('deposit_address', '').strip()
+        
+        # Récupération des valeurs numériques sous forme de chaînes
+        valeur_marche_str = request.POST.get('valeur_marche_fcfa', '').strip()
+        quantite_disponible_str = request.POST.get('quantite_disponible', '').strip()
+        min_achat_str = request.POST.get('min_achat_fcfa', '').strip()
+        max_achat_str = request.POST.get('max_achat_fcfa', '').strip()
+        min_vente_str = request.POST.get('min_vente_fcfa', '').strip()
+        max_vente_str = request.POST.get('max_vente_fcfa', '').strip()
+        disponible_str = request.POST.get('disponibilite', 'False').strip()
+        disponible = (disponible_str == 'True')
+
+        # Validation des champs de texte obligatoires
+        if not all([nom, sigle, deposit_address]):
+            error_message = "Les champs 'Nom', 'Sigle' et 'Adresse de dépôt' sont obligatoires."
         else:
-            error_message = "Tous les champs sont obligatoires."
+            try:
+                # Conversion des champs numériques
+                valeur_marche = float(valeur_marche_str)
+                quantite_disponible = float(quantite_disponible_str)
+                min_achat = float(min_achat_str)
+                max_achat = float(max_achat_str)
+                min_vente = float(min_vente_str)
+                max_vente = float(max_vente_str)
+            except (ValueError, TypeError):
+                error_message = "Veuillez vous assurer que tous les champs numériques sont remplis avec des valeurs valides."
+            else:
+                # Validation des valeurs numériques
+                if any(v <= 0 for v in [valeur_marche, quantite_disponible, min_achat, max_achat, min_vente, max_vente]):
+                    error_message = "Toutes les valeurs numériques doivent être strictement supérieures à 0."
+                elif min_achat > max_achat:
+                    error_message = "Le minimum d'achat ne peut pas être supérieur au maximum d'achat."
+                elif min_vente > max_vente:
+                    error_message = "Le minimum de vente ne peut pas être supérieur au maximum de vente."
+                else:
+                    try:
+                        # Mise à jour de l'objet Crypto
+                        crypto.nom = nom
+                        crypto.sigle = sigle
+                        crypto.deposit_address = deposit_address
+                        crypto.valeur_sur_le_marche_fcfa = valeur_marche
+                        crypto.quantite_disponible = quantite_disponible
+                        crypto.min_achat_fcfa = min_achat
+                        crypto.max_achat_fcfa = max_achat
+                        crypto.min_vente_fcfa = min_vente
+                        crypto.max_vente_fcfa = max_vente
+                        crypto.disponible = disponible
+                        crypto.save()
+
+                        return redirect('cryptoadmin') # Redirection en cas de succès
+                    except Exception as e:
+                        error_message = f"Une erreur s'est produite lors de la mise à jour de la crypto: {e}"
+
     return render(request, 'admin/modifier_crypto.html', {
         'crypto': crypto,
         'error_message': error_message,
@@ -1014,3 +1104,4 @@ def change_password(request):
     
     # On rend le template en lui passant le formulaire
     return render(request, 'dashboard/change_password.html', {'form': form})
+
